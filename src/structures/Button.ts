@@ -1,5 +1,5 @@
 import { ButtonBuilder, ButtonInteraction } from "discord.js"
-import { ExtendedClient } from "../Client"
+import { ExtendedClient } from "./Client"
 import { Component, ComponentType, RunOptions } from "./Component"
 
 type ButtonBuildFunction = (options: any) => ButtonBuilder

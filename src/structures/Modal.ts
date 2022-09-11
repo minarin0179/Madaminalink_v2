@@ -1,5 +1,5 @@
 import { ModalBuilder, ModalSubmitInteraction } from "discord.js"
-import { ExtendedClient } from "../Client"
+import { ExtendedClient } from "./Client"
 import { Component, ComponentType, RunOptions } from "./Component"
 
 type ModalBuildFunction = (options: any) => ModalBuilder

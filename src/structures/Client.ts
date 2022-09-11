@@ -1,9 +1,9 @@
 import { ApplicationCommandDataResolvable, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 import * as path from "path";
 import * as fs from "fs";
-import { Event } from "./structures/Events";
-import { Component } from "./structures/Component";
-import { Command } from "./structures/Command";
+import { Event } from "./Events";
+import { Component } from "./Component";
+import { Command } from "./Command";
 
 require('dotenv').config()
 
@@ -26,18 +26,9 @@ export class ExtendedClient extends Client {
     }
 
     async registerModules() {
-        /* 
-        const commandsPath = path.join(__dirname, 'commands')
-        const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts'))
+        const main = path.dirname(require.main?.filename ?? __filename)
+        const commandsPath = path.join(main, 'commands')
 
-        commandFiles.forEach(async (file: string) => {
-            const filePath = path.join(commandsPath, file)
-            const command: Command = await this.importfile(filePath)
-            this.commands.set(command.data.name, command)
-        }) */
-
-
-        const commandsPath = path.join(__dirname, 'commands')
         const commandsDirs = fs.readdirSync(commandsPath)
         const commandDatas: ApplicationCommandDataResolvable[] = []
 
@@ -56,7 +47,7 @@ export class ExtendedClient extends Client {
             this.application?.commands.set(commandDatas)
         })
 
-        const eventsPath = path.join(__dirname, 'events')
+        const eventsPath = path.join(main, 'events')
         const eventFiles = fs.readdirSync(eventsPath).filter((file: string) => file.endsWith('.ts'))
 
         eventFiles.forEach(async (file: string) => {
@@ -65,7 +56,7 @@ export class ExtendedClient extends Client {
             this.on(event.name, event.execute)
         })
 
-        const componentsPath = path.join(__dirname, 'components')
+        const componentsPath = path.join(main, 'components')
         const componentsDirs = fs.readdirSync(componentsPath)
 
         componentsDirs.forEach(async (directory: string) => {

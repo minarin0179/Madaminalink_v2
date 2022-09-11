@@ -1,5 +1,5 @@
 import { CommandInteractionOptionResolver, CommandInteraction } from "discord.js"
-import { ExtendedClient } from "../Client"
+import { ExtendedClient } from "./Client"
 
 
 export interface RunOptions {

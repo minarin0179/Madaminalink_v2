@@ -1,5 +1,5 @@
 import { ComponentBuilder, MessageComponentInteraction, ModalBuilder, ModalSubmitInteraction } from "discord.js"
-import { ExtendedClient } from "../Client"
+import { ExtendedClient } from "./Client"
 
 type ComponentBuildFunction = (options: any) => ComponentBuilder | ModalBuilder
 

@@ -1,5 +1,5 @@
 import { CommandInteractionOptionResolver, ContextMenuCommandInteraction, ContextMenuCommandBuilder } from "discord.js"
-import { ExtendedClient } from "../Client"
+import { ExtendedClient } from "./Client"
 import { Command, RunOptions } from "./Command"
 
 
