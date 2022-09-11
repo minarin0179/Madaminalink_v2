@@ -1,7 +1,7 @@
 import { ChannelType, SlashCommandBuilder, CategoryChannel, OverwriteType } from "discord.js";
-import { Command } from "../structures/Command";
+import { SlashCommand } from "../../structures/SlashCommand";
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('delete')
         .setDescription('カテゴリを削除します(カテゴリに含まれるチャンネルも削除されます)')

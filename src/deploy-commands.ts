@@ -3,7 +3,7 @@ require('dotenv').config()
 
 import * as fs from "fs"
 import * as path from "path"
-import { Command } from "./structures/Command"
+import { Command } from "./structures/SlashCommand"
 
 const commands: RESTPostAPIApplicationCommandsJSONBody[] = []
 const commandPath = path.join(__dirname, 'commands')

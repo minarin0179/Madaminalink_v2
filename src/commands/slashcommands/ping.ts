@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../structures/Command";
+import { SlashCommand } from "../../structures/SlashCommand";
 
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('ping')
-        .setDescription('動作確認をしたい!')
+        .setDescription('マダミナリンクの稼働状況を確認します!')
         .setDMPermission(true),
     execute: async ({ client, interaction }) => {
         await interaction.reply({

@@ -1,7 +1,7 @@
 import { Guild, SlashCommandBuilder, GuildMember, ChannelType, PermissionFlagsBits } from "discord.js";
-import { Command } from "../structures/Command";
+import { SlashCommand } from "../../structures/SlashCommand";
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('setup')
         .setDescription('新規プレイ用のカテゴリーを作成します')

@@ -1,23 +1,23 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, ChatInputApplicationCommandData, CommandInteractionOptionResolver } from "discord.js"
+import { CommandInteractionOptionResolver, CommandInteraction } from "discord.js"
 import { ExtendedClient } from "../Client"
 
 
-interface RunOptions {
+export interface RunOptions {
     client: ExtendedClient,
-    interaction: ChatInputCommandInteraction,
+    interaction: CommandInteraction,
     args: CommandInteractionOptionResolver
 }
 
-type RunFunction = (options: RunOptions) => Promise<void>
+type RunFunction = (options: any) => Promise<void>
 
 interface CommandType {
-    data: SlashCommandBuilder,
+    data: any,
     execute: RunFunction
 }
 
 export class Command implements CommandType {
 
-    data: SlashCommandBuilder
+    data: any
     execute: RunFunction
 
     constructor(command: CommandType) {

@@ -1,9 +1,9 @@
-import { Client, ClientEvents, ClientOptions, Collection, RichPresenceAssets } from "discord.js";
+import { ApplicationCommandDataResolvable, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 import * as path from "path";
 import * as fs from "fs";
-import { Command } from "./structures/Command";
 import { Event } from "./structures/Events";
-import { Button } from "./structures/Button";
+import { Component } from "./structures/Component";
+import { Command } from "./structures/Command";
 
 require('dotenv').config()
 
@@ -26,6 +26,7 @@ export class ExtendedClient extends Client {
     }
 
     async registerModules() {
+        /* 
         const commandsPath = path.join(__dirname, 'commands')
         const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts'))
 
@@ -33,8 +34,27 @@ export class ExtendedClient extends Client {
             const filePath = path.join(commandsPath, file)
             const command: Command = await this.importfile(filePath)
             this.commands.set(command.data.name, command)
+        }) */
+
+
+        const commandsPath = path.join(__dirname, 'commands')
+        const commandsDirs = fs.readdirSync(commandsPath)
+        const commandDatas: ApplicationCommandDataResolvable[] = []
+
+        commandsDirs.forEach(async (dir: string) => {
+            const dirPath = path.join(commandsPath, dir)
+            const commandFiles = fs.readdirSync(dirPath).filter((file: string) => file.endsWith('.ts'))
+            commandFiles.forEach(async (file: string) => {
+                const filePath = path.join(dirPath, file)
+                const command: Command = await this.importfile(filePath)
+                this.commands.set(command.data.name, command)
+                commandDatas.push(command.data.toJSON())
+            })
         })
 
+        this.on('ready', () => {
+            this.application?.commands.set(commandDatas)
+        })
 
         const eventsPath = path.join(__dirname, 'events')
         const eventFiles = fs.readdirSync(eventsPath).filter((file: string) => file.endsWith('.ts'))
@@ -45,14 +65,17 @@ export class ExtendedClient extends Client {
             this.on(event.name, event.execute)
         })
 
-        const components = ['buttons', 'selectmenus']
-        const buttonPath = path.join(__dirname, 'components', 'buttons')
-        const buttonFiles = fs.readdirSync(buttonPath).filter((file: string) => file.endsWith('.ts'))
+        const componentsPath = path.join(__dirname, 'components')
+        const componentsDirs = fs.readdirSync(componentsPath)
 
-        buttonFiles.forEach(async (file: string) => {
-            const filePath = path.join(buttonPath, file)
-            const button: Button = await this.importfile(filePath)
-            this.components.set(button.customId, button)
+        componentsDirs.forEach(async (directory: string) => {
+            const dirPath = path.join(componentsPath, directory)
+            const componentFiles = fs.readdirSync(dirPath).filter((file: string) => file.endsWith('.ts'))
+            componentFiles.forEach(async (file: string) => {
+                const filePath = path.join(dirPath, file)
+                const component: Component = await this.importfile(filePath)
+                this.components.set(component.customId, component)
+            })
         })
     }
 }

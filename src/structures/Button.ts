@@ -1,27 +1,27 @@
 import { ButtonBuilder, ButtonInteraction } from "discord.js"
 import { ExtendedClient } from "../Client"
+import { Component, ComponentType, RunOptions } from "./Component"
 
 type ButtonBuildFunction = (options: any) => ButtonBuilder
 
-interface ButtonRunOptions {
+interface ButtonRunOptions extends RunOptions {
     client: ExtendedClient,
     interaction: ButtonInteraction,
     args: string[]
 }
 
-interface ButtonType {
+interface ButtonType extends ComponentType {
     customId: string
     build: ButtonBuildFunction
     execute: (options: ButtonRunOptions) => Promise<void>
 }
 
-export class Button implements ButtonType {
-    customId: string
+export class Button extends Component implements ButtonType {
     build: ButtonBuildFunction
     execute: (options: ButtonRunOptions) => Promise<void>;
 
     constructor(button: ButtonType) {
-        this.customId = button.customId
+        super(button)
         this.build = button.build
         this.execute = button.execute
     }

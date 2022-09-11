@@ -1,11 +1,11 @@
 import { ChannelType, GuildChannel, Message, SlashCommandBuilder, TextBasedChannel, TextChannel } from "discord.js";
-import { Command } from "../structures/Command";
-import { arraySplit } from "../utils/ArraySplit";
-import { fetchAllMessages } from "../utils/FetchAllMessages";
-import { isCategory } from "../utils/isCategory";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { arraySplit } from "../../utils/ArraySplit";
+import { fetchAllMessages } from "../../utils/FetchAllMessages";
+import { isCategory } from "../../utils/isCategory";
 
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('cleanup')
         .setDescription('メッセージをすべて削除します')

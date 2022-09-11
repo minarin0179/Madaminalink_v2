@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, SlashCommandBuilder } from "discord.js";
-import dicebutton from "../components/buttons/diceroll";
-import { Command } from "../structures/Command";
+import dicebutton from "../../components/buttons/diceroll";
+import { SlashCommand } from "../../structures/SlashCommand";
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('dice')
         .setDescription('ダイスを作成します(xdy)')

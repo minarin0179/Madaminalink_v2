@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ChannelType, SlashCommandBuilder } from "discord.js";
-import { Command } from "../structures/Command";
-import transferButton from "../components/buttons/transfer";
+import { SlashCommand } from "../../structures/SlashCommand";
+import transferButton from "../../components/buttons/transfer";
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('transfer')
         .setDescription('メッセージを転送するボタンを作成します')

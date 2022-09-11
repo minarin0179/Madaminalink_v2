@@ -1,9 +1,9 @@
 import { ChannelType, GuildChannel, SlashCommandBuilder, CategoryChannel } from "discord.js";
-import { Command } from "../structures/Command";
-import { isCategory } from "../utils/isCategory";
-import { transferAllMessages } from "../utils/transferMessage";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { isCategory } from "../../utils/isCategory";
+import { transferAllMessages } from "../../utils/transferMessage";
 
-export default new Command({
+export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('copy')
         .setDescription('チャンネルを複製します')

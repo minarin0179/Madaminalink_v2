@@ -4,7 +4,7 @@ import { Event } from "../structures/Events"
 export default new Event('interactionCreate', async (interaction) => {
 
     //スラッシュコマンド
-    if (interaction.isChatInputCommand()) {
+    if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
         const command = client.commands.get(interaction.commandName)
         if (!command) return
         try {
@@ -15,7 +15,7 @@ export default new Event('interactionCreate', async (interaction) => {
     }
 
     //コンポーネント
-    else if (interaction.isMessageComponent()) {
+    else if (interaction.isMessageComponent() || interaction.isModalSubmit()) {
         const [customId, ...args] = interaction.customId.split(/[;:,]/)
         const component = client.components.get(customId)
         if (!component) return

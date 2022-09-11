@@ -11,7 +11,7 @@ export default new Button({
             .setStyle(ButtonStyle.Primary)
     },
     execute: async ({ interaction, args }) => {
-        await interaction.reply({ content: '転送中...', ephemeral: true })
+        await interaction.deferReply({ ephemeral: true })
 
         const destinations = args.map(id => interaction.guild?.channels.cache.get(id))
             .filter((channel): channel is TextChannel => channel?.type === ChannelType.GuildText)
