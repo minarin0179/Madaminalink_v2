@@ -23,12 +23,9 @@ export default new SlashCommand({
             ephemeral: true
         })
 
-
-        await interaction.channel?.send(
-            {
-                components: [new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents(transferButton.build({ destination }))],
-            }
-        )
+        await interaction.channel?.send({
+            components: [new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(transferButton.build({ destination }))],
+        })
     }
 })

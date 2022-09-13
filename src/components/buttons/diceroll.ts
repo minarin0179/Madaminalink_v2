@@ -3,12 +3,11 @@ import { Button } from "../../structures/Button";
 
 export default new Button({
     customId: 'diceroll',
-    build: ({ x, y }) => {
-        return new ButtonBuilder()
-            .setCustomId(`diceroll:${x},${y}`)
-            .setLabel(`${x}d${y}`)
-            .setStyle(ButtonStyle.Primary)
-    },
+    build: ({ x, y }) => new ButtonBuilder()
+        .setCustomId(`diceroll:${x},${y}`)
+        .setLabel(`${x}d${y}`)
+        .setStyle(ButtonStyle.Primary)
+    ,
     execute: async ({ interaction, args }) => {
         const [x, y] = args.map(Number)
         await interaction.reply("ダイスロールを実行中...")
@@ -26,6 +25,4 @@ const diceRole = (x: number, y: number): string => {
     return `${x}d${y} → [${result.join(",")}] → ${result.reduce((a, b) => a + b)}`;
 }
 
-const getRandomInt = (max: number) => {
-    return Math.floor(Math.random() * max) + 1;
-}
+const getRandomInt = (max: number) => Math.floor(Math.random() * max) + 1;

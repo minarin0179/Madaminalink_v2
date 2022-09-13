@@ -4,12 +4,11 @@ import { transferMessage } from "../../utils/transferMessage";
 
 export default new Button({
     customId: 'transfer',
-    build: ({ destination }) => {
-        return new ButtonBuilder()
-            .setCustomId(`transfer:${destination.id}`)
-            .setLabel(`「#${destination.name}」へ転送`)
-            .setStyle(ButtonStyle.Primary)
-    },
+    build: ({ destination }) => new ButtonBuilder()
+        .setCustomId(`transfer:${destination.id}`)
+        .setLabel(`「#${destination.name}」へ転送`)
+        .setStyle(ButtonStyle.Primary)
+    ,
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true })
 
