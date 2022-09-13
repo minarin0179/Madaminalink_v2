@@ -1,5 +1,6 @@
 import { Guild, SlashCommandBuilder, GuildMember, ChannelType, PermissionFlagsBits } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
+import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -185,6 +186,6 @@ export default new SlashCommand({
             })
         }))
 
-        await interaction.followUp({ content: `「${title}」の作成が完了しました`, ephemeral: true })
+        await reply(interaction, `「${title}」の作成が完了しました`)
     }
 })

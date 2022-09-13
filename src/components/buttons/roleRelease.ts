@@ -4,10 +4,11 @@ import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'roleRelease',
-    build: ({ role }) => new ButtonBuilder()
+    build: ({ role }) => [new ButtonBuilder()
         .setCustomId(`roleRelease:${role.id}`)
         .setLabel('解除')
-        .setStyle(ButtonStyle.Danger),
+        .setStyle(ButtonStyle.Danger)]
+    ,
     execute: async ({ interaction, args }) => {
 
 

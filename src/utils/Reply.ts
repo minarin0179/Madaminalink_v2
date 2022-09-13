@@ -1,4 +1,4 @@
-import { CommandInteraction, InteractionReplyOptions, InteractionResponse, Message, MessageComponentInteraction } from "discord.js";
+import { CommandInteraction, InteractionReplyOptions, InteractionResponse, Message, MessageComponentInteraction, ModalSubmitInteraction } from "discord.js";
 /* 
 export const reply = (async (interaction: CommandInteraction | MessageComponentInteraction, options: InteractionReplyOptions) => {
     try {
@@ -15,7 +15,7 @@ export const reply = (async (interaction: CommandInteraction | MessageComponentI
 }) */
 
 
-export async function reply(interaction: CommandInteraction | MessageComponentInteraction, options: InteractionReplyOptions | string): Promise<Message | InteractionResponse | undefined> {
+export async function reply(interaction: CommandInteraction | MessageComponentInteraction | ModalSubmitInteraction, options: InteractionReplyOptions | string): Promise<Message | InteractionResponse | undefined> {
 
     try {
         if (typeof options === 'string') {
@@ -23,7 +23,7 @@ export async function reply(interaction: CommandInteraction | MessageComponentIn
         }
         options.ephemeral = options.ephemeral ?? true
 
-        if (interaction.replied) {
+        if (interaction.replied || interaction.deferred) {
             return interaction.followUp(options)
         } else {
             return interaction.reply(options)

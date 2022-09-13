@@ -1,12 +1,13 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
 import { Button } from "../../structures/Button";
+import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'diceroll',
-    build: ({ x, y }) => new ButtonBuilder()
+    build: ({ x, y }) => [new ButtonBuilder()
         .setCustomId(`diceroll:${x},${y}`)
         .setLabel(`${x}d${y}`)
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Primary)]
     ,
     execute: async ({ interaction, args }) => {
         const [x, y] = args.map(Number)

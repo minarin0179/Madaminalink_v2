@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js"
 import { Modal } from "../../structures/Modal"
+import { reply } from "../../utils/Reply"
 
 
 export default new Modal({
@@ -26,6 +27,6 @@ export default new Modal({
 
         await message?.edit(interaction.fields.getTextInputValue('content'))
 
-        await interaction.reply({ content: '編集が完了しました', ephemeral: true })
+        await reply(interaction, '編集が完了しました')
     },
 })

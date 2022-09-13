@@ -1,13 +1,14 @@
 import { ButtonBuilder, ButtonStyle, TextChannel, ChannelType } from "discord.js";
 import { Button } from "../../structures/Button";
+import { reply } from "../../utils/Reply";
 import { transferMessage } from "../../utils/transferMessage";
 
 export default new Button({
     customId: 'transfer',
-    build: ({ destination }) => new ButtonBuilder()
+    build: ({ destination }) => [new ButtonBuilder()
         .setCustomId(`transfer:${destination.id}`)
         .setLabel(`「#${destination.name}」へ転送`)
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Primary)]
     ,
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true })
@@ -18,8 +19,6 @@ export default new Button({
         interaction.message.reactions.cache.clear()
 
         const reactions = (await interaction.message.fetch()).reactions.cache
-
-        //interaction.channel?.messages.cache.clear()
 
         const messages = (await interaction.channel?.messages.fetch({ limit: 100 }))?.reverse()
         messages?.delete(interaction.message.id)//転送用メッセージ自身は除く
@@ -34,6 +33,6 @@ export default new Button({
             }
         }
 
-        await interaction.followUp({ content: '転送が完了しました', ephemeral: true })
+        await reply(interaction, '転送が完了しました')
     },
 })

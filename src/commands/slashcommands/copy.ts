@@ -1,6 +1,7 @@
 import { ChannelType, GuildChannel, SlashCommandBuilder, CategoryChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
+import { reply } from "../../utils/Reply";
 import { transferAllMessages } from "../../utils/transferMessage";
 
 export default new SlashCommand({
@@ -17,18 +18,13 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await interaction.reply({
-            content: 'コピーを開始します',
-            ephemeral: true
-        })
+
+        await reply(interaction, 'コピー中...')
 
         const originalChannel = (args.getChannel('対象') ?? interaction.channel) as GuildChannel
         await copyChannel(originalChannel)
 
-        await interaction.followUp({
-            content: 'コピーが完了しました',
-            ephemeral: true
-        })
+        await reply(interaction, 'コピーが完了しました')
     }
 })
 

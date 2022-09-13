@@ -4,10 +4,10 @@ import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'roleGet',
-    build: ({ role }) => new ButtonBuilder()
+    build: ({ role }) => [new ButtonBuilder()
         .setCustomId(`roleGet:${role.id}`)
         .setLabel('取得')
-        .setStyle(ButtonStyle.Success)
+        .setStyle(ButtonStyle.Success)]
     ,
     execute: async ({ interaction, args }) => {
 
@@ -16,10 +16,7 @@ export default new Button({
         const role = await interaction.guild?.roles.fetch(roleId)
 
         if (!role) {
-            await interaction.reply({
-                content: 'ロールが見つかりません',
-                ephemeral: true
-            })
+            await reply(interaction, 'ロールが見つかりません')
             return
         }
 

@@ -1,6 +1,7 @@
-import { CategoryChannel, ChannelType, Collection, discordSort, EmbedBuilder, Message, MessageType, SlashCommandBuilder, TextBasedChannel, TextChannel, ThreadChannel, TimestampStyles } from "discord.js";
+import { CategoryChannel, ChannelType, discordSort, EmbedBuilder, Message, MessageType, SlashCommandBuilder, TextBasedChannel, TextChannel, ThreadChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
+import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -21,10 +22,8 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await interaction.reply({
-            content: '保存を開始します',
-            ephemeral: true
-        })
+
+        await reply(interaction, '保存中...')
 
         const targetCategory = args.getChannel('保存するカテゴリ') as CategoryChannel
 
@@ -73,7 +72,7 @@ export default new SlashCommand({
             ]
         })
 
-        await interaction.followUp({ content: 'ログの保存が完了しました', ephemeral: true });
+        await reply(interaction, '保存が完了しました')
     }
 })
 

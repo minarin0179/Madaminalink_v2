@@ -1,8 +1,9 @@
-import { ChannelType, GuildChannel, Message, SlashCommandBuilder, TextBasedChannel, TextChannel } from "discord.js";
+import { ChannelType, GuildChannel, SlashCommandBuilder, TextChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { arraySplit } from "../../utils/ArraySplit";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { isCategory } from "../../utils/isCategory";
+import { reply } from "../../utils/Reply";
 
 
 export default new SlashCommand({
@@ -19,10 +20,8 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await interaction.reply({
-            content: '削除を実行中...',
-            ephemeral: true
-        })
+
+        await reply(interaction, '削除中...')
 
         const targetChannel = (args.getChannel('対象') ?? interaction.channel) as GuildChannel
         if (!targetChannel) return
@@ -36,7 +35,8 @@ export default new SlashCommand({
                 await deleteAllMessages(channel)
             }))
         }
-        await interaction.followUp({ content: '削除が完了しました', ephemeral: true })
+
+        await reply(interaction, '削除が完了しました')
     }
 })
 

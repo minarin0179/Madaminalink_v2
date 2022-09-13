@@ -1,5 +1,6 @@
 import { ChannelType, SlashCommandBuilder, CategoryChannel, OverwriteType } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
+import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -24,10 +25,8 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await interaction.reply({
-            content: '削除を実行中',
-            ephemeral: true
-        })
+
+        await interaction.deferReply({ ephemeral: true })
 
         const category = args.getChannel('削除するカテゴリ') as CategoryChannel
         const deleteRoleIds = new Set<string>()
@@ -48,9 +47,6 @@ export default new SlashCommand({
             }))
         }
 
-        await interaction.followUp({
-            content: '削除が完了しました',
-            ephemeral: true
-        }).catch(() => { })
+        await reply(interaction, '削除が完了しました')
     }
 })

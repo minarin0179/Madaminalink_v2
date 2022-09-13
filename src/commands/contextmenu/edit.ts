@@ -1,6 +1,7 @@
 import { ApplicationCommandType, ContextMenuCommandBuilder } from "discord.js";
 import { ContextMenu } from "../../structures/ContextMenu";
 import editModal from "../../components/modal/editModal";
+import { reply } from "../../utils/Reply";
 
 export default new ContextMenu({
     data: new ContextMenuCommandBuilder()
@@ -14,10 +15,7 @@ export default new ContextMenu({
         const message = interaction.targetMessage
 
         if (!message.editable) {
-            await interaction.reply({
-                content: 'このメッセージは編集できません',
-                ephemeral: true
-            })
+            await reply(interaction, 'このメッセージは編集できません')
             return
         }
 

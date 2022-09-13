@@ -4,10 +4,10 @@ import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'roleAdd',
-    build: ({ target, role }) => new ButtonBuilder()
+    build: ({ target, role }) => [new ButtonBuilder()
         .setCustomId(`roleAdd:${target.id},${role.id}`)
         .setLabel(`「@${target.name}」に「@${role.name}」を付与`)
-        .setStyle(ButtonStyle.Success)
+        .setStyle(ButtonStyle.Success)]
     ,
     execute: async ({ interaction, args }) => {
 
@@ -17,20 +17,17 @@ export default new Button({
         const role = await interaction.guild?.roles.fetch(roleId)
 
         if (!target || !role) {
-            await interaction.reply({
-                content: 'ロールが見つかりません',
-                ephemeral: true
-            })
+            await reply(interaction, 'ロールが見つかりません')
             return
         }
 
-        await interaction.reply({ content: 'ロールを付与しています', ephemeral: true })
+        await reply(interaction, 'ロールを付与しています')
 
         await interaction.guild?.members.fetch()
 
         const { members } = target
         await Promise.all(members.map(async member => { await member.roles.add(role) }))
 
-        await reply(interaction, `${[...members.values()].join(',')}に${role}を付与しました`)
+        await reply(interaction, `${[...members.values()].join(', ')}に${role}を付与しました`)
     }
 })

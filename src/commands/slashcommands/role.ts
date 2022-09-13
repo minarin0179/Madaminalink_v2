@@ -1,12 +1,14 @@
-import { SlashCommandBuilder } from "discord.js";
+import { APIRole, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import roleAddButton from "../../components/buttons/roleAdd";
 import roleRemoveButton from "../../components/buttons/roleRemove";
 import roleChangeButton from "../../components/buttons/roleChange";
 import roleGetButton from "../../components/buttons/roleGet";
 import roleReleaseButton from "../../components/buttons/roleRelease";
+import roleList from "../../components/selectmenu/roleList";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { reply } from "../../utils/Reply";
+import { arraySplit } from "../../utils/ArraySplit";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -63,29 +65,44 @@ export default new SlashCommand({
         switch (subCommand) {
             case 'add':
                 await reply(interaction, {
-                    components: buttonToRow([roleAddButton.build({ target: target, role: roleAdd })]),
+                    components: buttonToRow(roleAddButton.build({ target: target, role: roleAdd })),
                 })
                 break
             case 'remove':
                 await reply(interaction, {
-                    components: buttonToRow([roleRemoveButton.build({ role: roleRemove })]),
+                    components: buttonToRow(roleRemoveButton.build({ role: roleRemove })),
                 })
                 break
             case 'change':
                 await reply(interaction, {
-                    components: buttonToRow([roleChangeButton.build({ before: roleRemove, after: roleAdd })]),
+                    components: buttonToRow(roleChangeButton.build({ before: roleRemove, after: roleAdd })),
                 })
                 break
             case 'self':
-                await interaction.channel?.send({
-                    content: `${roleAdd}`,
-                    components: buttonToRow([
-                        roleGetButton.build({ role: roleAdd }),
-                        roleReleaseButton.build({ role: roleAdd })
-                    ]),
-                    allowedMentions: { parse: [] },
-                })
+                if (!roleAdd) {
+                    const roles = await interaction.guild?.roles.fetch()
+                    if (!roles) return
+                    for await (const rolesSplited of arraySplit([...roles.values()], 125)) {
+                        await reply(interaction, {
+                            components: roleList.build(rolesSplited)
+                        })
+                    }
+                    return
+                }
+                await interaction.channel?.send(buildRoleRow(roleAdd))
                 break
         }
     }
 })
+
+export const buildRoleRow = (role: Role | APIRole) => {
+    return {
+        content: `${role}`,
+        components: buttonToRow([
+            ...roleGetButton.build({ role }),
+            ...roleReleaseButton.build({ role })
+        ]),
+        allowedMentions: { parse: [] },
+
+    }
+}
