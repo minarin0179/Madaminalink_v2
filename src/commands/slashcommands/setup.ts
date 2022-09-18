@@ -51,26 +51,11 @@ export default new SlashCommand({
         const rolePosition = (args.getRole('ロールの作成位置') ?? everyone)?.position
 
 
-        if (playerCount + privateCount + 5 >= 50) {
-            await interaction.reply({
-                content: 'カテゴリーに入り切りません\nチャンネル数を減らしてください',
-                ephemeral: true
-            })
-            return
-        }
+        if (playerCount + privateCount + 5 >= 50) return reply(interaction, 'カテゴリーに入り切りません\nチャンネル数を減らしてください')
 
-        if (guild?.channels.cache.size + playerCount + privateCount + 6 >= 500) {
-            await interaction.reply({
-                content: 'チャンネル数が上限に達しています\nチャンネル数を減らしてください',
-                ephemeral: true
-            })
-            return
-        }
+        if (guild?.channels.cache.size + playerCount + privateCount + 6 >= 500) return reply(interaction, 'チャンネル数が上限に達しています\nチャンネル数を減らしてください')
 
-        await interaction.reply({
-            content: 'チャンネルを作成しています',
-            ephemeral: true
-        })
+        await reply(interaction, 'チャンネルを作成しています')
 
         const GM = await guild.roles.create({ name: `${title} GM`, position: rolePosition })
         const PL = await guild.roles.create({ name: `${title} PL`, position: rolePosition })

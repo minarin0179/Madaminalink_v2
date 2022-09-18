@@ -8,7 +8,7 @@ export interface RunOptions {
     args: CommandInteractionOptionResolver
 }
 
-type RunFunction = (options: any) => Promise<void>
+type RunFunction = (options: any) => Promise<any>
 
 interface CommandType {
     data: any,

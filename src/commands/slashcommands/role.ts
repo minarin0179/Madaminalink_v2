@@ -90,6 +90,7 @@ export default new SlashCommand({
                     return
                 }
                 await interaction.channel?.send(buildRoleRow(roleAdd))
+                await reply(interaction, 'ボタンを作成しました')
                 break
         }
     }

@@ -9,7 +9,7 @@ interface SlashCommandRunOptions extends RunOptions {
     args: CommandInteractionOptionResolver
 }
 
-type RunFunction = (options: SlashCommandRunOptions) => Promise<void>
+type RunFunction = (options: SlashCommandRunOptions) => Promise<any>
 
 interface SlashCommandType {
     data: SlashCommandBuilder,

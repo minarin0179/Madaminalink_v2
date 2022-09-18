@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, SelectMenuBuilder, 
 import { ExtendedClient } from "./Client"
 import { Component, ComponentType, RunOptions } from "./Component"
 
-type SelectMenuBuildFunction = (options: any) => ActionRowBuilder<SelectMenuBuilder>[]
+type SelectMenuBuildFunction = (...options: any) => ActionRowBuilder<SelectMenuBuilder>[]
 
 interface SelectMenuRunOptions extends RunOptions {
     client: ExtendedClient,

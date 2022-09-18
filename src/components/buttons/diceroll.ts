@@ -4,7 +4,7 @@ import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'diceroll',
-    build: ({ x, y }) => [new ButtonBuilder()
+    build: ({ x, y }: { x: number, y: number }) => [new ButtonBuilder()
         .setCustomId(`diceroll:${x},${y}`)
         .setLabel(`${x}d${y}`)
         .setStyle(ButtonStyle.Primary)]

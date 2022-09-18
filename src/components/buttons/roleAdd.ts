@@ -1,10 +1,10 @@
-import { ButtonBuilder, ButtonStyle } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Role } from "discord.js";
 import { Button } from "../../structures/Button";
 import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'roleAdd',
-    build: ({ target, role }) => [new ButtonBuilder()
+    build: ({ target, role }: { target: Role, role: Role }) => [new ButtonBuilder()
         .setCustomId(`roleAdd:${target.id},${role.id}`)
         .setLabel(`「@${target.name}」に「@${role.name}」を付与`)
         .setStyle(ButtonStyle.Success)]
@@ -16,10 +16,7 @@ export default new Button({
         const target = await interaction.guild?.roles.fetch(targetId)
         const role = await interaction.guild?.roles.fetch(roleId)
 
-        if (!target || !role) {
-            await reply(interaction, 'ロールが見つかりません')
-            return
-        }
+        if (!target || !role) return await reply(interaction, 'ロールが見つかりません')
 
         await reply(interaction, 'ロールを付与しています')
 

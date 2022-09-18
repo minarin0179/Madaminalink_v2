@@ -1,0 +1,54 @@
+import { ChannelType, GuildChannel, Role, SlashCommandBuilder } from "discord.js";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { reply } from "../../utils/Reply";
+import openButton from "../../components/buttons/open";
+import { buttonToRow } from "../../utils/ButtonToRow";
+
+export default new SlashCommand({
+    data: new SlashCommandBuilder()
+        .setName('open')
+        .setDescription('チャンネルを特定のロールに対して公開します')
+        .setDMPermission(false)
+        .setDefaultMemberPermissions(0)
+        .addMentionableOption(option => option
+            .setName('公開相手')
+            .setDescription('誰に対して公開しますか?')
+            .setRequired(true)
+        )
+        .addChannelOption(option => option
+            .setName('チャンネル')
+            .setDescription('どのチャンネルを公開しますか?')
+            .setRequired(false)
+        ) as SlashCommandBuilder,
+
+    execute: async ({ interaction, args }) => {
+
+        const mentionable = args.getMentionable('公開相手')
+        const channel = args.getChannel('チャンネル') ?? interaction.channel
+
+        if (!mentionable) {
+            await reply(interaction, 'ロール/メンバーが存在しません')
+            return
+        }
+        if (!channel) {
+            await reply(interaction, 'チャンネルが見つかりませんでした')
+            return
+        }
+        if (!('permissionOverwrites' in channel)) {
+            await reply(interaction, '権限を編集できません')
+            return
+        }
+        if (!('id' in mentionable)) return //getMentionableのバグが直ったら削除
+
+        await channel?.permissionOverwrites.edit(mentionable.id, { ViewChannel: false })
+
+        await interaction.channel?.send({
+            content: `ボタンを押すと${channel}を${mentionable}に公開します`,
+            components: buttonToRow(openButton.build({ channel, mentionable })),
+            allowedMentions: { parse: [] },
+        })
+
+        await reply(interaction, 'ボタンを作成しました')
+
+    }
+})

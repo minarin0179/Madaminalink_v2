@@ -1,23 +1,21 @@
-import { ButtonBuilder, ButtonStyle } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Role } from "discord.js";
 import { Button } from "../../structures/Button";
 import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'roleChange',
-    build: ({ before, after }) => [new ButtonBuilder()
+    build: ({ before, after }: { before: Role, after: Role }) => [new ButtonBuilder()
         .setCustomId(`roleChange:${before.id},${after.id}`)
         .setLabel(`「@${before.name}」を「@${after.name}」に付け替え`)
-        .setStyle(ButtonStyle.Danger)]
+        .setStyle(ButtonStyle.Primary)]
     ,
     execute: async ({ interaction, args }) => {
         const [beforeId, afterId] = args
         const before = await interaction.guild?.roles.fetch(beforeId)
         const after = await interaction.guild?.roles.fetch(afterId)
 
-        if (!before || !after) {
-            await reply(interaction, 'ロールが見つかりません')
-            return
-        }
+        if (!before || !after) return await reply(interaction, 'ロールが見つかりません')
+
         await reply(interaction, 'ロールを変更しています')
 
         await interaction.guild?.members.fetch()
