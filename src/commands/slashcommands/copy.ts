@@ -22,31 +22,48 @@ export default new SlashCommand({
         await reply(interaction, 'コピー中...')
 
         const originalChannel = (args.getChannel('対象') ?? interaction.channel) as GuildChannel
-        await copyChannel(originalChannel)
+        const newChannels = await copyChannel(originalChannel)
+
+        if (newChannels.length === 1) {
+            const [from, to] = newChannels[0]
+            if (from.isTextBased() && to.isTextBased()) {
+                await transferAllMessages(from, to)
+            }
+        } else {
+            const updates = Object.fromEntries(newChannels.map(([from, to]) => [from.id, to]))
+            newChannels.map(async newChannel => {
+                const [from, to] = newChannel
+                if (from.isTextBased() && to.isTextBased()) {
+                    await transferAllMessages(from, to, updates)
+                }
+            })
+        }
+
 
         await reply(interaction, 'コピーが完了しました')
     }
 })
 
-const copyChannel = async (originalChannel: GuildChannel, option?: any): Promise<any> => {
+/**
+ * originalChannel:GuildChannel -> [[originalChannel,newChannel]]
+ * originalChannel:CategoryChannel -> [...[originalChannel,newChannel]]
+ */
+
+const copyChannel = async (originalChannel: GuildChannel, option?: any): Promise<GuildChannel[][]> => {
     if (originalChannel.isVoiceBased()) {
-        return await originalChannel.clone({
+        return [[originalChannel, await originalChannel.clone({
             name: `(copy) ${originalChannel.name}`,
-            bitrate: originalChannel.bitrate,
-            userLimit: originalChannel.userLimit,
             ...option
-        })
+        })]]
     } else if (originalChannel.isTextBased()) {
-        const newChannel = await originalChannel.clone({
+        return [[originalChannel, await originalChannel.clone({
             name: `(copy) ${originalChannel.name}`,
             // @ts-ignore voicebasedでVoiceChannelを弾いているためtopicプロパティは存在する
             topic: originalChannel.topic || '',
             nsfw: originalChannel.nsfw,
             rateLimitPerUser: originalChannel.rateLimitPerUser || 0,
             ...option
-        })
-        await transferAllMessages(originalChannel, newChannel).catch(e => { throw e })
-        return newChannel
+        })]]
     }
     else if (isCategory(originalChannel)) {
         const newCategory = await originalChannel.clone({
@@ -54,7 +71,9 @@ const copyChannel = async (originalChannel: GuildChannel, option?: any): Promise
         }) as CategoryChannel
 
         return await Promise.all(originalChannel.children.cache.map(async c =>
-            copyChannel(c, { name: c.name, parent: newCategory })))
+            (await copyChannel(c, { name: c.name, parent: newCategory }))[0]
+        ))
     }
+    return []
 }
 

@@ -1,8 +1,6 @@
-import { ButtonBuilder, ButtonStyle, TextChannel, ChannelType, GuildChannel, Role, User } from "discord.js";
+import { ButtonBuilder, ButtonStyle, GuildChannel, Role, User } from "discord.js";
 import { Button } from "../../structures/Button";
 import { reply } from "../../utils/Reply";
-import { transferMessage } from "../../utils/transferMessage";
-
 export default new Button({
     customId: 'open',
     build: ({ channel, mentionable }: { channel: GuildChannel, mentionable: Role | User }) => [new ButtonBuilder()

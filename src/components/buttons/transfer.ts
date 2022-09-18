@@ -27,7 +27,7 @@ export default new Button({
             const keys = message.reactions.cache.keys()
             if (reactions.hasAny(...keys)) {
                 await Promise.all(destinations.map(destination => {
-                    transferMessage(message, destination, true)
+                    transferMessage(message, destination, { noReaction: true })
                 }))
             }
         }

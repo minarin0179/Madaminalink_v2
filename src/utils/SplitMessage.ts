@@ -6,7 +6,7 @@ export const splitMessage = (text: string, { maxLength = 2000, delimeter = "\n" 
     //delimeterでsplitしてもなおmaxLengthを超えたら無理やり分ける
     splitText.flatMap(t => t.match(new RegExp(`.{1,${maxLength}}`, "g")))
 
-    const messages = []
+    const messages: string[] = []
 
     let msg = ""
     for (const chunk of splitText) {

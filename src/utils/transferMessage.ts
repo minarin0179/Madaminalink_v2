@@ -1,23 +1,62 @@
-import { Attachment, GuildTextBasedChannel, Message, MessageType } from "discord.js";
+import { ActionRow, ActionRowBuilder, APIActionRowComponent, APIMessageActionRowComponent, Attachment, ButtonBuilder, ComponentType, Guild, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageType } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
 import { splitMessage } from "./SplitMessage";
+import { buttonToRow } from "../utils/ButtonToRow";
+import transferButton from "../components/buttons/transfer";
+import openButton from "../components/buttons/open";
+import { openMessage } from "../commands/slashcommands/open";
 
-export const transferMessage = async (message: Message, destination: GuildTextBasedChannel, noReaction: boolean = false) => {
+
+type transferOptions = {
+    noReaction?: boolean,
+    updates?: { [key: string]: GuildChannel }
+}
+
+export const transferMessage = async (message: Message, destination: GuildTextBasedChannel, options?: transferOptions) => {
 
     await destination.sendTyping();
 
+    let contentAll = message.content
+    const { updates } = options ?? {}
+
+    if (updates) {
+        contentAll = replaceChannelLinks(contentAll, updates)
+    }
+
     //2000文字を超えないように分割
-    const contentSplit: string[] = splitMessage(message.content)
+    const contentSplit: string[] = splitMessage(contentAll)
+
     //最後の1チャンクだけ取り出して残りは先に送る
-    const content = contentSplit.pop()
+    let content = contentSplit.pop()
     for await (const msg of contentSplit) {
         await destination.send({ content: msg, allowedMentions: { parse: [] } })
     }
 
-    const { attachments, components, embeds } = message
+    const { attachments, embeds } = message
 
+    let components: ActionRow<MessageActionRowComponent>[] | ActionRowBuilder<ButtonBuilder>[] = message.components
+
+    //巨大なファイルを除外
     const [files, largeFiles] = attachments.partition((f: Attachment) => f.size < 0x8000000)
 
+    //transfer/openの更新
+    const customId = components[0]?.components[0]?.customId
+    if (customId?.startsWith('transfer')) {
+        const [prefix, destinationId] = customId?.split(/[;:,]/)
+        const destination = updates?.[destinationId]
+        if (destination) {
+            components = buttonToRow(transferButton.build({ destination }))
+        }
+    } else if (customId?.startsWith('open')) {
+        const [prefix, channelId, mentionableId] = customId?.split(/[;:,]/)
+        const channel = updates?.[channelId]
+        const mentionable = message.guild?.roles.cache.get(mentionableId) ?? message.guild?.members.cache.get(mentionableId)
+        if (channel && mentionable) {
+            ({ content, components } = openMessage(channel, mentionable))
+        }
+    }
+
+    
     const newMessage = await destination.send({
         content,
         files: files.map((file: Attachment) => file.url),
@@ -34,7 +73,7 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
 
     if (message.pinned) await newMessage.pin()
 
-    if (!noReaction) {
+    if (!options?.noReaction) {
         for await (const reaction of message.reactions.cache.keys())
             newMessage.react(reaction)
     }
@@ -48,10 +87,17 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
     }
 }
 
-export const transferAllMessages = async (from: GuildTextBasedChannel, to: GuildTextBasedChannel) => {
+export const transferAllMessages = async (from: GuildTextBasedChannel, to: GuildTextBasedChannel, updates?: { [key: string]: GuildChannel }) => {
     const messages = (await fetchAllMessages(from)).reverse()
     for await (const message of messages.values()) {
         if (message.system) continue
-        transferMessage(message, to)
+        transferMessage(message, to, { updates })
     }
+}
+
+const replaceChannelLinks = (content: string, updates: { [key: string]: GuildChannel }) => {
+    Object.keys(updates).map((key: string) => {
+        content = content.replace(new RegExp(`<#${key}>`, 'g'), `${updates[key]}`)
+    })
+    return content
 }

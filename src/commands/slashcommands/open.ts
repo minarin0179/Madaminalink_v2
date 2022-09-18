@@ -1,4 +1,4 @@
-import { ChannelType, GuildChannel, Role, SlashCommandBuilder } from "discord.js";
+import { APIRole, ChannelType, GuildChannel, GuildMember, Role, SlashCommandBuilder, User } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import openButton from "../../components/buttons/open";
@@ -42,13 +42,16 @@ export default new SlashCommand({
 
         await channel?.permissionOverwrites.edit(mentionable.id, { ViewChannel: false })
 
-        await interaction.channel?.send({
-            content: `ボタンを押すと${channel}を${mentionable}に公開します`,
-            components: buttonToRow(openButton.build({ channel, mentionable })),
-            allowedMentions: { parse: [] },
-        })
+        await interaction.channel?.send(openMessage(channel, mentionable))
 
         await reply(interaction, 'ボタンを作成しました')
 
     }
 })
+
+export const openMessage = (channel: GuildChannel, mentionable: GuildMember | Role | APIRole | User) => {
+    return {
+        content: `ボタンを押すと${channel}を${mentionable}に公開します`,
+        components: buttonToRow(openButton.build({ channel, mentionable })),
+    }
+}

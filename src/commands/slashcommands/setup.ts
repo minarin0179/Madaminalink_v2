@@ -79,7 +79,7 @@ export default new SlashCommand({
             type: ChannelType.GuildCategory,
             permissionOverwrites: [
                 ...defaultPerm,
-                { id: PL.id, ...writable },
+                { id: PL.id, ...invisible },
                 { id: SP.id, ...visible },
             ]
         })
