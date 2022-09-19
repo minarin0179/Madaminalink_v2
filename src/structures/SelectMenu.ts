@@ -13,12 +13,12 @@ interface SelectMenuRunOptions extends RunOptions {
 interface SelectMenuType extends ComponentType {
     customId: string
     build: SelectMenuBuildFunction
-    execute: (options: SelectMenuRunOptions) => Promise<void>
+    execute: (options: SelectMenuRunOptions) => Promise<any>
 }
 
 export class SelectMenu extends Component implements SelectMenuType {
     build: SelectMenuBuildFunction
-    execute: (options: SelectMenuRunOptions) => Promise<void>;
+    execute: (options: SelectMenuRunOptions) => Promise<any>;
 
     constructor(selectMenu: SelectMenuType) {
         super(selectMenu)

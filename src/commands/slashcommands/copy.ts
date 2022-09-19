@@ -19,7 +19,7 @@ export default new SlashCommand({
 
     execute: async ({ interaction, args }) => {
 
-        await reply(interaction, 'コピー中...')
+        await interaction.deferReply({ ephemeral: true })
 
         const originalChannel = (args.getChannel('対象') ?? interaction.channel) as GuildChannel
         const newChannels = await copyChannel(originalChannel)
@@ -40,7 +40,7 @@ export default new SlashCommand({
         }
 
 
-        await reply(interaction, 'コピーが完了しました')
+        await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`)
     }
 })
 

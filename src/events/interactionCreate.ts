@@ -1,5 +1,7 @@
+import { Colors, EmbedBuilder } from "discord.js"
 import { client } from "../bot"
 import { Event } from "../structures/Events"
+import { reply } from "../utils/Reply"
 
 export default new Event('interactionCreate', async (interaction) => {
 
@@ -10,7 +12,14 @@ export default new Event('interactionCreate', async (interaction) => {
         try {
             await command.execute({ client, interaction, args: interaction.options })
         } catch (e) {
-            console.error(e)
+            await reply(interaction, {
+                content: 'エラーが発生しました、下記のエラーメッセージを添えて報告して下さい',
+                embeds: [new EmbedBuilder()
+                    .setColor(Colors.Red)
+                    //@ts-ignore
+                    .setDescription(e.stack)
+                ]
+            })
         }
     }
 
@@ -19,6 +28,18 @@ export default new Event('interactionCreate', async (interaction) => {
         const [customId, ...args] = interaction.customId.split(/[;:,]/)
         const component = client.components.get(customId)
         if (!component) return
-        await component.execute({ client, interaction, args })
+        try {
+            await component.execute({ client, interaction, args })
+
+        } catch (e) {
+            await reply(interaction, {
+                content: 'エラーが発生しました、下記のエラーメッセージを添えて報告して下さい',
+                embeds: [new EmbedBuilder()
+                    .setColor(Colors.Red)
+                    //@ts-ignore
+                    .setDescription(e.stack)
+                ]
+            })
+        }
     }
 })

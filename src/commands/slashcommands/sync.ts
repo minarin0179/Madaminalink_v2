@@ -1,4 +1,4 @@
-import { ChannelType, SlashCommandBuilder, CategoryChannel, OverwriteType } from "discord.js";
+import { ChannelType, SlashCommandBuilder, CategoryChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 
@@ -19,7 +19,7 @@ export default new SlashCommand({
 
         await interaction.deferReply({ ephemeral: true })
 
-        const category = args.getChannel('同期するカテゴリ') as CategoryChannel
+        const category = args.getChannel('同期するカテゴリ', true) as CategoryChannel
 
         await Promise.all(category.children.cache.map(async ch => {
             await ch.lockPermissions()

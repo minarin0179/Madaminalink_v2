@@ -1,9 +1,8 @@
-import { ActionRow, ActionRowBuilder, APIActionRowComponent, APIMessageActionRowComponent, Attachment, ButtonBuilder, ComponentType, Guild, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageType } from "discord.js";
+import { ActionRow, ActionRowBuilder, Attachment, ButtonBuilder, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageType } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
 import { splitMessage } from "./SplitMessage";
 import { buttonToRow } from "../utils/ButtonToRow";
 import transferButton from "../components/buttons/transfer";
-import openButton from "../components/buttons/open";
 import { openMessage } from "../commands/slashcommands/open";
 
 
@@ -56,7 +55,7 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
         }
     }
 
-    
+
     const newMessage = await destination.send({
         content,
         files: files.map((file: Attachment) => file.url),
@@ -77,7 +76,6 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
         for await (const reaction of message.reactions.cache.keys())
             newMessage.react(reaction)
     }
-
     if (message.thread && "threads" in destination) {
         const name = message.thread.name
         const newThread = message.type == MessageType.ThreadCreated ?
@@ -90,7 +88,6 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
 export const transferAllMessages = async (from: GuildTextBasedChannel, to: GuildTextBasedChannel, updates?: { [key: string]: GuildChannel }) => {
     const messages = (await fetchAllMessages(from)).reverse()
     for await (const message of messages.values()) {
-        if (message.system) continue
         transferMessage(message, to, { updates })
     }
 }

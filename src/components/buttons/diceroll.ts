@@ -1,6 +1,5 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
 import { Button } from "../../structures/Button";
-import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: 'diceroll',

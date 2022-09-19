@@ -12,6 +12,7 @@ export default new Button({
         const [channelId, mentionableId] = args;
         const channel = interaction.guild?.channels.cache.get(channelId);
         const mentionable = interaction.guild?.roles.cache.get(mentionableId) || interaction.guild?.members.cache.get(mentionableId);
+        
         if (!channel) return reply(interaction, 'チャンネルが見つかりませんでした。')
         if (!mentionable) return reply(interaction, '公開相手が見つかりませんでした。')
         if (!('permissionOverwrites' in channel)) return reply(interaction, '権限を編集できません')

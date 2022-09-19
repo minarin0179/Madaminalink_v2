@@ -13,12 +13,12 @@ interface ModalRunOptions extends RunOptions {
 interface ModalType extends ComponentType {
     customId: string
     build: ModalBuildFunction
-    execute: (options: ModalRunOptions) => Promise<void>
+    execute: (options: ModalRunOptions) => Promise<any>
 }
 
 export class Modal extends Component implements ModalType {
     build: ModalBuildFunction
-    execute: (options: ModalRunOptions) => Promise<void>;
+    execute: (options: ModalRunOptions) => Promise<any>;
 
     constructor(button: ModalType) {
         super(button)

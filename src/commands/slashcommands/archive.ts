@@ -23,9 +23,9 @@ export default new SlashCommand({
 
     execute: async ({ interaction, args }) => {
 
-        await reply(interaction, '保存中...')
+        await interaction.deferReply({ ephemeral: true })
 
-        const targetCategory = args.getChannel('保存するカテゴリ') as CategoryChannel
+        const targetCategory = args.getChannel('保存するカテゴリ', true) as CategoryChannel
 
         const logChannel = (args.getChannel('保存先') ?? await interaction.guild?.channels.create({
             name: `ログ ${targetCategory.name}`,
@@ -72,7 +72,7 @@ export default new SlashCommand({
             ]
         })
 
-        await reply(interaction, '保存が完了しました')
+        await reply(interaction, `「${targetCategory.name}」の保存が完了しました`)
     }
 })
 
@@ -101,8 +101,8 @@ const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) 
         await destination.sendTyping()
 
 
-        const embeds = messages.filter(message => message.content != '').map(message => {
-            return new EmbedBuilder()
+        const embeds = messages.filter(message => message.content != '').map(message =>
+            new EmbedBuilder()
                 .setAuthor({
                     name: message.member?.nickname || message.author.username,
                     iconURL: message.author.avatarURL() ?? undefined
@@ -110,7 +110,8 @@ const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) 
                 .setColor([47, 49, 54])
                 .setDescription(message.content)
                 .setFooter({ text: timeStamp })
-        });
+        )
+
         if (embeds.length > 0) {
             await destination.send({ embeds: embeds });
         }

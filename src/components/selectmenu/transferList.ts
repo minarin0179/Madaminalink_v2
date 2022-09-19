@@ -1,4 +1,4 @@
-import { ActionRowBuilder, SelectMenuBuilder, GuildChannel } from "discord.js";
+import { ActionRowBuilder, SelectMenuBuilder, GuildTextBasedChannel } from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
 import { buttonToRow } from "../../utils/ButtonToRow";
@@ -7,7 +7,7 @@ import transferButton from "../buttons/transfer";
 
 export default new SelectMenu({
     customId: 'transferList',
-    build: (channels: GuildChannel[]) => arraySplit(channels, 25).map((channels, index) =>
+    build: (channels: GuildTextBasedChannel[]) => arraySplit(channels, 25).map((channels, index) =>
         new ActionRowBuilder<SelectMenuBuilder>()
             .addComponents(new SelectMenuBuilder()
                 .setCustomId(`transferList`)

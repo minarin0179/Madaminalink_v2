@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import dicebutton from "../../components/buttons/diceroll";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { buttonToRow } from "../../utils/ButtonToRow";
+import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -30,15 +31,12 @@ export default new SlashCommand({
             content: `ボタンをクリックしてダイスロール🎲`,
             components: buttonToRow(
                 dicebutton.build({
-                    x: args.getInteger('ダイスの数'),
-                    y: args.getInteger('ダイスの面数')
+                    x: args.getInteger('ダイスの数', true),
+                    y: args.getInteger('ダイスの面数', true)
                 })
             )
         })
 
-        await interaction.reply({
-            content: 'ダイスを作成しました',
-            ephemeral: true
-        })
+        await reply(interaction, 'ダイスを作成しました')
     }
 })

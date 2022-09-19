@@ -14,10 +14,8 @@ export default new ContextMenu({
 
         const message = interaction.targetMessage
 
-        if (!message.editable) {
-            await reply(interaction, 'このメッセージは編集できません')
-            return
-        }
+        if (!message.editable) return reply(interaction, 'このメッセージは編集できません')
+
 
         await interaction.showModal(editModal.build({ message }))
     }

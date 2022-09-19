@@ -1,10 +1,8 @@
 import { ActionRowBuilder, SelectMenuBuilder, GuildChannel, Message } from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
-import { buttonToRow } from "../../utils/ButtonToRow";
-import { reply } from "../../utils/Reply";
+ import { reply } from "../../utils/Reply";
 import { transferMessage } from "../../utils/transferMessage";
-import transferButton from "../buttons/transfer";
 
 export default new SelectMenu({
     customId: 'transferListImmed',

@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, CategoryChannel, ChannelType, discordSort, GuildTextBasedChannel, NewsChannel, SlashCommandBuilder, TextChannel } from "discord.js";
+import { CategoryChannel, ChannelType, discordSort, GuildTextBasedChannel, NewsChannel, SlashCommandBuilder, TextChannel, VoiceChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import transferButton from "../../components/buttons/transfer";
 import transferList from "../../components/selectmenu/transferList";
@@ -14,7 +14,7 @@ export default new SlashCommand({
         .addChannelOption(option => option
             .setName('転送先')
             .setDescription('転送先のチャンネルを選択してください')
-            .addChannelTypes(ChannelType.GuildText, ChannelType.GuildNews)
+            .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
             .setRequired(false)
         ) as SlashCommandBuilder,
 
@@ -25,8 +25,8 @@ export default new SlashCommand({
         if (!destination) {
             const channel = interaction.channel as GuildTextBasedChannel
             const category = channel.parent?.parent ?? channel.parent as CategoryChannel | undefined
-            const channels = category?.children.cache ?? interaction.guild?.channels.cache
-                .filter((channel): channel is TextChannel | NewsChannel => !channel.parent && (channel.isTextBased()))
+            const channels = (category?.children.cache ?? interaction.guild?.channels.cache)
+                ?.filter((channel): channel is TextChannel | NewsChannel | VoiceChannel => !channel.parent && (channel.isTextBased()))
 
             if (!channels) return
 

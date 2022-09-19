@@ -1,4 +1,4 @@
-import { ChannelType, GuildChannel, SlashCommandBuilder, TextChannel } from "discord.js";
+import { ChannelType, GuildChannel, GuildTextBasedChannel, NewsChannel, SlashCommandBuilder, TextChannel, VoiceChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { arraySplit } from "../../utils/ArraySplit";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
@@ -21,26 +21,26 @@ export default new SlashCommand({
 
     execute: async ({ interaction, args }) => {
 
-        await reply(interaction, '削除中...')
+        await interaction.deferReply({ ephemeral: true })
 
         const targetChannel = (args.getChannel('対象') ?? interaction.channel) as GuildChannel
         if (!targetChannel) return
 
-        if (targetChannel.type == ChannelType.GuildText) {
-            await deleteAllMessages(targetChannel as TextChannel)
+        if (targetChannel.isTextBased()) {
+            await deleteAllMessages(targetChannel)
         } else if (isCategory(targetChannel)) {
             const channels = targetChannel.children.cache
-                .filter((channel): channel is TextChannel => channel.type == ChannelType.GuildText)
+                .filter((channel): channel is NewsChannel | TextChannel | VoiceChannel => channel.isTextBased())
             await Promise.all(channels.map(async channel => {
                 await deleteAllMessages(channel)
             }))
         }
 
-        await reply(interaction, '削除が完了しました')
+        await reply(interaction, `「${targetChannel.name}」内のメッセージを削除しました`)
     }
 })
 
-const deleteAllMessages = async (channel: TextChannel) => {
+const deleteAllMessages = async (channel: GuildTextBasedChannel) => {
     const allMessages = await fetchAllMessages(channel)
 
     const [messages, oldMessages] = allMessages.partition(message => (Date.now() - message.createdTimestamp) < 1_209_600_000);

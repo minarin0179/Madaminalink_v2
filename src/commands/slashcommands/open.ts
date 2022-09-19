@@ -1,4 +1,4 @@
-import { APIRole, ChannelType, GuildChannel, GuildMember, Role, SlashCommandBuilder, User } from "discord.js";
+import { APIRole, GuildChannel, GuildMember, Role, SlashCommandBuilder, User } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import openButton from "../../components/buttons/open";
@@ -26,18 +26,12 @@ export default new SlashCommand({
         const mentionable = args.getMentionable('公開相手')
         const channel = args.getChannel('チャンネル') ?? interaction.channel
 
-        if (!mentionable) {
-            await reply(interaction, 'ロール/メンバーが存在しません')
-            return
-        }
-        if (!channel) {
-            await reply(interaction, 'チャンネルが見つかりませんでした')
-            return
-        }
-        if (!('permissionOverwrites' in channel)) {
-            await reply(interaction, '権限を編集できません')
-            return
-        }
+        if (!mentionable) return reply(interaction, 'ロール/メンバーが存在しません')
+
+        if (!channel) return reply(interaction, 'チャンネルが見つかりませんでした')
+
+        if (!('permissionOverwrites' in channel)) return reply(interaction, '権限を編集できません')
+
         if (!('id' in mentionable)) return //getMentionableのバグが直ったら削除
 
         await channel?.permissionOverwrites.edit(mentionable.id, { ViewChannel: false })

@@ -16,10 +16,11 @@ export default new SlashCommand({
 
     execute: async ({ interaction, args }) => {
 
+        await interaction.deferReply({ ephemeral: true })
+
         await interaction.guild?.members.fetch()
 
-        const role = args.getRole('ロール')
-        if (!(role instanceof Role)) return
+        const role = args.getRole('ロール', true) as Role
 
         const failed: string[] = []
         await Promise.all(role.members.filter(member => !!member.nickname).map(async member => {

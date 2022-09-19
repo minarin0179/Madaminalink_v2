@@ -28,7 +28,7 @@ export default new SlashCommand({
 
         await interaction.deferReply({ ephemeral: true })
 
-        const category = args.getChannel('削除するカテゴリ') as CategoryChannel
+        const category = args.getChannel('削除するカテゴリ', true) as CategoryChannel
         const deleteRoleIds = new Set<string>()
 
         await Promise.all(category.children.cache.map(async ch => {
@@ -43,10 +43,13 @@ export default new SlashCommand({
 
         if (args.getString('ロールの削除') == 'true') {
             await Promise.all([...deleteRoleIds].map(async id => {
-                return (await interaction.guild?.roles.fetch(id))?.delete().catch(e => { })
-            }))
+                const role = await interaction.guild?.roles.fetch(id)
+                if (role?.editable) await role.delete()
+                else await reply(interaction, `「${role}」はマダミナリンクより上位の役職のため削除できませんでした`)
+            }
+            ))
         }
 
-        await reply(interaction, '削除が完了しました')
+        await reply(interaction, `「${category.name}」の削除が完了しました`)
     }
 })

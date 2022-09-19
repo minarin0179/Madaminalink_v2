@@ -12,13 +12,13 @@ export interface RunOptions {
 export interface ComponentType {
     customId: string
     build: ComponentBuildFunction
-    execute: (options: any) => Promise<void>
+    execute: (options: any) => Promise<any>
 }
 
 export class Component implements ComponentType {
     customId: string
     build: ComponentBuildFunction
-    execute: (options: any) => Promise<void>;
+    execute: (options: any) => Promise<any>;
 
     constructor(component: ComponentType) {
         this.customId = component.customId

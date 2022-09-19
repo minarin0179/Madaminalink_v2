@@ -9,6 +9,7 @@ import roleList from "../../components/selectmenu/roleList";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
+import { isEditable } from "../../utils/isEditable";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -62,6 +63,11 @@ export default new SlashCommand({
         const target = args.getRole('対象')
         const roleAdd = args.getRole('付与するロール')
         const roleRemove = args.getRole('解除するロール')
+
+        if (!isEditable(target) || !isEditable(roleAdd) || !isEditable(roleRemove)) {
+            return reply(interaction, 'マダミナリンクより上位のロールは操作できません、ロールを並べ替えてから再度お試しください')
+        }
+
         switch (subCommand) {
             case 'add':
                 await reply(interaction, {

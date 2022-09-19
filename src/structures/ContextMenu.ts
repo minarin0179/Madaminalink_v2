@@ -9,7 +9,7 @@ interface ContextMenuRunOptions extends RunOptions {
     args: CommandInteractionOptionResolver
 }
 
-type RunFunction = (options: ContextMenuRunOptions) => Promise<void>
+type RunFunction = (options: ContextMenuRunOptions) => Promise<any>
 
 interface ContextMenuType {
     data: ContextMenuCommandBuilder,
