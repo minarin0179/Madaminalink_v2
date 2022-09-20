@@ -1,4 +1,4 @@
-import { APIRole, ButtonBuilder, ButtonInteraction, Collection, ComponentType, GuildChannel, GuildMember, MembershipScreeningFieldType, MessageComponentInteraction, Role, SlashCommandBuilder, User } from "discord.js";
+import { ButtonInteraction, Collection, ComponentType, EmbedBuilder, GuildMember, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import selectButton from "../../components/buttons/select";
@@ -41,8 +41,10 @@ export default new SlashCommand({
 
         if (choices.length > 24) return reply(interaction, { content: '選択肢の数が多すぎます(最大24個)', ephemeral: true })
 
+        const content = (args.getString('投票モード', true) === 'char') ? 'キャラクターを選択して下さい' : '投票先を選択してください'
 
         const message = await interaction.channel?.send({
+            content,
             components: buttonToRow([
                 ...selectButton.build({ choices }),
                 ...selectAgregate.build()]),
@@ -60,7 +62,6 @@ export default new SlashCommand({
             time: 1000 * 60 * timeLimit, //5分
             componentType: ComponentType.Button,
         })
-
 
         collector.on('collect', async (i: ButtonInteraction) => {
             const customId = getArgs(i)[0]
@@ -97,9 +98,10 @@ export default new SlashCommand({
                 }
             }
 
-            let content = '*----- 集計結果 -----*\n'
-
             if (args.getString('投票モード') === 'char') {
+                let content = ''
+                let warn = false;
+
                 for (const [member, value] of result.entries()) {
                     if (voter.get(value)?.length === 1) {
                         content += `${member} → ${choices[value]} ✅\n`
@@ -109,28 +111,40 @@ export default new SlashCommand({
                         }
                     } else {
                         content += `${member} → ${choices[value]} ⚠️\n`
+                        warn = true
                     }
                 }
+                const embed = new EmbedBuilder()
+                    .addFields({ name: '集計結果', value: content })
+                    .setColor(warn ? 0xFFCC4D : 0x77B255)
 
                 await interaction.channel?.send({
-                    content,
+                    embeds: [embed],
                     allowedMentions: { parse: [] }
                 })
 
             } else if (args.getString('投票モード') === 'vote') {
+                let numOfVotes = ''
                 voter.sort((a, b) => b.length - a.length)
                 for (const [key, value] of voter.entries()) {
-                    content += `${choices[key]} : ${value.length} 票\n`
+                    numOfVotes += `${choices[key]} : ${value.length} 票\n`
                 }
-                content += '\n'
+                let vote = ''
                 for (const [member, value] of result.entries()) {
-                    content += `${member} → ${choices[value]}\n`
+                    vote += `${member} → ${choices[value]}\n`
                 }
 
-                await reply(interaction, content)
+                const embed = new EmbedBuilder()
+                    .addFields(
+                        { name: '投票数', value: numOfVotes },
+                        { name: '投票先', value: vote }
+                    )
+                    .setColor(0x3B88C3)
+
+                await reply(interaction, { embeds: [embed], allowedMentions: { parse: [] } })
             }
 
-            await message.delete()
+            await message.delete().catch(() => { })
         })
 
     }
