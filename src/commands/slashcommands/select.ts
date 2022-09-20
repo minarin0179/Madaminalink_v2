@@ -97,7 +97,7 @@ export default new SlashCommand({
                 }
             }
 
-            let content = '*-----集計結果-----*\n'
+            let content = '*----- 集計結果 -----*\n'
 
             if (args.getString('投票モード') === 'char') {
                 for (const [member, value] of result.entries()) {
@@ -119,11 +119,10 @@ export default new SlashCommand({
 
             } else if (args.getString('投票モード') === 'vote') {
                 voter.sort((a, b) => b.length - a.length)
-                content += '投票数\n'
                 for (const [key, value] of voter.entries()) {
-                    content += `${choices[key]} → ${value.length}票\n`
+                    content += `${choices[key]} : ${value.length} 票\n`
                 }
-                content += '投票先\n'
+                content += '\n'
                 for (const [member, value] of result.entries()) {
                     content += `${member} → ${choices[value]}\n`
                 }
