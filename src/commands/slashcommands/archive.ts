@@ -96,13 +96,14 @@ const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) 
     }
 
     for await (const messages of slicedMessages) {
-        const date = new Date(messages[0].createdAt)
-        const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`
+
         await destination.sendTyping()
 
+        const embeds = messages.filter(message => message.content != '').map(message => {
+            const date = new Date(message.createdAt)
+            const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`
 
-        const embeds = messages.filter(message => message.content != '').map(message =>
-            new EmbedBuilder()
+            return new EmbedBuilder()
                 .setAuthor({
                     name: message.member?.nickname || message.author.username,
                     iconURL: message.author.avatarURL() ?? undefined
@@ -110,7 +111,7 @@ const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) 
                 .setColor([47, 49, 54])
                 .setDescription(message.content)
                 .setFooter({ text: timeStamp })
-        )
+        })
 
         if (embeds.length > 0) {
             await destination.send({ embeds: embeds });
