@@ -102,13 +102,13 @@ export default new SlashCommand({
             if (args.getString('投票モード') === 'char') {
                 for (const [member, value] of result.entries()) {
                     if (voter.get(value)?.length === 1) {
-                        content += `${member} → ${choices[value]} 🆗\n`
+                        content += `${member} → ${choices[value]} ✅\n`
                         if (choices[value] instanceof Role) {
                             await member.roles.add(choices[value])
                             await reply(interaction, `${member}に${choices[value]}を付与しました`)
                         }
                     } else {
-                        content += `${member} → ${choices[value]} ❌\n`
+                        content += `${member} → ${choices[value]} ⚠️\n`
                     }
                 }
 
