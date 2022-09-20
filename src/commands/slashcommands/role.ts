@@ -86,11 +86,14 @@ export default new SlashCommand({
                 break
             case 'self':
                 if (!roleAdd) {
-                    const roles = await interaction.guild?.roles.fetch()
-                    if (!roles) return
-                    for await (const rolesSplited of arraySplit([...roles.values()], 125)) {
+                    const roleManager = interaction.guild?.roles
+                    const roles = (await roleManager?.fetch())?.filter(role => !role.managed && role != roleManager?.everyone)
+                    if (!roles || roles?.size == 0) return reply(interaction, 'ロールが見つかりませんでした')
+
+                    roles.sort((roleA, roleB) => roleB.rawPosition - roleA.rawPosition)
+                    for await (const [index, rolesSplited] of arraySplit([...roles.values()], 125).entries()) {
                         await reply(interaction, {
-                            components: roleList.build(rolesSplited)
+                            components: roleList.build(rolesSplited, index * 5 + 1),
                         })
                     }
                     return

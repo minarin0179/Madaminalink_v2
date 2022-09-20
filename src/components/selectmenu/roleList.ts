@@ -6,11 +6,11 @@ import { reply } from "../../utils/Reply";
 
 export default new SelectMenu({
     customId: 'roleList',
-    build: (roles: Role[]) => arraySplit(roles, 25).map((roles, index) =>
+    build: (roles: Role[], startIndex) => arraySplit(roles, 25).map((roles, index) =>
         new ActionRowBuilder<SelectMenuBuilder>()
             .addComponents(new SelectMenuBuilder()
-                .setCustomId(`roleList`)
-                .setPlaceholder(`ロールを選択 (ページ${index + 1})`)
+                .setCustomId(`roleList:${startIndex + index}`)
+                .setPlaceholder(`ロールを選択 (ページ${startIndex + index})`)
                 .setMinValues(1)
                 .setMaxValues(roles.length)
                 .addOptions(
