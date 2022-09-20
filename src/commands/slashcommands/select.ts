@@ -86,8 +86,7 @@ export default new SlashCommand({
             const voter = new Collection<number, GuildMember[]>() //何番目の選択肢に誰が入れたか
 
             //誰が何番目に入れたかの集計(重複は無視)
-            collected.filter(c => c.customId.startsWith('select:')).map(i =>
-                result.set(i.member as GuildMember, Number(getArgs(i)[1])))
+            collected.filter(c => c.customId.startsWith('select:')).map(i => result.set(i.member as GuildMember, Number(getArgs(i)[1])))
 
             //何番目の選択肢に誰が入れたかの集計
             for (const [member, value] of result.entries()) {
@@ -114,8 +113,9 @@ export default new SlashCommand({
                         warn = true
                     }
                 }
+
                 const embed = new EmbedBuilder()
-                    .addFields({ name: '集計結果', value: content })
+                    .addFields({ name: '集計結果', value: content || 'なし' })
                     .setColor(warn ? 0xFFCC4D : 0x77B255)
 
                 await interaction.channel?.send({
@@ -136,8 +136,8 @@ export default new SlashCommand({
 
                 const embed = new EmbedBuilder()
                     .addFields(
-                        { name: '投票数', value: numOfVotes },
-                        { name: '投票先', value: vote }
+                        { name: '投票数', value: numOfVotes || 'なし' },
+                        { name: '投票先', value: vote || 'なし' }
                     )
                     .setColor(0x3B88C3)
 
