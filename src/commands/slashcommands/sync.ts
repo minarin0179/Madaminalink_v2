@@ -5,7 +5,7 @@ import { reply } from "../../utils/Reply";
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('sync')
-        .setDescription('カテゴリ内のチャンネルの権限を同期します')
+        .setDescription('カテゴリ内のすべてのチャンネルの権限をカテゴリと同期します')
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addChannelOption(option => option

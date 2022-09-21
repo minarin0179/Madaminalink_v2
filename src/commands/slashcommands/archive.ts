@@ -6,7 +6,7 @@ import { reply } from "../../utils/Reply";
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('archive')
-        .setDescription('チャンネルをスレッドとして保存します')
+        .setDescription('チャンネルをスレッドにして保存します')
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addChannelOption(option => option

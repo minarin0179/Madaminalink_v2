@@ -33,7 +33,7 @@ export default new SlashCommand({
         )
         .addStringOption(option => option
             .setName('個別ロールを作成しない')
-            .setDescription('Trueにすると個別chは作られますが個別ロールは作成されません')
+            .setDescription('個別のチャンネルは作られますがロールは作成されません')
             .setRequired(false)
             .addChoices(
                 { name: 'はい', value: 'true' },

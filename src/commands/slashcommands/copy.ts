@@ -7,7 +7,7 @@ import { transferAllMessages } from "../../utils/transferMessage";
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('copy')
-        .setDescription('チャンネルを複製します')
+        .setDescription('チャンネルを複製します(メッセージを含む)')
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addChannelOption(option => option

@@ -7,7 +7,7 @@ import { reply } from "../../utils/Reply";
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('dice')
-        .setDescription('ダイスを作成します(xdy)')
+        .setDescription('ダイスを振るボタン作成します(xdy)')
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addIntegerOption(option => option
