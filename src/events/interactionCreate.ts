@@ -1,4 +1,4 @@
-import { Colors, EmbedBuilder } from "discord.js"
+import { ChatInputCommandInteraction, Colors, CommandInteraction, EmbedBuilder, Interaction, MessageComponentInteraction, ModalSubmitInteraction } from "discord.js"
 import { client } from "../bot"
 import { Event } from "../structures/Events"
 import { reply } from "../utils/Reply"
@@ -12,14 +12,7 @@ export default new Event('interactionCreate', async (interaction) => {
         try {
             await command.execute({ client, interaction, args: interaction.options })
         } catch (e) {
-            await reply(interaction, {
-                content: 'エラーが発生しました、下記のエラーメッセージを添えて報告して下さい',
-                embeds: [new EmbedBuilder()
-                    .setColor(Colors.Red)
-                    //@ts-ignore
-                    .setDescription(e.stack)
-                ]
-            })
+            await showError(interaction, e)
         }
     }
 
@@ -30,16 +23,17 @@ export default new Event('interactionCreate', async (interaction) => {
         if (!component) return
         try {
             await component.execute({ client, interaction, args })
-
         } catch (e) {
-            await reply(interaction, {
-                content: 'エラーが発生しました、下記のエラーメッセージを添えて報告して下さい',
-                embeds: [new EmbedBuilder()
-                    .setColor(Colors.Red)
-                    //@ts-ignore
-                    .setDescription(e.stack)
-                ]
-            })
+            await showError(interaction, e)
         }
     }
 })
+
+const showError = async (interaction: CommandInteraction | MessageComponentInteraction | ModalSubmitInteraction, e: unknown) => reply(interaction, {
+    content: 'エラーが発生しました、下記のエラーメッセージを添えて報告して下さい',
+    embeds: [new EmbedBuilder()
+        .setColor(Colors.Red)
+        //@ts-ignore
+        .setDescription(e.stack)
+    ]
+}).catch(() => { })

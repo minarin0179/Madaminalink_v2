@@ -44,12 +44,13 @@ export default new SlashCommand({
         if (args.getString('ロールの削除') == 'true') {
             await Promise.all([...deleteRoleIds].map(async id => {
                 const role = await interaction.guild?.roles.fetch(id)
-                if (role?.editable) await role.delete()
-                else await reply(interaction, `「${role}」はマダミナリンクより上位の役職のため削除できませんでした`)
-            }
-            ))
+                if (role == interaction.guild?.roles.everyone) return
+                else if (role?.editable) await role.delete()
+                else await reply(interaction, `「${role}」はマダミナリンクより上位の役職のため削除できませんでした`).catch(() => { })
+            }))
         }
 
-        await reply(interaction, `「${category.name}」の削除が完了しました`)
+        //コマンドを入力したチャンネルが削除されている場合がある
+        await reply(interaction, `「${category.name}」の削除が完了しました`).catch(() => { })
     }
 })
