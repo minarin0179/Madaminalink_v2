@@ -16,6 +16,7 @@ export default new Modal({
                     .setStyle(TextInputStyle.Paragraph)
                     .setMinLength(1)
                     .setMaxLength(2000)
+                    .setValue(message.content)
                     .setPlaceholder('編集後のメッセージを入力')
                     .setRequired(true)
             )

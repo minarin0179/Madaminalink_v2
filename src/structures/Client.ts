@@ -1,11 +1,10 @@
 import { ApplicationCommandDataResolvable, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
+import 'dotenv/config'
 import * as path from "path";
 import * as fs from "fs";
 import { Event } from "./Events";
 import { Component } from "./Component";
 import { Command } from "./Command";
-
-require('dotenv').config()
 
 export class ExtendedClient extends Client {
 

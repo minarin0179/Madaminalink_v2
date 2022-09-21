@@ -14,6 +14,7 @@ type RunFunction = (options: ContextMenuRunOptions) => Promise<any>
 interface ContextMenuType {
     data: ContextMenuCommandBuilder,
     execute: RunFunction
+    dev?: boolean | undefined
 }
 
 export class ContextMenu extends Command implements ContextMenuType {
@@ -25,5 +26,6 @@ export class ContextMenu extends Command implements ContextMenuType {
         super(command)
         this.data = command.data
         this.execute = command.execute
+        this.dev = command.dev
     }
 }

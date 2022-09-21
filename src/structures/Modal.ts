@@ -20,9 +20,9 @@ export class Modal extends Component implements ModalType {
     build: ModalBuildFunction
     execute: (options: ModalRunOptions) => Promise<any>;
 
-    constructor(button: ModalType) {
-        super(button)
-        this.build = button.build
-        this.execute = button.execute
+    constructor(modal: ModalType) {
+        super(modal)
+        this.build = modal.build
+        this.execute = modal.execute
     }
 }
