@@ -25,8 +25,8 @@ export default new SlashCommand({
         if (!destination) {
             const channel = interaction.channel as GuildTextBasedChannel
             const category = channel.parent?.parent ?? channel.parent as CategoryChannel | undefined
-            const channels = (category?.children.cache ?? interaction.guild?.channels.cache)
-                ?.filter((channel): channel is TextChannel | NewsChannel | VoiceChannel => !channel.parent && (channel.isTextBased()))
+            const channels = (category?.children.cache ?? interaction.guild?.channels.cache.filter(ch => !ch.parent))
+                ?.filter((channel): channel is TextChannel | NewsChannel | VoiceChannel => channel.isTextBased())
 
             if (!channels) return
 
