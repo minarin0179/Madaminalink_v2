@@ -30,6 +30,7 @@ export class ExtendedClient extends Client {
 
         const commandsDirs = fs.readdirSync(commandsPath)
         const commandDatas: ApplicationCommandDataResolvable[] = []
+        const commandDatasDev: ApplicationCommandDataResolvable[] = []
 
         commandsDirs.forEach(async (dir: string) => {
             const dirPath = path.join(commandsPath, dir)
@@ -38,12 +39,19 @@ export class ExtendedClient extends Client {
                 const filePath = path.join(dirPath, file)
                 const command: Command = await this.importfile(filePath)
                 this.commands.set(command.data.name, command)
-                commandDatas.push(command.data.toJSON())
+                if (command.dev) {
+                    commandDatasDev.push(command.data.toJSON())
+                } else {
+                    commandDatas.push(command.data.toJSON())
+                }
             })
         })
 
         this.on('ready', () => {
             this.application?.commands.set(commandDatas)
+            if (process.env.DEV_SERVER_ID) {
+                this.application?.commands.set(commandDatasDev, process.env.DEV_SERVER_ID)
+            }
         })
 
         const eventsPath = path.join(main, 'events')

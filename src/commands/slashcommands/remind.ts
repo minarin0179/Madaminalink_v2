@@ -6,10 +6,11 @@ import { buttonToRow } from "../../utils/ButtonToRow";
 import deleteRemindButton from "../../components/buttons/deleteRemind";
 
 export default new SlashCommand({
+    dev: true,
     data: new SlashCommandBuilder()
         .setName('remind')
         .setDescription('リマインダーの登録や削除を行います')
-        .setDMPermission(true)
+        .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addSubcommand(subcommand => subcommand
             .setName('set')
