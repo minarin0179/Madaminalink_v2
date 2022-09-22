@@ -88,7 +88,7 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
 export const transferAllMessages = async (from: GuildTextBasedChannel, to: GuildTextBasedChannel, updates?: { [key: string]: GuildChannel }) => {
     const messages = (await fetchAllMessages(from)).reverse()
     for await (const message of messages.values()) {
-        transferMessage(message, to, { updates })
+        await transferMessage(message, to, { updates })
     }
 }
 
