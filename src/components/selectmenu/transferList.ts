@@ -23,16 +23,13 @@ export default new SelectMenu({
             )
     ),
     execute: async ({ interaction }) => {
-        await interaction.deferReply({ ephemeral: true })
-
         for await (const id of interaction.values) {
             const destination = interaction.guild?.channels.cache.get(id)
             if (!destination) continue
+            await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`)
             await interaction.channel?.send({
                 components: buttonToRow(transferButton.build({ destination }))
             })
         }
-
-        await reply(interaction, 'ボタンを作成しました')
     },
 })
