@@ -59,7 +59,7 @@ export default new SlashCommand({
 
         if (playerCount + privateCount + 5 >= 50) return reply(interaction, 'カテゴリーに入り切りません\nチャンネル数を減らしてください')
 
-        if (guild?.channels.cache.size + playerCount + privateCount + 6 >= 500) return reply(interaction, 'チャンネル数が上限に達しています\nチャンネル数を減らしてください')
+        if ((await guild?.channels.fetch()).size + playerCount + privateCount + 6 > 500) return reply(interaction, 'チャンネル数が上限に達しています\nチャンネル数を減らしてください')
 
         await interaction.deferReply({ ephemeral: true })
 
