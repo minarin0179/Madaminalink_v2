@@ -46,7 +46,8 @@ export default new SlashCommand({
             })
             description += `[# ${child.name}](${logThread.url})\n`
 
-            const threads = (await child.threads.fetch()).threads
+            const threads = (await child.threads.fetchActive()).threads.concat((await child.threads.fetchArchived()).threads)
+
             await Promise.all(threads.map(async thread => {
                 const logThread = await logChannel.threads.create({
                     name: thread.name,

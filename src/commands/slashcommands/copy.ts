@@ -31,12 +31,12 @@ export default new SlashCommand({
             }
         } else {
             const updates = Object.fromEntries(newChannels.map(([from, to]) => [from.id, to]))
-            newChannels.map(async newChannel => {
+            await Promise.all(newChannels.map(async newChannel => {
                 const [from, to] = newChannel
                 if (from.isTextBased() && to.isTextBased()) {
                     await transferAllMessages(from, to, updates)
                 }
-            })
+            }))
         }
 
 
@@ -76,4 +76,3 @@ const copyChannel = async (originalChannel: GuildChannel, option?: any): Promise
     }
     return []
 }
-
