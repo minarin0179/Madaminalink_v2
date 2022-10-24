@@ -123,7 +123,7 @@ export default new SlashCommand({
             ]
         });
 
-        await Promise.all([...Array(playerCount)].map(async (_, i) => {
+        for (let i = 0; i < playerCount; i++) {
             const perm = [
                 ...defaultPerm,
                 { id: SP.id, ...visible },
@@ -140,7 +140,7 @@ export default new SlashCommand({
                 parent: category,
                 permissionOverwrites: perm
             })
-        }))
+        }
 
         await guild.channels.create({
             name: '解説',
