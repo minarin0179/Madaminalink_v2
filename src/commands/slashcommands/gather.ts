@@ -22,13 +22,13 @@ export default new SlashCommand({
         const executor = interaction.member
         if (!(executor instanceof GuildMember)) return
         const voiceChannel = await (await executor.fetch()).voice.channel?.fetch()
-        if (!voiceChannel) return
+        if (!voiceChannel) return await reply(interaction, `あなたはVCに参加していません`)
         const targetRole = (args.getRole('対象') ?? interaction.guild?.roles.everyone) as Role
         await Promise.all(targetRole.members.map(async member => {
             if (!(member instanceof GuildMember) || !member.voice.channel) return
             await member.voice.setChannel(voiceChannel)
         }))
 
-        await reply(interaction, `「${targetRole.name}」のメンバーを「${voiceChannel?.name}」に移動させました`)
+        await reply(interaction, `「${targetRole}」のメンバーを「${voiceChannel}」に移動させました`)
     }
 })
