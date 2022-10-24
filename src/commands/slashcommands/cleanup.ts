@@ -1,6 +1,7 @@
 import { ChannelType, GuildChannel, GuildTextBasedChannel, NewsChannel, SlashCommandBuilder, TextChannel, VoiceChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { arraySplit } from "../../utils/ArraySplit";
+import { deleteMultiMessages } from "../../utils/DeleteMultiMessages";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
@@ -41,16 +42,6 @@ export default new SlashCommand({
 })
 
 const deleteAllMessages = async (channel: GuildTextBasedChannel) => {
-    const allMessages = await fetchAllMessages(channel)
-
-    const [messages, oldMessages] = allMessages.partition(message => (Date.now() - message.createdTimestamp) < 1_209_600_000);
-
-    await Promise.all(arraySplit(Array.from(messages.values()), 100).map(async messagesSliced => {
-        await channel.bulkDelete(messagesSliced)
-    }))
-
-    //２週間以上前のメッセージを順番に削除(遅い)
-    await Promise.all(oldMessages.map(async message => {
-        await message.delete();
-    }));
+    const messages = await fetchAllMessages(channel)
+    return await deleteMultiMessages(channel, messages)
 }

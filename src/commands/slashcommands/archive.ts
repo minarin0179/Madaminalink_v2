@@ -1,4 +1,4 @@
-import { CategoryChannel, ChannelType, discordSort, EmbedBuilder, Message, MessageType, SlashCommandBuilder, TextBasedChannel, TextChannel, ThreadChannel } from "discord.js";
+import { CategoryChannel, ChannelType, Collection, discordSort, EmbedBuilder, GuildTextBasedChannel, Message, MessageType, SlashCommandBuilder, TextBasedChannel, TextChannel, ThreadChannel, User } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
@@ -77,9 +77,11 @@ export default new SlashCommand({
     }
 })
 
-const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) => {
+const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChannel) => {
     const messages = [...(await fetchAllMessages(source)).reverse().values()]
     const slicedMessages: Message[][] = [];
+    const accentColor = new Collection<string, number>()
+
     const embedSize = ((message: Message) => message.content.length + (message.member?.nickname || message.author.username).length + 16)
     let tail = 0;
     let length = 0;
@@ -100,19 +102,25 @@ const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) 
 
         await destination.sendTyping()
 
-        const embeds = messages.filter(message => message.content != '').map(message => {
+        const embeds = await Promise.all(messages.filter(message => message.content != '').map(async message => {
             const date = new Date(message.createdAt)
             const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`
+            const color = accentColor.get(message.author.id) || await (async () => {
+                const colorFetched = await fetchUserAccentColor(message.author)
+                if (!colorFetched) return 3092790
+                accentColor.set(message.author.id, colorFetched)
+                return colorFetched
+            })()
 
             return new EmbedBuilder()
                 .setAuthor({
                     name: message.member?.nickname || message.author.username,
                     iconURL: message.author.avatarURL() ?? undefined
                 })
-                .setColor([47, 49, 54])
+                .setColor(color)
                 .setDescription(message.content)
                 .setFooter({ text: timeStamp })
-        })
+        }))
 
         if (embeds.length > 0) {
             await destination.send({ embeds: embeds });
@@ -126,4 +134,8 @@ const RunArchive = async (source: TextBasedChannel, destination: ThreadChannel) 
     }
 
     await destination.setArchived(true)
+}
+
+const fetchUserAccentColor = async (user: User) => {
+    return (await user.fetch()).accentColor
 }
