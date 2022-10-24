@@ -4,9 +4,9 @@ import { reply } from "../../utils/Reply";
 import { agenda } from "../../agenda";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import deleteRemindButton from "../../components/buttons/deleteRemind";
+import { client } from "../../bot";
 
 export default new SlashCommand({
-    dev: true,
     data: new SlashCommandBuilder()
         .setName('remind')
         .setDescription('リマインダーの登録や削除を行います')
@@ -121,3 +121,20 @@ const buildEmbed = (content: string, date: Date, channelId: string) =>
         { name: '日時', value: date.toLocaleString(), inline: true },
         { name: '送信先', value: `<#${channelId}>`, inline: true }
     )
+
+
+agenda.define('send remind', async (job: any) => {
+    const { channelId, authorId, content } = job.attrs.data;
+    const channel = await client.channels.fetch(channelId)
+    const author = await client.users.fetch(authorId)
+
+    if (!channel || !channel.isTextBased()) return
+
+    try {
+        await channel.send(content)
+        await job.remove()
+    } catch (e) {
+        console.log(e)
+    }
+
+});

@@ -1,4 +1,4 @@
-import { ActionRow, ActionRowBuilder, Attachment, ButtonBuilder, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageType } from "discord.js";
+import { ActionRow, ActionRowBuilder, Attachment, ButtonBuilder, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageType, PrivateThreadChannel, PublicThreadChannel } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
 import { splitMessage } from "./SplitMessage";
 import { buttonToRow } from "../utils/ButtonToRow";
@@ -78,9 +78,9 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
     }
     if (message.thread && "threads" in destination) {
         const name = message.thread.name
-        const newThread = message.type == MessageType.ThreadCreated ?
+        const newThread = (message.type == MessageType.ThreadCreated ?
             await destination.threads.create({ name }) :
-            await newMessage.startThread({ name })
+            await newMessage.startThread({ name, })) as PublicThreadChannel | PrivateThreadChannel
         await transferAllMessages(message.thread, newThread)
     }
 }
