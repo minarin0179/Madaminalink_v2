@@ -9,7 +9,6 @@ import roleList from "../../components/selectmenu/roleList";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
-import { isEditable } from "../../utils/isEditable";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -28,6 +27,14 @@ export default new SlashCommand({
                 .setName('付与するロール')
                 .setDescription('ロールを付与する対象を選択してください')
                 .setRequired(true)
+            ).addStringOption(option => option
+                .setName('ボタンを他の人からも見えるようにする')
+                .setDescription('ボタンが他の人からも見えるようになり、押せるようになります')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'はい', value: 'true' },
+                    { name: 'いいえ', value: 'false' }
+                )
             )
         ).addSubcommand(subcommand => subcommand
             .setName('remove')
@@ -36,6 +43,14 @@ export default new SlashCommand({
                 .setName('解除するロール')
                 .setDescription('解除するロールを選択してください')
                 .setRequired(true)
+            ).addStringOption(option => option
+                .setName('ボタンを他の人からも見えるようにする')
+                .setDescription('ボタンが他の人からも見えるようになり、押せるようになります')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'はい', value: 'true' },
+                    { name: 'いいえ', value: 'false' }
+                )
             )
         ).addSubcommand(subcommand => subcommand
             .setName('change')
@@ -48,6 +63,14 @@ export default new SlashCommand({
                 .setName('付与するロール')
                 .setDescription('付与するロールを選択してください')
                 .setRequired(true)
+            ).addStringOption(option => option
+                .setName('ボタンを他の人からも見えるようにする')
+                .setDescription('ボタンが他の人からも見えるようになり、押せるようになります(非推奨)')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'はい', value: 'true' },
+                    { name: 'いいえ', value: 'false' }
+                )
             )
         ).addSubcommand(subcommand => subcommand
             .setName('self')
@@ -63,25 +86,25 @@ export default new SlashCommand({
         const target = args.getRole('対象')
         const roleAdd = args.getRole('付与するロール')
         const roleRemove = args.getRole('解除するロール')
-
-        if (!isEditable(target) || !isEditable(roleAdd) || !isEditable(roleRemove)) {
-            return reply(interaction, 'マダミナリンクより上位のロールは操作できません、ロールを並べ替えてから再度お試しください')
-        }
+        const ephemeral = args.getString('ボタンを他の人からも見えるようにする') === 'true' ? false : true
 
         switch (subCommand) {
             case 'add':
                 await reply(interaction, {
                     components: buttonToRow(roleAddButton.build({ target: target, role: roleAdd })),
+                    ephemeral
                 })
                 break
             case 'remove':
                 await reply(interaction, {
                     components: buttonToRow(roleRemoveButton.build({ role: roleRemove })),
+                    ephemeral
                 })
                 break
             case 'change':
                 await reply(interaction, {
                     components: buttonToRow(roleChangeButton.build({ before: roleRemove, after: roleAdd })),
+                    ephemeral
                 })
                 break
             case 'self':

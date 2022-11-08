@@ -1,6 +1,5 @@
 import { ButtonBuilder, ButtonStyle, Role } from "discord.js";
 import { Button } from "../../structures/Button";
-import { isEditable } from "../../utils/isEditable";
 import { reply } from "../../utils/Reply";
 
 export default new Button({
@@ -15,15 +14,14 @@ export default new Button({
         const role = await interaction.guild?.roles.fetch(roleId)
 
         if (!role) return reply(interaction, 'ロールが見つかりません')
-        if (!isEditable(role)) return reply(interaction, 'マダミナリンクより上位のロールは解除できません')
-
         await interaction.deferReply({ ephemeral: true })
 
         await interaction.guild?.members.fetch()
 
         const { members } = role
-        await Promise.all(members.map(async member => await member.roles.remove(role)))
+        if (members.size === 0) return reply(interaction, `${role}を持つメンバーがいません`)
 
+        await Promise.all(members.map(async member => await member.roles.remove(role)))
         await reply(interaction, `${[...members.values()].join(', ')}から${role}を解除しました`)
     },
 })
