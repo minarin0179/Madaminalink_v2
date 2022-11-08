@@ -1,6 +1,5 @@
 import { Guild, SlashCommandBuilder, GuildMember, ChannelType, PermissionFlagsBits } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
-import { isEditable } from "../../utils/isEditable";
 import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
@@ -51,15 +50,10 @@ export default new SlashCommand({
         const privateCount = args.getInteger('密談チャンネル数', true)
 
         const role = args.getRole('ロールの作成位置') ?? everyone
-        if (!isEditable(role)) {
-            return reply(interaction, 'ロールの作成位置をマダミナリンクより上位に指定することは出来ません')
-        }
 
         const rolePosition = role?.position
 
         if (playerCount + privateCount + 5 >= 50) return reply(interaction, 'カテゴリーに入り切りません\nチャンネル数を減らしてください')
-
-        if ((await guild?.channels.fetch()).size + playerCount + privateCount + 6 > 500) return reply(interaction, 'チャンネル数が上限に達しています\nチャンネル数を減らしてください')
 
         await interaction.deferReply({ ephemeral: true })
 
