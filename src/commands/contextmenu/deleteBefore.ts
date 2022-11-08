@@ -1,8 +1,6 @@
-import { ApplicationCommandType, ContextMenuCommandBuilder, GuildTextBasedChannel } from "discord.js";
+import { ApplicationCommandType, Collection, ContextMenuCommandBuilder, Message } from "discord.js";
 import { ContextMenu } from "../../structures/ContextMenu";
-import editModal from "../../components/modal/editModal";
 import { reply } from "../../utils/Reply";
-import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { deleteMultiMessages } from "../../utils/DeleteMultiMessages";
 
 export default new ContextMenu({
@@ -16,9 +14,17 @@ export default new ContextMenu({
         await interaction.deferReply({ ephemeral: true })
 
         const message = interaction.targetMessage
-        const targetMessages = (await fetchAllMessages(message.channel)).filter(m => m.createdTimestamp <= message.createdTimestamp)
+        const { channel } = message
+        let lastId: string | undefined = message.id
 
-        await deleteMultiMessages(message.channel as GuildTextBasedChannel, targetMessages)
+        await message.delete()
+
+        while (true) {
+            const messages: Collection<string, Message> = await channel.messages.fetch({ limit: 100, before: lastId })
+            if (messages.size == 0) break
+            lastId = messages.last()?.id
+            await deleteMultiMessages(channel, messages)
+        }
 
         await reply(interaction, "メッセージを削除しました")
     }
