@@ -105,19 +105,13 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChan
         const embeds = await Promise.all(messages.filter(message => message.content != '').map(async message => {
             const date = new Date(message.createdAt)
             const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`
-            const color = accentColor.get(message.author.id) || await (async () => {
-                const colorFetched = await fetchUserAccentColor(message.author)
-                if (!colorFetched) return 3092790
-                accentColor.set(message.author.id, colorFetched)
-                return colorFetched
-            })()
 
             return new EmbedBuilder()
                 .setAuthor({
                     name: message.member?.nickname || message.author.username,
                     iconURL: message.author.avatarURL() ?? undefined
                 })
-                .setColor(color)
+                .setColor([47, 49, 54])
                 .setDescription(message.content)
                 .setFooter({ text: timeStamp })
         }))
@@ -134,8 +128,4 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChan
     }
 
     await destination.setArchived(true)
-}
-
-const fetchUserAccentColor = async (user: User) => {
-    return (await user.fetch()).accentColor
 }
