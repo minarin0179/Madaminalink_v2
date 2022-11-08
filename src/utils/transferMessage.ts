@@ -54,34 +54,39 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
             ({ content, components } = openMessage(channel, mentionable))
         }
     }
+    try {
+        const newMessage = await destination.send({
+            content,
+            files: files.map((file: Attachment) => file.url),
+            components,
+            embeds,
+            allowedMentions: { parse: [] },
+        })
 
-
-    const newMessage = await destination.send({
-        content,
-        files: files.map((file: Attachment) => file.url),
-        components,
-        embeds,
-        allowedMentions: { parse: [] },
-    }).catch(e => { throw e })
-
-    for await (const file of largeFiles.values()) {
-        await destination.send(`\\\\\\diff
+        for await (const file of largeFiles.values()) {
+            await destination.send(`\\\\\\diff
 - ${file.name}のコピーに失敗しました
 - ファイル容量の上限は8MBです\\\\\\`)
-    }
+        }
 
-    if (message.pinned) await newMessage.pin()
+        if (message.pinned) await newMessage.pin()
 
-    if (!options?.noReaction) {
-        for await (const reaction of message.reactions.cache.keys())
-            newMessage.react(reaction)
-    }
-    if (message.thread && "threads" in destination) {
-        const name = message.thread.name
-        const newThread = (message.type == MessageType.ThreadCreated ?
-            await destination.threads.create({ name }) :
-            await newMessage.startThread({ name, })) as PublicThreadChannel | PrivateThreadChannel
-        await transferAllMessages(message.thread, newThread)
+        if (!options?.noReaction) {
+            for await (const reaction of message.reactions.cache.keys())
+                newMessage.react(reaction)
+        }
+        if (message.thread && "threads" in destination) {
+            const name = message.thread.name
+            const newThread = (message.type == MessageType.ThreadCreated ?
+                await destination.threads.create({ name }) :
+                await newMessage.startThread({ name, })) as PublicThreadChannel | PrivateThreadChannel
+            await transferAllMessages(message.thread, newThread)
+        }
+    } catch (e: any) {
+        // emptyメッセージだったら無視 
+        if (e.code != 50006) {
+            throw e
+        }
     }
 }
 
