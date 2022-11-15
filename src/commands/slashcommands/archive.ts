@@ -11,7 +11,7 @@ export default new SlashCommand({
         .setDefaultMemberPermissions(0)
         .addChannelOption(option => option
             .setName('保存するカテゴリ')
-            .addChannelTypes(ChannelType.GuildCategory)
+            .addChannelTypes(ChannelType.GuildText, ChannelType.GuildCategory)
             .setDescription('保存するカテゴリ')
             .setRequired(true)
         ).addChannelOption(option => option
@@ -25,7 +25,7 @@ export default new SlashCommand({
 
         await interaction.deferReply({ ephemeral: true })
 
-        const targetCategory = args.getChannel('保存するカテゴリ', true) as CategoryChannel
+        const targetCategory = args.getChannel('保存するカテゴリ', true) as CategoryChannel | TextChannel;
 
         const logChannel = (args.getChannel('保存先') ?? await interaction.guild?.channels.create({
             name: `ログ ${targetCategory.name}`,
@@ -34,8 +34,19 @@ export default new SlashCommand({
         })) as TextChannel
 
 
-        const children = discordSort(targetCategory.children.cache
-            .filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+        /*         const children = discordSort(targetCategory.children.cache
+                    .filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+         */
+        const children = (() => {
+            if (targetCategory instanceof CategoryChannel) {
+                return discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+            }
+            return new Collection<string, TextChannel>([[targetCategory.id, targetCategory]])
+        })();
+
+        if (children.size == 0) {
+            return reply(interaction, { content: '保存するチャンネルがありません', ephemeral: true })
+        }
 
         const descriptions = await Promise.all(children.map(async child => {
 
