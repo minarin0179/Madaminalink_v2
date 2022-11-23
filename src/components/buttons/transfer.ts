@@ -18,10 +18,6 @@ export default new Button({
             .filter((channel): channel is NewsChannel | TextChannel | VoiceChannel => channel?.isTextBased() ?? false)
         interaction.channel?.messages.cache.clear()
         const reactions = (await interaction.message.fetch()).reactions.cache
-        /* 
-                const messages = (await interaction.channel?.messages.fetch({ limit: 100 }))?.reverse()
-                messages?.delete(interaction.message.id)//転送用メッセージ自身は除く
-         */
 
         const messages = (await fetchAllMessages(interaction.channel as TextBasedChannel)).reverse().filter(message => {
             const customId = message.components[0]?.components[0]?.customId
