@@ -1,5 +1,6 @@
-import { ButtonBuilder, ButtonStyle, TextChannel, GuildTextBasedChannel, NewsChannel, VoiceChannel } from "discord.js";
+import { ButtonBuilder, ButtonStyle, TextChannel, GuildTextBasedChannel, NewsChannel, VoiceChannel, TextBasedChannel } from "discord.js";
 import { Button } from "../../structures/Button";
+import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
 import { transferMessage } from "../../utils/transferMessage";
 
@@ -17,9 +18,15 @@ export default new Button({
             .filter((channel): channel is NewsChannel | TextChannel | VoiceChannel => channel?.isTextBased() ?? false)
         interaction.channel?.messages.cache.clear()
         const reactions = (await interaction.message.fetch()).reactions.cache
+        /* 
+                const messages = (await interaction.channel?.messages.fetch({ limit: 100 }))?.reverse()
+                messages?.delete(interaction.message.id)//転送用メッセージ自身は除く
+         */
 
-        const messages = (await interaction.channel?.messages.fetch({ limit: 100 }))?.reverse()
-        messages?.delete(interaction.message.id)//転送用メッセージ自身は除く
+        const messages = (await fetchAllMessages(interaction.channel as TextBasedChannel)).reverse().filter(message => {
+            const customId = message.components[0]?.components[0]?.customId
+            return !customId?.startsWith('transfer') //転送用のボタンが付いたメッセージは無視
+        })
 
         if (!messages) return
 
