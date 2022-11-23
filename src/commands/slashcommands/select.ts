@@ -32,7 +32,7 @@ export default new SlashCommand({
 
     execute: async ({ interaction, args }) => {
 
-        const choices = args.getString('選択肢', true).split(/[ ,、 ]/).filter(choice => choice !== '').map(choice => {
+        const choices = args.getString('選択肢', true).split(/[ 　,、]/).filter(choice => choice !== '').map(choice => {
             const roleId = choice.match(/<@&(.*)>/)
             const role = roleId ? interaction.guild?.roles.cache.get(roleId[1]) : null
             if (role) return role
