@@ -4,7 +4,7 @@ import { reply } from "../../utils/Reply";
 import selectButton from "../../components/buttons/select";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import selectAgregate from "../../components/buttons/selectAgregate";
-
+import unehemeralButton from "../../components/buttons/unehemeral";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -66,14 +66,17 @@ export default new SlashCommand({
         collector.on('collect', async (i: ButtonInteraction) => {
             const customId = getArgs(i)[0]
             if (customId === 'selectAgregate') {
-                if (interaction.user.id === i.user.id) collector.stop()
-                else await reply(i, '集計は投票を開始した人のみが行えます')
-                return
+                if (interaction.user.id === i.user.id) {
+                    collector.stop()
+                }
+                else {
+                    await reply(i, '集計は投票を開始した人のみが行えます')
+                }
             }
-
-            if (collector.collected.filter(c => c.user.id === i.user.id).size > 1) {
+            else if (collector.collected.filter(c => c.user.id === i.user.id).size > 1) {
                 await reply(i, `${getArgs(i)[2]}に変更しました`);
-            } else {
+            }
+            else {
                 await reply(i, `${getArgs(i)[2]}を選択しました`);
                 if (interaction.user.id !== i.user.id) {
                     await reply(interaction, `${i.member}が選択しました`);
@@ -141,7 +144,11 @@ export default new SlashCommand({
                     )
                     .setColor(0x3B88C3)
 
-                await reply(interaction, { embeds: [embed], allowedMentions: { parse: [] } })
+                await reply(interaction, {
+                    embeds: [embed],
+                    allowedMentions: { parse: [] },
+                    components: buttonToRow(unehemeralButton.build()),
+                })
             }
 
             await message.delete().catch(() => { })
