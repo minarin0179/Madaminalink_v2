@@ -1,7 +1,8 @@
-import { ApplicationCommandType, Collection, ContextMenuCommandBuilder, Message } from "discord.js";
+import { ApplicationCommandType, ContextMenuCommandBuilder, Snowflake } from "discord.js";
 import { ContextMenu } from "../../structures/ContextMenu";
 import { reply } from "../../utils/Reply";
 import { deleteMultiMessages } from "../../utils/DeleteMultiMessages";
+import { fetchAllMessages } from "../../utils/FetchAllMessages";
 
 export default new ContextMenu({
     data: new ContextMenuCommandBuilder()
@@ -15,16 +16,10 @@ export default new ContextMenu({
 
         const message = interaction.targetMessage
         const { channel } = message
-        let lastId: string | undefined = message.id
+        const after: Snowflake | undefined = message.id
 
-        await message.delete()
-        
-        while (true) {
-            const messages: Collection<string, Message> = await channel.messages.fetch({ limit: 100, after: lastId })
-            if (messages.size == 0) break
-            lastId = messages.last()?.id
-            await deleteMultiMessages(channel, messages)
-        }
+        const messages = await fetchAllMessages(channel, { after })
+        await deleteMultiMessages(channel, messages)
 
         await reply(interaction, "メッセージを削除しました")
     }
