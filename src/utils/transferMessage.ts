@@ -1,4 +1,4 @@
-import { ActionRow, ActionRowBuilder, Attachment, ButtonBuilder, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageType, PrivateThreadChannel, PublicThreadChannel } from "discord.js";
+import { ActionRow, ActionRowBuilder, Attachment, ButtonBuilder, GuildChannel, GuildTextBasedChannel, Message, MessageActionRowComponent, MessageMentionOptions, MessageType, PrivateThreadChannel, PublicThreadChannel } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
 import { splitMessage } from "./SplitMessage";
 import { buttonToRow } from "../utils/ButtonToRow";
@@ -8,7 +8,8 @@ import { openMessage } from "../commands/slashcommands/open";
 
 type transferOptions = {
     noReaction?: boolean,
-    updates?: { [key: string]: GuildChannel }
+    allowedMentions?: MessageMentionOptions,
+    updates?: { [key: string]: GuildChannel } //チャンネルリンク差し替え用
 }
 
 export const transferMessage = async (message: Message, destination: GuildTextBasedChannel, options?: transferOptions) => {
@@ -16,7 +17,7 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
     await destination.sendTyping();
 
     let contentAll = message.content
-    const { updates } = options ?? {}
+    const { allowedMentions, updates } = options ?? {}
 
     if (updates) {
         contentAll = replaceChannelLinks(contentAll, updates)
@@ -28,7 +29,7 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
     //最後の1チャンクだけ取り出して残りは先に送る
     let content = contentSplit.pop()
     for await (const msg of contentSplit) {
-        await destination.send({ content: msg, allowedMentions: { parse: [] } })
+        await destination.send({ content: msg, allowedMentions })
     }
 
     const { attachments, embeds } = message
@@ -60,7 +61,7 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
             files: files.map((file: Attachment) => file.url),
             components,
             embeds,
-            allowedMentions: { parse: [] },
+            allowedMentions
         })
 
         for await (const file of largeFiles.values()) {
@@ -90,10 +91,10 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
     }
 }
 
-export const transferAllMessages = async (from: GuildTextBasedChannel, to: GuildTextBasedChannel, updates?: { [key: string]: GuildChannel }) => {
+export const transferAllMessages = async (from: GuildTextBasedChannel, to: GuildTextBasedChannel, options?: transferOptions) => {
     const messages = (await fetchAllMessages(from)).reverse()
     for await (const message of messages.values()) {
-        await transferMessage(message, to, { updates })
+        await transferMessage(message, to, options)
     }
 }
 

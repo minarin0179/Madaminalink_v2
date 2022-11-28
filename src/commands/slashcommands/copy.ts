@@ -27,14 +27,14 @@ export default new SlashCommand({
         if (newChannels.length === 1) {
             const [from, to] = newChannels[0]
             if (from.isTextBased() && to.isTextBased()) {
-                await transferAllMessages(from, to)
+                await transferAllMessages(from, to, { allowedMentions: { parse: [] } })
             }
         } else {
             const updates = Object.fromEntries(newChannels.map(([from, to]) => [from.id, to]))
             await Promise.all(newChannels.map(async newChannel => {
                 const [from, to] = newChannel
                 if (from.isTextBased() && to.isTextBased()) {
-                    await transferAllMessages(from, to, updates)
+                    await transferAllMessages(from, to, { allowedMentions: { parse: [] }, updates })
                 }
             }))
         }
