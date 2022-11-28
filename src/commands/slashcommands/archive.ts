@@ -132,9 +132,11 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChan
         }
 
 
-        const files = messages.slice(-1)[0].attachments.filter(attachment => attachment.size < 8388608).map(attachment => attachment.url);
-        if (files.length > 0) {
-            await destination.send({ files: files });
+        const files = messages.slice(-1)[0].attachments.filter(attachment => attachment.size <= 8388608).map(attachment => attachment.url);
+        //ファイルを一括で送るとメモリを食う
+        for await (const file of files) {
+            await destination.sendTyping()
+            await destination.send({ files: [file] });
         }
     }
 
