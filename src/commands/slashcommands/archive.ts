@@ -33,10 +33,6 @@ export default new SlashCommand({
             permissionOverwrites: targetCategory.permissionOverwrites.cache
         })) as TextChannel
 
-
-        /*         const children = discordSort(targetCategory.children.cache
-                    .filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
-         */
         const children = (() => {
             if (targetCategory instanceof CategoryChannel) {
                 return discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
@@ -51,36 +47,21 @@ export default new SlashCommand({
         const descriptions = await Promise.all(children.map(async child => {
 
             let description = ''
-            const logThread = await logChannel.threads.create({
-                name: child.name,
-                autoArchiveDuration: 60,
-            })
-            description += `[# ${child.name}](${logThread.url})\n`
+
+            description += await RunArchive(child, logChannel)
 
             const threads = (await child.threads.fetchActive()).threads.concat((await child.threads.fetchArchived()).threads)
-
-            await Promise.all(threads.map(async thread => {
-                const logThread = await logChannel.threads.create({
-                    name: thread.name,
-                    autoArchiveDuration: 60,
-                })
-                description += `┗[# ${thread.name}](${logThread.url})\n`
-                await RunArchive(thread, logThread)
-            }))
-
-            await RunArchive(child, logThread)
-
+            if (threads.size > 0) {
+                description += '\n' + (await Promise.all(threads.map(async thread => await RunArchive(thread, logChannel)))).join('\n')
+            }
             return description
         }))
-
-        //システムメッセージを削除
-        logChannel.bulkDelete((await logChannel.messages.fetch({ limit: 100 })).filter(message => message.type == MessageType.ThreadCreated))
 
         await logChannel.send({
             embeds: [new EmbedBuilder()
                 .setTitle(targetCategory.name)
                 .setColor([47, 49, 54])
-                .setDescription(descriptions.join(''))
+                .setDescription(descriptions.join('\n'))
             ]
         })
 
@@ -88,10 +69,11 @@ export default new SlashCommand({
     }
 })
 
-const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChannel) => {
+const RunArchive = async (source: GuildTextBasedChannel, destination: TextChannel): Promise<string> => {
     const messages = [...(await fetchAllMessages(source)).reverse().values()]
     const slicedMessages: Message[][] = [];
     const accentColor = new Collection<string, number>()
+    const destinationThread = await destination.threads.create({ name: source.name })
 
     const embedSize = ((message: Message) => message.content.length + (message.member?.nickname || message.author.username).length + 16)
     let tail = 0;
@@ -111,9 +93,9 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChan
 
     for await (const messages of slicedMessages) {
 
-        await destination.sendTyping()
+        await destinationThread.sendTyping()
 
-        const embeds = await Promise.all(messages.filter(message => message.content != '').map(async message => {
+        const embeds = messages.filter(message => message.content != '').map(message => {
             const date = new Date(message.createdAt)
             const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`
 
@@ -125,20 +107,34 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: ThreadChan
                 .setColor([47, 49, 54])
                 .setDescription(message.content)
                 .setFooter({ text: timeStamp })
-        }))
+        })
 
         if (embeds.length > 0) {
-            await destination.send({ embeds: embeds });
+            await destinationThread.send({ embeds: embeds });
         }
 
 
-        const files = messages.slice(-1)[0].attachments.filter(attachment => attachment.size <= 8388608).map(attachment => attachment.url);
-        //ファイルを一括で送るとメモリを食う
-        for await (const file of files) {
-            await destination.sendTyping()
-            await destination.send({ files: [file] });
+        const attachments = messages.slice(-1)[0].attachments
+
+        if (!attachments.size) continue
+
+        const files = (await Promise.all(attachments.map(async attachment => {
+            if (attachment.contentType?.startsWith('image/')) {
+                await destinationThread.sendTyping()
+                await destinationThread.send(attachment.url)
+            } else {
+                return new EmbedBuilder()
+                    .setColor([47, 49, 54])
+                    .setDescription(`[${attachment.name}](${attachment.url})`)
+            }
+        }))).filter((file): file is EmbedBuilder => file != undefined)
+
+        if (files.length > 0) {
+            await destinationThread.send({ embeds: files })
         }
     }
+    (await destinationThread.fetchStarterMessage())?.delete()
+    await destinationThread.setArchived(true)
 
-    await destination.setArchived(true)
+    return (source.isThread() ? '┗' : '') + `[# ${destinationThread.name}](${destinationThread.url})`
 }
