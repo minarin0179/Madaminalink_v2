@@ -1,9 +1,9 @@
-import { ChatInputCommandInteraction, Colors, CommandInteraction, EmbedBuilder, Interaction, MessageComponentInteraction, ModalSubmitInteraction } from "discord.js"
+import { Colors, CommandInteraction, EmbedBuilder, Events, MessageComponentInteraction, ModalSubmitInteraction } from "discord.js"
 import { client } from "../bot"
 import { Event } from "../structures/Events"
 import { reply } from "../utils/Reply"
 
-export default new Event('interactionCreate', async (interaction) => {
+export default new Event(Events.InteractionCreate, async (interaction) => {
 
     if (interaction.isAutocomplete()) return
     try {
