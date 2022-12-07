@@ -10,7 +10,7 @@ export default new SelectMenu({
     build: (channels: GuildTextBasedChannel[]) => arraySplit(channels, 25).map((channels, index) =>
         new ActionRowBuilder<SelectMenuBuilder>()
             .addComponents(new SelectMenuBuilder()
-                .setCustomId(`transferList`)
+                .setCustomId(`transferList:${index}`)
                 .setPlaceholder(`転送先を選択 (ページ${index + 1})`)
                 .setMinValues(1)
                 .setMaxValues(channels.length)
