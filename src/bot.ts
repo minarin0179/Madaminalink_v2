@@ -9,13 +9,6 @@ export const client: ExtendedClient = new ExtendedClient({
         GatewayIntentBits.GuildVoiceStates
     ],
     rest: { timeout: 60000 },
-    makeCache: Options.cacheWithLimits({
-        MessageManager: 100,
-        GuildMemberManager: {
-            maxSize: 100,
-            keepOverLimit: member => member.id === client.user?.id
-        }
-    })
 })
 
 client.start()
