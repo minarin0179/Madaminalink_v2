@@ -6,7 +6,7 @@ import { reply } from "../../utils/Reply";
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName('server')
-        .setDescription('チャンネル数、ロール数、チャンネル数を表示します')
+        .setDescription('メンバー数、ロール数、チャンネル数を表示します')
         .setDMPermission(false),
 
     execute: async ({ interaction }) => {
