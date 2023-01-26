@@ -1,4 +1,4 @@
-import { Role, SlashCommandBuilder } from "discord.js";
+import { GuildMember, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 
@@ -27,13 +27,10 @@ export default new SlashCommand({
         const role = args.getRole('ロール', true) as Role
         const prefix = args.getString('先頭につける文字')
         const failed: string[] = []
-        await Promise.all(role.members.map(async member => {
-            const nickname = member.nickname?.replace('＠', '@')
-            //@より後ろの名前
-            const name = nickname?.substring(nickname.lastIndexOf('@') + 1) || member.user.username
 
-            return await member.setNickname(!prefix ? name : `${prefix}@${name}`)
-                .catch(() => failed.push(`${member}`))
+
+        await Promise.all(role.members.map(async member => {
+            await rename(member, prefix).catch(() => failed.push(`${member}`))
         }))
 
         await reply(interaction, 'ニックネームのリセットが完了しました')
@@ -43,3 +40,11 @@ export default new SlashCommand({
         }
     }
 })
+
+export const rename = async (member: GuildMember, prefix?: string | null) => {
+    const nickname = member.nickname?.replace('＠', '@')
+    //@より後ろの名前
+    const name = nickname?.substring(nickname.lastIndexOf('@') + 1) || member.user.username
+
+    return await member.setNickname(!prefix ? name : `${prefix}@${name}`)
+}

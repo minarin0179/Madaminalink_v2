@@ -5,6 +5,7 @@ import selectButton from "../../components/buttons/select";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import selectAgregate from "../../components/buttons/selectAgregate";
 import unehemeralButton from "../../components/buttons/unehemeral";
+import { rename } from "./rename";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -87,7 +88,7 @@ export default new SlashCommand({
         collector.on('end', async collected => {
             const result = new Collection<GuildMember, number>()//誰が何番目に入れたか
             const voter = new Collection<number, GuildMember[]>() //何番目の選択肢に誰が入れたか
-
+            
             //誰が何番目に入れたかの集計(重複は無視)
             collected.filter(c => c.customId.startsWith('select:')).map(i => result.set(i.member as GuildMember, Number(getArgs(i)[1])))
 
@@ -105,11 +106,15 @@ export default new SlashCommand({
                 let warn = false;
 
                 for (const [member, value] of result.entries()) {
+                    const choice = choices[value]
                     if (voter.get(value)?.length === 1) {
-                        content += `${member} → ${choices[value]} ✅\n`
-                        if (choices[value] instanceof Role) {
-                            await member.roles.add(choices[value])
-                            await reply(interaction, `${member}に${choices[value]}を付与しました`)
+                        content += `${member} → ${choice} ✅\n`
+                        if (choice instanceof Role) {
+                            await member.roles.add(choice)
+                            await reply(interaction, `${member}に${choice}を付与しました`)
+                            await rename(member, choice.name).catch(() => { })
+                        } else {
+                            await rename(member, choice).catch(() => { })
                         }
                     } else {
                         content += `${member} → ${choices[value]} ⚠️\n`
