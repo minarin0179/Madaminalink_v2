@@ -9,22 +9,29 @@ export default new Modal({
         .setCustomId(`edit:${message.id}`)
         .setTitle('メッセージを編集')
         .addComponents(
-            new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-                new TextInputBuilder()
+            new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(((): TextInputBuilder => {
+                const textInput = new TextInputBuilder()
                     .setCustomId('content')
                     .setLabel('編集内容')
                     .setStyle(TextInputStyle.Paragraph)
                     .setMinLength(1)
                     .setMaxLength(2000)
-                    .setValue(message.content)
                     .setPlaceholder('編集後のメッセージを入力')
                     .setRequired(true)
-            )
+
+                if (message.content.length > 0) {
+                    textInput.setValue(message.content)
+                }
+
+                return textInput
+            })())
         )
     ,
     execute: async ({ interaction, args }) => {
         const [messageId] = args
         const message = await interaction.channel?.messages.fetch(messageId)
+
+        await interaction.deferReply({ ephemeral: true })
 
         await message?.edit(interaction.fields.getTextInputValue('content'))
 
