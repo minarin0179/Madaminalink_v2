@@ -113,24 +113,12 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.send({ embeds: embeds });
         }
 
+        const files = messages.slice(-1)[0].attachments.filter(attachment => attachment.size <= 8388608).map(attachment => attachment.url);
 
-        const attachments = messages.slice(-1)[0].attachments
-
-        if (!attachments.size) continue
-
-        const files = (await Promise.all(attachments.map(async attachment => {
-            if (attachment.contentType?.startsWith('image/')) {
-                await destinationThread.sendTyping()
-                await destinationThread.send(attachment.url)
-            } else {
-                return new EmbedBuilder()
-                    .setColor([47, 49, 54])
-                    .setDescription(`[${attachment.name}](${attachment.url})`)
-            }
-        }))).filter((file): file is EmbedBuilder => file != undefined)
-
-        if (files.length > 0) {
-            await destinationThread.send({ embeds: files })
+        //ファイルを一括で送るとメモリを食う
+        for await (const file of files) {
+            await destinationThread.sendTyping()
+            await destinationThread.send({ files: [file] });
         }
     }
     (await destinationThread.fetchStarterMessage())?.delete()
