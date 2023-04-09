@@ -29,6 +29,8 @@ export default new SlashCommand({
             .setName('制限時間')
             .setDescription('制限時間を分単位で入力して下さい(デフォルトは5分)')
             .setRequired(false)
+            .setMaxValue(1440)
+            .setMinValue(1)
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
