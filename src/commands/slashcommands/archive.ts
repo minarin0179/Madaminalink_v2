@@ -1,4 +1,4 @@
-import { CategoryChannel, ChannelType, Collection, discordSort, EmbedBuilder, GuildTextBasedChannel, Message, MessageType, SlashCommandBuilder, TextBasedChannel, TextChannel, ThreadChannel, User } from "discord.js";
+import { CategoryChannel, ChannelType, Collection, discordSort, EmbedBuilder, GuildTextBasedChannel, Message, SlashCommandBuilder, TextChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
@@ -72,7 +72,6 @@ export default new SlashCommand({
 const RunArchive = async (source: GuildTextBasedChannel, destination: TextChannel): Promise<string> => {
     const messages = [...(await fetchAllMessages(source)).reverse().values()]
     const slicedMessages: Message[][] = [];
-    const accentColor = new Collection<string, number>()
     const destinationThread = await destination.threads.create({ name: source.name })
 
     const embedSize = ((message: Message) => message.content.length + (message.member?.nickname || message.author.username).length + 16)
@@ -121,8 +120,8 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.send({ files: [file] });
         }
     }
-    (await destinationThread.fetchStarterMessage())?.delete()
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { })
     await destinationThread.setArchived(true)
 
-    return (source.isThread() ? '┗' : '') + `[# ${destinationThread.name}](${destinationThread.url})`
+    return (source.isThread() ? '┗' : '') + `[\\# ${destinationThread.name}](${destinationThread.url})`
 }
