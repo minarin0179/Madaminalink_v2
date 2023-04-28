@@ -4,6 +4,7 @@ import { splitMessage } from "./SplitMessage";
 import { buttonToRow } from "../utils/ButtonToRow";
 import transferButton from "../components/buttons/transfer";
 import { openMessage } from "../commands/slashcommands/open";
+import { client } from "../bot";
 
 
 type transferOptions = {
@@ -34,14 +35,19 @@ export const transferMessage = async (message: Message, destination: GuildTextBa
 
     const { attachments, embeds } = message
 
-    let components: ActionRow<MessageActionRowComponent>[] | ActionRowBuilder<ButtonBuilder>[] = message.components
 
     //巨大なファイルを除外
     const [files, largeFiles] = attachments.partition((f: Attachment) => f.size < 0x8000000)
 
-    //transfer/openの更新
+    let components: ActionRow<MessageActionRowComponent>[] | ActionRowBuilder<ButtonBuilder>[] = message.components
+
+    //transfer,openのボタンを更新
     const customId = components[0]?.components[0]?.customId
-    if (customId?.startsWith('transfer')) {
+
+    if (message.author.id !== client.user?.id) {
+        components = [] //自分以外のメッセージはcomponentsを削除
+    }
+    else if (customId?.startsWith('transfer')) {
         const [prefix, destinationId] = customId?.split(/[;:,]/)
         const destination = updates?.[destinationId]
         if (destination) {
