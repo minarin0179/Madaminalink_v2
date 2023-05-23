@@ -20,7 +20,7 @@ export default new ContextMenu({
 
         if (!message.editable || !embed_old?.description) return reply(interaction, 'このメッセージは編集できません')
 
-        embed.setDescription(embed_old?.description.replace(/\[# /g, "[\\# "));
+        embed.setDescription(embed_old?.description.replace(/\[\\?\# /g, "[_#_ "))
 
         message.edit({ embeds: [embed] });
 

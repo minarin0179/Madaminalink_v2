@@ -123,5 +123,5 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     (await destinationThread.fetchStarterMessage())?.delete().catch(() => { })
     await destinationThread.setArchived(true)
 
-    return (source.isThread() ? '┗' : '') + `[\\# ${destinationThread.name}](${destinationThread.url})`
+    return (source.isThread() ? '┗' : '') + `[_#_ ${destinationThread.name}](${destinationThread.url})`
 }
