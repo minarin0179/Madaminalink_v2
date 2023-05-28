@@ -1,15 +1,15 @@
-import { ActionRowBuilder, SelectMenuBuilder, GuildChannel, Message } from "discord.js";
+import { ActionRowBuilder, GuildChannel, Message, StringSelectMenuBuilder } from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
- import { reply } from "../../utils/Reply";
+import { reply } from "../../utils/Reply";
 import { transferMessage } from "../../utils/transferMessage";
 
 export default new SelectMenu({
     customId: 'transferListImmed',
     build: (channels: GuildChannel[], message: Message) => arraySplit(channels, 25).map((channels, index) =>
-        new ActionRowBuilder<SelectMenuBuilder>()
-            .addComponents(new SelectMenuBuilder()
-                .setCustomId(`transferListImmed:${message.id}`)
+        new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(new StringSelectMenuBuilder()
+                .setCustomId(`transferListImmed:${message.id},${index}`)
                 .setPlaceholder(`転送先を選択 (ページ${index + 1})`)
                 .setMinValues(1)
                 .setMaxValues(channels.length)

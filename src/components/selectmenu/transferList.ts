@@ -1,4 +1,4 @@
-import { ActionRowBuilder, SelectMenuBuilder, GuildTextBasedChannel } from "discord.js";
+import { ActionRowBuilder, GuildTextBasedChannel, StringSelectMenuBuilder } from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
 import { buttonToRow } from "../../utils/ButtonToRow";
@@ -8,8 +8,8 @@ import transferButton from "../buttons/transfer";
 export default new SelectMenu({
     customId: 'transferList',
     build: (channels: GuildTextBasedChannel[]) => arraySplit(channels, 25).map((channels, index) =>
-        new ActionRowBuilder<SelectMenuBuilder>()
-            .addComponents(new SelectMenuBuilder()
+        new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(new StringSelectMenuBuilder()
                 .setCustomId(`transferList:${index}`)
                 .setPlaceholder(`転送先を選択 (ページ${index + 1})`)
                 .setMinValues(1)

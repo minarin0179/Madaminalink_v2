@@ -1,4 +1,4 @@
-import { ActionRowBuilder, SelectMenuBuilder, Role } from "discord.js";
+import { ActionRowBuilder, Role, StringSelectMenuBuilder } from "discord.js";
 import { buildRoleRow } from "../../commands/slashcommands/role";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
@@ -7,8 +7,8 @@ import { reply } from "../../utils/Reply";
 export default new SelectMenu({
     customId: 'roleList',
     build: (roles: Role[], startIndex) => arraySplit(roles, 25).map((roles, index) =>
-        new ActionRowBuilder<SelectMenuBuilder>()
-            .addComponents(new SelectMenuBuilder()
+        new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(new StringSelectMenuBuilder()
                 .setCustomId(`roleList:${startIndex + index}`)
                 .setPlaceholder(`ロールを選択 (ページ${startIndex + index})`)
                 .setMinValues(1)
