@@ -16,7 +16,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       
-    - name: SSH setup1
+    - name: SSH setup
       run: | 
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
@@ -28,7 +28,7 @@ jobs:
         ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
         "
         cd ${{ secrets.WORK_DIR }};
-        git checkout ${{ secrets.MAIN_BRANCH }};
+        git checkout master;
         git pull;
         exit
         "
