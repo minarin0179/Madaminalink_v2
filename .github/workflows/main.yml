@@ -17,14 +17,16 @@ jobs:
       uses: actions/checkout@v3
       
     - name: SSH setup1
-      run: mkdir -p ~/.ssh
-    - name: SSH setup 2
-      run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-    - name: SSH setup 3
-      run: chmod 600 ~/.ssh/id_rsa
-    - name: SSH setup 4
-      run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      run: | 
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
     - name: Git pull on server
       run: |
-        ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd Madaminalink_v2 && git pull'
+        ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
+        cd ${{ secrets.WORK_DIR }}
+        git checkout ${{ secrets.MAIN_BRANCH }} 
+        git pull
+        exit
