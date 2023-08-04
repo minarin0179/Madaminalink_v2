@@ -16,11 +16,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       
-    - name: SSH setup
-      run: |
-        install -m 600 -D /dev/null ~/.ssh/id_rsa
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+    - name: SSH setup1
+      run: mkdir -p ~/.ssh
+    - name: SSH setup 2
+      run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+    - name: SSH setup 3
+      run: chmod 600 ~/.ssh/id_rsa
+    - name: SSH setup 4
+      run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
     - name: Git pull on server
       run: |
