@@ -24,9 +24,11 @@ jobs:
         ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
     - name: Git pull on server
-      run: |
+      run: >
         ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
-        cd ${{ secrets.WORK_DIR }}
-        git checkout ${{ secrets.MAIN_BRANCH }} 
-        git pull
+        "
+        cd ${{ secrets.WORK_DIR }};
+        git checkout ${{ secrets.MAIN_BRANCH }};
+        git pull;
         exit
+        "
