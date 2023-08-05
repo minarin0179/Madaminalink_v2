@@ -1,4 +1,4 @@
-import { ChannelType, GuildChannel, SlashCommandBuilder, CategoryChannel } from "discord.js";
+import { ChannelType, GuildChannel, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";

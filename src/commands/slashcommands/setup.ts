@@ -99,7 +99,7 @@ export default new SlashCommand({
                 parent: category,
                 permissionOverwrites: [...defaultPerm, { id: PL.id, ...invisible }, { id: SP.id, ...writable }],
             }),
-            ...characters.map(async (name, i) => {
+            ...characters.map(async name => {
                 const perm = [...defaultPerm, { id: SP.id, ...visible }];
 
                 if (!(interaction.options.getString("個別ロールを作成しない") === "true")) {
