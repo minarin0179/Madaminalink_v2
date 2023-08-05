@@ -13,8 +13,8 @@ services:
     build: .
     container_name: madaminalink
     environment:
-      - TOKEN=OTM0MTA5OTAyNzc4MDE1NzQ1.GiDZmv.BQd3p1UP8Scclm9yBs_6QTIZVsJ61GDuB4pyHQ
-      - DEV_SERVER_ID=926052259069059102
+      - TOKEN=******************
+      - DEV_SERVER_ID=******************
       - mongodb=mongodb://mongodb:27017/agenda
     depends_on:
       - mongo
