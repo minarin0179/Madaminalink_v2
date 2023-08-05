@@ -107,6 +107,7 @@ export default new SlashCommand({
                 });
                 break;
             case "change":
+                if (roleAdd == roleRemove) return reply(interaction, "変更前と変更後のロールが同じです");
                 await reply(interaction, {
                     components: buttonToRow(roleChangeButton.build({ before: roleRemove, after: roleAdd })),
                     ephemeral,

@@ -23,12 +23,10 @@ export default new Button({
         const { members } = before;
         if (members.size === 0) return reply(interaction, `${before}を持つメンバーがいません`);
 
-        await Promise.all(
-            members.map(async member => {
-                await member.roles.add(after);
-                await member.roles.remove(before);
-            })
-        );
+        await Promise.all([
+            ...members.map(async member => await member.roles.add(after)),
+            ...members.map(async member => await member.roles.remove(before)),
+        ]);
 
         await reply(interaction, `${[...members.values()].join(", ")}の${before}を${after}に変更しました`);
     },
