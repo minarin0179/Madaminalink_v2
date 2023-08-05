@@ -3,7 +3,6 @@ import {
     ActionRowBuilder,
     Attachment,
     ButtonBuilder,
-    GuildChannel,
     GuildTextBasedChannel,
     Message,
     MessageActionRowComponent,
@@ -18,11 +17,13 @@ import { buttonToRow } from "../utils/ButtonToRow";
 import transferButton from "../components/buttons/transfer";
 import { openMessage } from "../commands/slashcommands/open";
 import { client } from "../bot";
+import { ChannelLink } from "../structures/ChannelLink";
+import { buildTransferMessage } from "../commands/slashcommands/transfer";
 
 type transferOptions = {
     noReaction?: boolean;
     allowedMentions?: MessageMentionOptions;
-    updates?: { [key: string]: GuildChannel }; //チャンネルリンク差し替え用
+    updates?: ChannelLink[]; //チャンネルリンク差し替え用
 };
 
 export const transferMessage = async (
@@ -62,17 +63,18 @@ export const transferMessage = async (
         components = []; //自分以外のメッセージはcomponentsを削除
     } else if (customId?.startsWith("transfer")) {
         const [, destinationId] = customId?.split(/[;:,]/);
-        const destination = updates?.[destinationId];
-        if (destination) {
-            components = buttonToRow(transferButton.build({ destination }));
+        const destinationChannel = updates?.find(({ before }) => before.id == destinationId)?.after;
+
+        if (destinationChannel) {
+            ({ content, components } = buildTransferMessage(destinationChannel));
         }
     } else if (customId?.startsWith("open")) {
         const [, channelId, mentionableId] = customId?.split(/[;:,]/);
-        const channel = updates?.[channelId];
+        const targetChannel = updates?.find(({ before }) => before.id == channelId)?.after;
         const mentionable =
             message.guild?.roles.cache.get(mentionableId) ?? message.guild?.members.cache.get(mentionableId);
-        if (channel && mentionable) {
-            ({ content, components } = openMessage(channel, mentionable));
+        if (targetChannel && mentionable) {
+            ({ content, components } = openMessage(targetChannel, mentionable));
         }
     }
     try {
@@ -123,9 +125,9 @@ export const transferAllMessages = async (
     }
 };
 
-const replaceChannelLinks = (content: string, updates: { [key: string]: GuildChannel }) => {
-    Object.keys(updates).map((key: string) => {
-        content = content.replace(new RegExp(`<#${key}>`, "g"), `${updates[key]}`);
+const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
+    updates.map(({ before, after }) => {
+        content = content.replace(new RegExp(`${before}`, "g"), `${after}`);
     });
     return content;
 };

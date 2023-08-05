@@ -1,11 +1,14 @@
 import {
+    APIInteractionDataResolvedChannel,
     CategoryChannel,
     ChannelType,
     discordSort,
+    GuildChannel,
     GuildTextBasedChannel,
     NewsChannel,
     SlashCommandBuilder,
     TextChannel,
+    ThreadChannel,
     VoiceChannel,
 } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
@@ -53,4 +56,11 @@ export default new SlashCommand({
             components: buttonToRow(transferButton.build({ destination })),
         });
     },
+});
+
+export const buildTransferMessage = (
+    destination: GuildChannel | ThreadChannel | APIInteractionDataResolvedChannel
+) => ({
+    content: `ボタンを押すとメッセージを${destination}に転送します`,
+    components: buttonToRow(transferButton.build({ destination })),
 });

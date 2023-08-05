@@ -4,6 +4,7 @@ import { arraySplit } from "../../utils/ArraySplit";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { reply } from "../../utils/Reply";
 import transferButton from "../buttons/transfer";
+import { buildTransferMessage } from "../../commands/slashcommands/transfer";
 
 export default new SelectMenu({
     customId: "transferList",
@@ -28,9 +29,8 @@ export default new SelectMenu({
             const destination = interaction.guild?.channels.cache.get(id);
             if (!destination) continue;
             await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`);
-            await interaction.channel?.send({
-                components: buttonToRow(transferButton.build({ destination })),
-            });
+
+            await interaction.channel?.send(buildTransferMessage(destination));
         }
     },
 });

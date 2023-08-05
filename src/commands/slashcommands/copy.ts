@@ -3,6 +3,7 @@ import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
 import { transferAllMessages } from "../../utils/transferMessage";
+import { ChannelLink } from "../../structures/ChannelLink";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -22,24 +23,17 @@ export default new SlashCommand({
         await interaction.deferReply({ ephemeral: true });
 
         const originalChannel = (args.getChannel("対象") ?? interaction.channel) as GuildChannel;
-        const newChannels = await copyChannel(originalChannel);
 
-        if (newChannels.length === 1) {
-            const [from, to] = newChannels[0];
-            if (from.isTextBased() && to.isTextBased()) {
-                await transferAllMessages(from, to, { allowedMentions: { parse: [] } });
-            }
-        } else {
-            const updates = Object.fromEntries(newChannels.map(([from, to]) => [from.id, to]));
-            await Promise.all(
-                newChannels.map(async newChannel => {
-                    const [from, to] = newChannel;
-                    if (from.isTextBased() && to.isTextBased()) {
-                        await transferAllMessages(from, to, { allowedMentions: { parse: [] }, updates });
-                    }
-                })
-            );
-        }
+        const channelLinks = await duplicateChannel(originalChannel);
+
+        await Promise.all(
+            channelLinks.map(async link => {
+                const { before, after } = link;
+                if (before.isTextBased() && after.isTextBased()) {
+                    await transferAllMessages(before, after, { allowedMentions: { parse: [] }, updates: channelLinks });
+                }
+            })
+        );
 
         await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`);
     },
@@ -50,41 +44,34 @@ export default new SlashCommand({
  * originalChannel:CategoryChannel -> [...[originalChannel,newChannel]]
  */
 
-const copyChannel = async (originalChannel: GuildChannel, option?: any): Promise<GuildChannel[][]> => {
-    if (originalChannel.isVoiceBased()) {
-        return [
-            [
-                originalChannel,
-                await originalChannel.clone({
-                    name: `(copy) ${originalChannel.name}`,
-                    ...option,
-                }),
-            ],
-        ];
-    } else if (originalChannel.isTextBased()) {
-        return [
-            [
-                originalChannel,
-                await originalChannel.clone({
-                    name: `(copy) ${originalChannel.name}`,
-                    // @ts-ignore voicebasedでVoiceChannelを弾いているためtopicプロパティは存在する
-                    topic: originalChannel.topic || "",
-                    nsfw: originalChannel.nsfw,
-                    rateLimitPerUser: originalChannel.rateLimitPerUser || 0,
-                    ...option,
-                }),
-            ],
-        ];
-    } else if (isCategory(originalChannel)) {
-        const newCategory = (await originalChannel.clone({
+const duplicateChannel = async (originalChannel: GuildChannel, option?: any): Promise<ChannelLink[]> => {
+    if (isCategory(originalChannel)) {
+        const newCategory = await originalChannel.clone({
             name: `(copy) ${originalChannel.name}`,
-        })) as CategoryChannel;
+            type: ChannelType.GuildCategory,
+        });
 
-        return await Promise.all(
+        const channelLinks = await Promise.all(
             originalChannel.children.cache.map(
-                async c => (await copyChannel(c, { name: c.name, parent: newCategory }))[0]
+                async c => await duplicateChannel(c, { name: c.name, parent: newCategory })
             )
         );
+
+        return channelLinks.flat();
     }
-    return [];
+
+    const newChannel = await originalChannel.clone({
+        name: `(copy) ${originalChannel.name}`,
+        ...option,
+    });
+
+    if (originalChannel.isTextBased() && newChannel.isTextBased()) {
+        if ("topic" in originalChannel && "topic" in newChannel) {
+            newChannel.topic = originalChannel.topic || "";
+        }
+        newChannel.setNSFW(originalChannel.nsfw);
+        newChannel.setRateLimitPerUser(originalChannel.rateLimitPerUser || 0);
+    }
+
+    return [{ before: originalChannel, after: newChannel }];
 };
