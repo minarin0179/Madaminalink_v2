@@ -4,47 +4,49 @@ import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
-        .setName('rename')
-        .setDescription('ニックネームを一括で変更します')
+        .setName("rename")
+        .setDescription("ニックネームを一括で変更します")
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
-        .addRoleOption(option => option
-            .setName('ロール')
-            .setDescription('ニックネームをリセットするロール')
-            .setRequired(true)
-        ).addStringOption(option => option
-            .setName('先頭につける文字')
-            .setDescription('「先頭につける文字@ユーザー名」の形式に変更します(指定しなかった場合はニックネームをリセット)')
-            .setRequired(false)
+        .addRoleOption(option =>
+            option.setName("ロール").setDescription("ニックネームをリセットするロール").setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName("先頭につける文字")
+                .setDescription(
+                    "「先頭につける文字@ユーザー名」の形式に変更します(指定しなかった場合はニックネームをリセット)"
+                )
+                .setRequired(false)
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
+        await interaction.deferReply({ ephemeral: true });
 
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.guild?.members.fetch();
 
-        await interaction.guild?.members.fetch()
+        const role = args.getRole("ロール", true) as Role;
+        const prefix = args.getString("先頭につける文字");
+        const failed: string[] = [];
 
-        const role = args.getRole('ロール', true) as Role
-        const prefix = args.getString('先頭につける文字')
-        const failed: string[] = []
+        await Promise.all(
+            role.members.map(async member => {
+                await rename(member, prefix).catch(() => failed.push(`${member}`));
+            })
+        );
 
-
-        await Promise.all(role.members.map(async member => {
-            await rename(member, prefix).catch(() => failed.push(`${member}`))
-        }))
-
-        await reply(interaction, 'ニックネームのリセットが完了しました')
+        await reply(interaction, "ニックネームのリセットが完了しました");
 
         if (failed.length > 0) {
-            await reply(interaction, `ニックネームの変更に失敗したメンバー: ${failed.join(', ')}`)
+            await reply(interaction, `ニックネームの変更に失敗したメンバー: ${failed.join(", ")}`);
         }
-    }
-})
+    },
+});
 
 export const rename = async (member: GuildMember, prefix?: string | null) => {
-    const nickname = member.nickname?.replace('＠', '@')
+    const nickname = member.nickname?.replace("＠", "@");
     //@より後ろの名前
-    const name = nickname?.substring(nickname.lastIndexOf('@') + 1) || member.user.username
+    const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.username;
 
-    return await member.setNickname(!prefix ? name : `${prefix}@${name}`)
-}
+    return await member.setNickname(!prefix ? name : `${prefix}@${name}`);
+};

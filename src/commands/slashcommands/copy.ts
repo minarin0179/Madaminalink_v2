@@ -6,43 +6,44 @@ import { transferAllMessages } from "../../utils/transferMessage";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
-        .setName('copy')
-        .setDescription('チャンネルを複製します(メッセージを含む)')
+        .setName("copy")
+        .setDescription("チャンネルを複製します(メッセージを含む)")
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
-        .addChannelOption(option => option
-            .setName('対象')
-            .setDescription('コピーするチャンネル/カテゴリー')
-            .addChannelTypes(ChannelType.GuildCategory, ChannelType.GuildText)
-            .setRequired(false)
+        .addChannelOption(option =>
+            option
+                .setName("対象")
+                .setDescription("コピーするチャンネル/カテゴリー")
+                .addChannelTypes(ChannelType.GuildCategory, ChannelType.GuildText)
+                .setRequired(false)
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
+        await interaction.deferReply({ ephemeral: true });
 
-        await interaction.deferReply({ ephemeral: true })
-
-        const originalChannel = (args.getChannel('対象') ?? interaction.channel) as GuildChannel
-        const newChannels = await copyChannel(originalChannel)
+        const originalChannel = (args.getChannel("対象") ?? interaction.channel) as GuildChannel;
+        const newChannels = await copyChannel(originalChannel);
 
         if (newChannels.length === 1) {
-            const [from, to] = newChannels[0]
+            const [from, to] = newChannels[0];
             if (from.isTextBased() && to.isTextBased()) {
-                await transferAllMessages(from, to, { allowedMentions: { parse: [] } })
+                await transferAllMessages(from, to, { allowedMentions: { parse: [] } });
             }
         } else {
-            const updates = Object.fromEntries(newChannels.map(([from, to]) => [from.id, to]))
-            await Promise.all(newChannels.map(async newChannel => {
-                const [from, to] = newChannel
-                if (from.isTextBased() && to.isTextBased()) {
-                    await transferAllMessages(from, to, { allowedMentions: { parse: [] }, updates })
-                }
-            }))
+            const updates = Object.fromEntries(newChannels.map(([from, to]) => [from.id, to]));
+            await Promise.all(
+                newChannels.map(async newChannel => {
+                    const [from, to] = newChannel;
+                    if (from.isTextBased() && to.isTextBased()) {
+                        await transferAllMessages(from, to, { allowedMentions: { parse: [] }, updates });
+                    }
+                })
+            );
         }
 
-
-        await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`)
-    }
-})
+        await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`);
+    },
+});
 
 /**
  * originalChannel:GuildChannel -> [[originalChannel,newChannel]]
@@ -51,28 +52,39 @@ export default new SlashCommand({
 
 const copyChannel = async (originalChannel: GuildChannel, option?: any): Promise<GuildChannel[][]> => {
     if (originalChannel.isVoiceBased()) {
-        return [[originalChannel, await originalChannel.clone({
-            name: `(copy) ${originalChannel.name}`,
-            ...option
-        })]]
+        return [
+            [
+                originalChannel,
+                await originalChannel.clone({
+                    name: `(copy) ${originalChannel.name}`,
+                    ...option,
+                }),
+            ],
+        ];
     } else if (originalChannel.isTextBased()) {
-        return [[originalChannel, await originalChannel.clone({
+        return [
+            [
+                originalChannel,
+                await originalChannel.clone({
+                    name: `(copy) ${originalChannel.name}`,
+                    // @ts-ignore voicebasedでVoiceChannelを弾いているためtopicプロパティは存在する
+                    topic: originalChannel.topic || "",
+                    nsfw: originalChannel.nsfw,
+                    rateLimitPerUser: originalChannel.rateLimitPerUser || 0,
+                    ...option,
+                }),
+            ],
+        ];
+    } else if (isCategory(originalChannel)) {
+        const newCategory = (await originalChannel.clone({
             name: `(copy) ${originalChannel.name}`,
-            // @ts-ignore voicebasedでVoiceChannelを弾いているためtopicプロパティは存在する
-            topic: originalChannel.topic || '',
-            nsfw: originalChannel.nsfw,
-            rateLimitPerUser: originalChannel.rateLimitPerUser || 0,
-            ...option
-        })]]
-    }
-    else if (isCategory(originalChannel)) {
-        const newCategory = await originalChannel.clone({
-            name: `(copy) ${originalChannel.name}`,
-        }) as CategoryChannel
+        })) as CategoryChannel;
 
-        return await Promise.all(originalChannel.children.cache.map(async c =>
-            (await copyChannel(c, { name: c.name, parent: newCategory }))[0]
-        ))
+        return await Promise.all(
+            originalChannel.children.cache.map(
+                async c => (await copyChannel(c, { name: c.name, parent: newCategory }))[0]
+            )
+        );
     }
-    return []
-}
+    return [];
+};
