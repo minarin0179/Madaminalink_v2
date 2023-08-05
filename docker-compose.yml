@@ -8,15 +8,13 @@ services:
       - "27017"
     volumes:
       - ./.db:/data/db
-  
+
   bot:
     build: .
     container_name: madaminalink
     environment:
-      - TOKEN=******************
-      - DEV_SERVER_ID=******************
+      - TOKEN=OTM0MTA5OTAyNzc4MDE1NzQ1.GiDZmv.BQd3p1UP8Scclm9yBs_6QTIZVsJ61GDuB4pyHQ
+      - DEV_SERVER_ID=926052259069059102
       - mongodb=mongodb://mongodb:27017/agenda
     depends_on:
       - mongo
-    # デーモン起動後もコンテナが終了しないようにする
-    tty: true

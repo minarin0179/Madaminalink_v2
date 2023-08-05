@@ -1,10 +1,12 @@
 FROM node:18
 
-COPY . /app
-
 WORKDIR /app
 
+#package.jsonが変更されてない場合はキャッシュで高速化される
+COPY package.json package-lock.json ./
 RUN npm install
+
+COPY . .
 
 ENV PATH="/app/node_modules/.bin:$PATH"
 
@@ -12,5 +14,4 @@ ENV PATH="/app/node_modules/.bin:$PATH"
 RUN pm2 install typescript
 
 # コンテナの起動時にボットを起動
-#ENTRYPOINT [ "ts-node", "./src/bot.ts" ]
-ENTRYPOINT [ "pm2", "start", "./src/bot.ts" ]
+ENTRYPOINT [ "pm2", "--no-daemon", "start", "./src/bot.ts" ]
