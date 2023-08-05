@@ -5,18 +5,17 @@ import { reply } from "../../utils/Reply";
 
 export default new ContextMenu({
     data: new ContextMenuCommandBuilder()
-        .setName('メッセージを編集')
+        .setName("メッセージを編集")
         .setType(ApplicationCommandType.Message)
         .setDefaultMemberPermissions(0)
         .setDMPermission(false),
     execute: async ({ interaction, args }) => {
-        if (!interaction.isMessageContextMenuCommand()) return
+        if (!interaction.isMessageContextMenuCommand()) return;
 
-        const message = interaction.targetMessage
+        const message = interaction.targetMessage;
 
-        if (!message.editable) return reply(interaction, 'このメッセージは編集できません')
+        if (!message.editable) return reply(interaction, "このメッセージは編集できません");
 
-
-        await interaction.showModal(editModal.build({ message }))
-    }
-})
+        await interaction.showModal(editModal.build({ message }));
+    },
+});
