@@ -46,7 +46,7 @@ export default new SlashCommand({
 export const rename = async (member: GuildMember, prefix?: string | null) => {
     const nickname = member.nickname?.replace("＠", "@");
     //@より後ろの名前
-    const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.username;
+    const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.globalName;
 
     return await member.setNickname(!prefix ? name : `${prefix}@${name}`);
 };
