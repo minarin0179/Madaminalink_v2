@@ -6,6 +6,10 @@ import { buttonToRow } from "../../utils/ButtonToRow";
 import deleteRemindButton from "../../components/buttons/deleteRemind";
 import { client } from "../../bot";
 
+const today = new Date();
+const month = today.getMonth() + 1;
+const day = today.getDate();
+
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("remind")
@@ -19,7 +23,7 @@ export default new SlashCommand({
                 .addIntegerOption(option =>
                     option
                         .setName("月")
-                        .setDescription("月を入力してください")
+                        .setDescription(`月を入力してください (今日の日付:${month}月${day}日)`)
                         .setMinValue(1)
                         .setMaxValue(12)
                         .setRequired(true)
@@ -27,7 +31,7 @@ export default new SlashCommand({
                 .addIntegerOption(option =>
                     option
                         .setName("日")
-                        .setDescription("日付を入力してください")
+                        .setDescription(`日付を入力してください (今日の日付:${month}月${day}日)`)
                         .setMinValue(1)
                         .setMaxValue(31)
                         .setRequired(true)
@@ -72,7 +76,7 @@ export default new SlashCommand({
             const day = args.getInteger("日", true);
             const hour = args.getInteger("時", true);
             const minute = args.getInteger("分", true);
-            const content = args.getString("本文", true);
+            const content = args.getString("本文", true).replace(/ {2}|　{2}|\\n/g, "\n");
             const destination = args.getChannel("送信先") ?? interaction.channel;
 
             process.env.TZ = "Asia/Tokyo";
@@ -124,11 +128,13 @@ export default new SlashCommand({
 });
 
 const buildEmbed = (content: string, date: Date, channelId: string) =>
-    new EmbedBuilder().addFields(
-        { name: "本文", value: content },
-        { name: "日時", value: date.toLocaleString(), inline: true },
-        { name: "送信先", value: `<#${channelId}>`, inline: true }
-    );
+    new EmbedBuilder()
+        .setTitle("本文")
+        .setDescription(content)
+        .addFields(
+            { name: "日時", value: date.toLocaleString(), inline: true },
+            { name: "送信先", value: `<#${channelId}>`, inline: true }
+        );
 
 agenda.define("send remind", async (job: any) => {
     const { channelId, authorId, content } = job.attrs.data;
