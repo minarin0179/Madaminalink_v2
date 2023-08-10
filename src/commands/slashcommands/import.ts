@@ -3,7 +3,6 @@ import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import fetch from "cross-fetch";
 import { ExportData } from "../../structures/ExportData";
-import { openMessage } from "./open";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -96,7 +95,7 @@ export default new SlashCommand({
                             .replace(channelId, channelMaps[channelId] ?? channelId)
                             .replace(mentionableId, roleMaps[mentionableId] ?? mentionableId);
                     }
-                    const msg = await channel.send(message).catch(e => console.log(e));
+                    const msg = await channel.send({ ...message, files: [] }).catch(e => console.log(e));
                     if (!msg) continue;
                     await Promise.all([...message.reactions.values()].map(reaction => msg.react(reaction.emoji))).catch(
                         () => {}

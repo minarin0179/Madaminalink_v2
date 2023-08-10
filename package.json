@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@types/archiver": "^5.3.2",
     "agenda": "^4.3.0",
+    "archiver": "^5.3.1",
     "cross-fetch": "^4.0.0",
     "discord.js": "^14.12.1",
     "dotenv": "^16.0.2",

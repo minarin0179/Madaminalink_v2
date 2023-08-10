@@ -1,16 +1,19 @@
 import {
-    Attachment,
     AttachmentBuilder,
     CategoryChannel,
     ChannelType,
     GuildChannel,
     SlashCommandBuilder,
+    TextBasedChannel,
 } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
-import { CategoryData, ChannelData, MessageData, ExportData, RoleData } from "../../structures/ExportData";
+import { CategoryData, ChannelData, MessageData, ExportData, RoleData, fileData } from "../../structures/ExportData";
 import fs from "fs";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
+import crypto from "crypto";
+import archiver from "archiver";
+import fetch from "cross-fetch";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -34,10 +37,15 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        //await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: true });
 
         const category = args.getChannel("対象", true) as CategoryChannel;
-        const reuseRoles = args.getString("ロールの削除") == "true";
+        const reuseRoles = args.getString("ロールを再利用") == "true";
+
+        const path = `./output.zip`;
+        const archive = archiver("zip", { zlib: { level: 9 } });
+        const output = fs.createWriteStream(path);
+        archive.pipe(output);
 
         const categoryData: CategoryData = (channel => ({
             name: channel.name,
@@ -50,17 +58,7 @@ export default new SlashCommand({
 
         const channelDatas: ChannelData[] = await Promise.all(
             channels.map(async (channel): Promise<ChannelData> => {
-                const messages = channel.isTextBased()
-                    ? (await fetchAllMessages(channel)).map(
-                          ({ content, attachments, embeds, components, reactions }): MessageData => ({
-                              content,
-                              files: attachments.map((file: Attachment) => file.url),
-                              embeds,
-                              components,
-                              reactions: reactions.cache,
-                          })
-                      )
-                    : [];
+                const messages = channel.isTextBased() ? await fetchMessages(channel, archive) : [];
                 return {
                     id: channel.id,
                     name: channel.name,
@@ -96,17 +94,47 @@ export default new SlashCommand({
             reuseRoles,
         };
 
-        fs.writeFileSync(`output.json`, JSON.stringify(data));
+        archive.append(JSON.stringify(data), { name: "main.json" });
+
+        await archive.finalize();
+
+        const stats = fs.statSync(path);
+        const fileSizeInBytes = stats.size;
+        const fileSizeInKb = fileSizeInBytes / 1024;
+        console.log(`ZIPファイルのサイズ: ${fileSizeInKb.toFixed(2)} KB`);
 
         await reply(interaction, {
-            files: [
-                new AttachmentBuilder("output.json")
-                    .setName(`${category.id}`)
-                    .setDescription("読み込む場合は/importを使用してください"),
-            ],
+            files: [new AttachmentBuilder(path).setName(`${category.id}.zip`)],
             ephemeral: false,
-        });
-
-        fs.unlinkSync(`output.json`);
+        }).catch(() => {});
     },
 });
+
+const fetchMessages = async (channel: TextBasedChannel, archive: archiver.Archiver): Promise<MessageData[]> =>
+    await Promise.all(
+        (await fetchAllMessages(channel)).map(
+            async ({ content, attachments, embeds, components, reactions }): Promise<MessageData> => {
+                const files: fileData[] = await Promise.all(
+                    attachments.map(async attachment => {
+                        const uuid = crypto.randomUUID();
+                        const data = await fetch(attachment.url).then(res => res.arrayBuffer());
+                        const buffer = Buffer.from(data);
+                        archive.append(buffer, { name: attachment.name });
+
+                        return {
+                            name: attachment.name,
+                            description: attachment.description,
+                            attachment: uuid,
+                        };
+                    })
+                );
+                return {
+                    content,
+                    files,
+                    embeds,
+                    components,
+                    reactions: reactions.cache,
+                };
+            }
+        )
+    );

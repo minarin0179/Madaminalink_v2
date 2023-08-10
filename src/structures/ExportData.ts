@@ -36,7 +36,7 @@ export type ChannelData = {
 
 export type MessageData = {
     content: string;
-    files: string[];
+    files: fileData[];
     embeds: Embed[];
     components: ActionRow<any>[];
     reactions: Collection<string | Snowflake, MessageReaction>;
@@ -50,6 +50,12 @@ export type RoleData = {
     permissions: PermissionsBitField;
     mentionable: boolean;
     icon: string | null;
+};
+
+export type fileData = {
+    name: string;
+    attachment: string;
+    description: string | null;
 };
 
 const example = {
