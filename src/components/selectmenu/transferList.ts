@@ -1,9 +1,7 @@
 import { ActionRowBuilder, GuildTextBasedChannel, StringSelectMenuBuilder } from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
-import { buttonToRow } from "../../utils/ButtonToRow";
 import { reply } from "../../utils/Reply";
-import transferButton from "../buttons/transfer";
 import { buildTransferMessage } from "../../commands/slashcommands/transfer";
 
 export default new SelectMenu({

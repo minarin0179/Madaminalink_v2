@@ -13,8 +13,6 @@ import {
 } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
 import { splitMessage } from "./SplitMessage";
-import { buttonToRow } from "../utils/ButtonToRow";
-import transferButton from "../components/buttons/transfer";
 import { openMessage } from "../commands/slashcommands/open";
 import { client } from "../bot";
 import { ChannelLink } from "../structures/ChannelLink";
