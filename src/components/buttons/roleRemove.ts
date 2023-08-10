@@ -22,7 +22,7 @@ export default new Button({
         const { members } = role;
         if (members.size === 0) return reply(interaction, `${role}を持つメンバーがいません`);
 
-        await Promise.all(members.map(async member => await member.roles.remove(role)));
+        await Promise.all(members.map(async member => member.roles.remove(role)));
         await reply(interaction, `${[...members.values()].join(", ")}から${role}を解除しました`);
     },
 });

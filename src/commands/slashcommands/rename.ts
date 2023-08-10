@@ -30,9 +30,7 @@ export default new SlashCommand({
         const failed: string[] = [];
 
         await Promise.all(
-            role.members.map(async member => {
-                await rename(member, prefix).catch(() => failed.push(`${member}`));
-            })
+            role.members.map(async member => rename(member, prefix).catch(() => failed.push(`${member}`)))
         );
 
         await reply(interaction, "ニックネームのリセットが完了しました");
@@ -48,5 +46,5 @@ export const rename = async (member: GuildMember, prefix?: string | null) => {
     //@より後ろの名前
     const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.globalName;
 
-    return await member.setNickname(!prefix ? name : `${prefix}@${name}`);
+    return member.setNickname(!prefix ? name : `${prefix}@${name}`);
 };

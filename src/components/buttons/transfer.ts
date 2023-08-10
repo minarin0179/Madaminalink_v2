@@ -41,9 +41,7 @@ export default new Button({
             const keys = message.reactions.cache.keys();
             if (reactions.hasAny(...keys)) {
                 await Promise.all(
-                    destinations.map(async destination => {
-                        await transferMessage(message, destination, { noReaction: true });
-                    })
+                    destinations.map(async destination => transferMessage(message, destination, { noReaction: true }))
                 );
                 count++;
             }

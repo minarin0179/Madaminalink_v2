@@ -1,4 +1,4 @@
-import { ChannelType, GuildChannel, SlashCommandBuilder } from "discord.js";
+import { ChannelType, GuildChannel, SlashCommandBuilder, GuildTextBasedChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
@@ -27,12 +27,12 @@ export default new SlashCommand({
         const channelLinks = await duplicateChannel(originalChannel);
 
         await Promise.all(
-            channelLinks.map(async link => {
-                const { before, after } = link;
-                if (before.isTextBased() && after.isTextBased()) {
-                    await transferAllMessages(before, after, { allowedMentions: { parse: [] }, updates: channelLinks });
-                }
-            })
+            channelLinks.map(async ({ before, after }) =>
+                transferAllMessages(before, after, {
+                    allowedMentions: { parse: [] },
+                    updates: channelLinks,
+                })
+            )
         );
 
         await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`);

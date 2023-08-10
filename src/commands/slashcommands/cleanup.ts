@@ -39,11 +39,7 @@ export default new SlashCommand({
             const channels = targetChannel.children.cache.filter(
                 (channel): channel is NewsChannel | TextChannel | VoiceChannel => channel.isTextBased()
             );
-            await Promise.all(
-                channels.map(async channel => {
-                    await deleteAllMessages(channel);
-                })
-            );
+            await Promise.all(channels.map(channel => deleteAllMessages(channel)));
         }
 
         await reply(interaction, `「${targetChannel.name}」内のメッセージを削除しました`);
@@ -52,5 +48,5 @@ export default new SlashCommand({
 
 const deleteAllMessages = async (channel: GuildTextBasedChannel) => {
     const messages = await fetchAllMessages(channel);
-    return await deleteMultiMessages(channel, messages);
+    return deleteMultiMessages(channel, messages);
 };

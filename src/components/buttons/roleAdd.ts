@@ -24,7 +24,7 @@ export default new Button({
         const { members } = target;
         if (members.size === 0) return reply(interaction, `${target}を持つメンバーがいません`);
 
-        await Promise.all(members.map(async member => await member.roles.add(role)));
+        await Promise.all(members.map(async member => member.roles.add(role)));
         await reply(interaction, `${[...members.values()].join(", ")}に${role}を付与しました`);
     },
 });

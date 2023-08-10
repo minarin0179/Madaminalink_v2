@@ -47,14 +47,13 @@ export default new SlashCommand({
                 content: "転送先のチャンネルを選択してください",
                 components: transferList.build([...discordSort(channels).values()]),
             });
-            return;
+        } else {
+            await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`);
+
+            await interaction.channel?.send({
+                components: buttonToRow(transferButton.build({ destination })),
+            });
         }
-
-        await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`);
-
-        await interaction.channel?.send({
-            components: buttonToRow(transferButton.build({ destination })),
-        });
     },
 });
 

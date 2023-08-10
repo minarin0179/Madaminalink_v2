@@ -21,11 +21,7 @@ export default new SlashCommand({
 
         const category = args.getChannel("同期するカテゴリ", true) as CategoryChannel;
 
-        await Promise.all(
-            category.children.cache.map(async ch => {
-                await ch.lockPermissions();
-            })
-        );
+        await Promise.all(category.children.cache.map(async ch => ch.lockPermissions()));
 
         await reply(interaction, `「${category.name}」内のチャンネルの権限を同期しました`);
     },

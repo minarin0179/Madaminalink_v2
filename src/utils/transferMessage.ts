@@ -1,8 +1,11 @@
 import {
     ActionRow,
     ActionRowBuilder,
+    AnyThreadChannel,
     Attachment,
     ButtonBuilder,
+    ChannelType,
+    GuildChannel,
     GuildTextBasedChannel,
     Message,
     MessageActionRowComponent,
@@ -10,6 +13,7 @@ import {
     MessageType,
     PrivateThreadChannel,
     PublicThreadChannel,
+    ThreadChannel,
 } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
 import { splitMessage } from "./SplitMessage";
@@ -95,14 +99,15 @@ export const transferMessage = async (
         if (!options?.noReaction) {
             for await (const reaction of message.reactions.cache.keys()) newMessage.react(reaction);
         }
-        if (message.thread && "threads" in destination) {
-            const name = message.thread.name;
-            const newThread = (
+        const { thread } = message;
+        if (thread && "threads" in destination) {
+            const name = thread.name;
+            const newThread =
                 message.type == MessageType.ThreadCreated
                     ? await destination.threads.create({ name })
-                    : await newMessage.startThread({ name })
-            ) as PublicThreadChannel | PrivateThreadChannel;
-            await transferAllMessages(message.thread, newThread);
+                    : await newMessage.startThread({ name });
+
+            await transferAllMessages(thread, newThread);
         }
     } catch (e: any) {
         // emptyメッセージだったら無視
@@ -113,10 +118,11 @@ export const transferMessage = async (
 };
 
 export const transferAllMessages = async (
-    from: GuildTextBasedChannel,
-    to: GuildTextBasedChannel,
+    from: GuildChannel | AnyThreadChannel,
+    to: GuildChannel | ThreadChannel,
     options?: transferOptions
 ) => {
+    if (!from.isTextBased() || !to.isTextBased()) return;
     const messages = (await fetchAllMessages(from)).reverse();
     for await (const message of messages.values()) {
         await transferMessage(message, to, options);

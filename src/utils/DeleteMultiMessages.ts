@@ -22,22 +22,12 @@ export const deleteMultiMessages = async (
 
     //bulkDeleteで100件ずつ削除
     await Promise.all(
-        arraySplit([...recentMessages.values()], 100).map(async messagesSliced => {
-            await channel.bulkDelete(messagesSliced);
-        })
+        arraySplit([...recentMessages.values()], 100).map(async messagesSliced => channel.bulkDelete(messagesSliced))
     );
 
     //２週間以上前のメッセージを順番に削除(遅い)
-    await Promise.all(
-        oldMessages.map(async message => {
-            await message.delete();
-        })
-    );
+    await Promise.all(oldMessages.map(async message => message.delete()));
 
     //メッセージに付属するスレッドも削除
-    await Promise.all(
-        threads.map(async thread => {
-            await thread.delete();
-        })
-    );
+    await Promise.all(threads.map(async thread => thread.delete()));
 };

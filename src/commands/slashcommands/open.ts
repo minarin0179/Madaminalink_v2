@@ -25,11 +25,11 @@ export default new SlashCommand({
 
         if (!channel) return reply(interaction, "チャンネルが見つかりませんでした");
 
-        if (!("permissionOverwrites" in channel)) return reply(interaction, "権限を編集できません");
+        if (!("permissionOverwrites" in channel)) return reply(interaction, "このチャンネルは権限を編集できません");
 
         if (!("id" in mentionable)) return; //getMentionableのバグが直ったら削除
 
-        await channel?.permissionOverwrites.edit(mentionable.id, { ViewChannel: false });
+        await channel.permissionOverwrites.edit(mentionable.id, { ViewChannel: false });
 
         await interaction.channel?.send(openMessage(channel, mentionable));
 

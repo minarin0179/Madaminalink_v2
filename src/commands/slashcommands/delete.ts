@@ -1,6 +1,7 @@
 import { ChannelType, SlashCommandBuilder, CategoryChannel, OverwriteType } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
+import role from "./role";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -26,34 +27,35 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        const category = args.getChannel("削除するカテゴリ", true) as CategoryChannel;
+        const category = args.getChannel<ChannelType.GuildCategory>("削除するカテゴリ", true);
         const deleteRoleIds = new Set<string>();
+        const children = category.children.cache;
 
-        await Promise.all(
-            category.children.cache.map(async ch => {
-                ch.permissionOverwrites.cache
-                    .filter(perm => perm.type == OverwriteType.Role)
-                    .map(perm => deleteRoleIds.add(perm.id));
+        children.map(async ch => {
+            ch.permissionOverwrites.cache
+                .filter(perm => perm.type == OverwriteType.Role)
+                .map(perm => deleteRoleIds.add(perm.id));
+        });
 
-                await ch.delete();
-            })
-        );
-
+        await Promise.all(children.map(async ch => await ch.delete()));
         await category.delete();
 
         if (args.getString("ロールの削除") == "true") {
-            await Promise.all(
-                [...deleteRoleIds].map(async id => {
-                    const role = await interaction.guild?.roles.fetch(id);
-                    if (role == interaction.guild?.roles.everyone) return;
-                    else if (role?.editable) await role.delete();
-                    else
-                        await reply(
-                            interaction,
-                            `「${role}」はマダミナリンクより上位の役職のため削除できませんでした`
-                        ).catch(() => {});
-                })
-            );
+            const everyone = interaction.guild?.roles.everyone.id;
+            deleteRoleIds.delete(everyone!);
+            const roles = (await interaction.guild?.roles.fetch())?.filter(role => deleteRoleIds.has(role.id));
+            if (roles) {
+                const [deletable, undeletable] = roles.partition(role => role.editable);
+
+                await Promise.all(deletable.map(async role => role.delete()));
+                if (undeletable.size > 0) {
+                    await reply(
+                        interaction,
+                        `マダミナリンクより上位のロールは削除できません
+                        削除に失敗したロール : ${undeletable.map(role => role.toString()).join(", ")}`
+                    );
+                }
+            }
         }
 
         //コマンドを入力したチャンネルが削除されている場合がある
