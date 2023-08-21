@@ -12,6 +12,8 @@ import {
 import { SlashCommand } from "../../structures/SlashCommand";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
+import { arraySplit } from "../../utils/ArraySplit";
+import { splitMessage } from "../../utils/SplitMessage";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -77,14 +79,22 @@ export default new SlashCommand({
             })
         );
 
-        await logChannel.send({
-            embeds: [
-                new EmbedBuilder()
-                    .setTitle(targetCategory.name)
-                    .setColor([47, 49, 54])
-                    .setDescription(descriptions.join("\n")),
-            ],
-        });
+        const descriptionsConcat: string[][] = arraySplit(
+            splitMessage(descriptions.join("\n"), { maxLength: 2000 }),
+            10
+        );
+
+        for await (const descriptions of descriptionsConcat) {
+            await logChannel.send({
+                embeds: descriptions.map((description, index) => {
+                    const embedBuilder = new EmbedBuilder().setColor([47, 49, 54]).setDescription(description);
+                    if (index == 0) {
+                        embedBuilder.setTitle(targetCategory.name);
+                    }
+                    return embedBuilder;
+                }),
+            });
+        }
 
         await reply(interaction, `「${targetCategory.name}」の保存が完了しました`);
     },

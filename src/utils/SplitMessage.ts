@@ -14,7 +14,7 @@ export const splitMessage = (text: string, { maxLength = 2000, delimeter = "\n" 
             messages.push(msg);
             msg = "";
         }
-        msg += chunk;
+        msg += chunk + delimeter;
     }
     messages.push(msg);
 
