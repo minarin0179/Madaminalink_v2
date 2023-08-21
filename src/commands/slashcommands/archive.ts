@@ -96,15 +96,6 @@ export default new SlashCommand({
             });
         }
 
-        // await logChannel.send({
-        //     embeds: [
-        //         new EmbedBuilder()
-        //             .setTitle(targetCategory.name)
-        //             .setColor([47, 49, 54])
-        //             .setDescription(descriptions.join("\n")),
-        //     ],
-        // });
-
         await reply(interaction, `「${targetCategory.name}」の保存が完了しました`);
     },
 });
