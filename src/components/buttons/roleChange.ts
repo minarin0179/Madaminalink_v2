@@ -7,7 +7,7 @@ export default new Button({
     build: ({ before, after }: { before: Role; after: Role }) => [
         new ButtonBuilder()
             .setCustomId(`roleChange:${before.id},${after.id}`)
-            .setLabel(`「@${before.name}」を「@${after.name}」に付け替え`)
+            .setLabel("付け替え")
             .setStyle(ButtonStyle.Primary),
     ],
     execute: async ({ interaction, args }) => {

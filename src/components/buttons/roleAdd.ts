@@ -7,7 +7,7 @@ export default new Button({
     build: ({ target, role }: { target: Role; role: Role }) => [
         new ButtonBuilder()
             .setCustomId(`roleAdd:${target.id},${role.id}`)
-            .setLabel(`「@${target.name}」に「@${role.name}」を付与`)
+            .setLabel("付与")
             .setStyle(ButtonStyle.Success),
     ],
     execute: async ({ interaction, args }) => {

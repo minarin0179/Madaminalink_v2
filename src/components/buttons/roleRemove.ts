@@ -5,10 +5,7 @@ import { reply } from "../../utils/Reply";
 export default new Button({
     customId: "roleRemove",
     build: ({ role }: { role: Role }) => [
-        new ButtonBuilder()
-            .setCustomId(`roleRemove:${role.id}`)
-            .setLabel(`「@${role.name}」を解除`)
-            .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId(`roleRemove:${role.id}`).setLabel("解除").setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         const [roleId] = args;

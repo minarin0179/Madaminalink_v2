@@ -92,25 +92,32 @@ export default new SlashCommand({
         const roleAdd = args.getRole("付与するロール");
         const roleRemove = args.getRole("解除するロール");
         const ephemeral = args.getString("ボタンを他の人からも見えるようにする") === "true" ? false : true;
+        const allowedMentions = { parse: [] };
 
         switch (subCommand) {
             case "add":
                 await reply(interaction, {
+                    content: `${target}に${roleAdd}を付与します`,
                     components: buttonToRow(roleAddButton.build({ target: target, role: roleAdd })),
                     ephemeral,
+                    allowedMentions,
                 });
                 break;
             case "remove":
                 await reply(interaction, {
+                    content: `${roleRemove}をすべてのメンバーから解除します`,
                     components: buttonToRow(roleRemoveButton.build({ role: roleRemove })),
                     ephemeral,
+                    allowedMentions,
                 });
                 break;
             case "change":
                 if (roleAdd == roleRemove) return reply(interaction, "変更前と変更後のロールが同じです");
                 await reply(interaction, {
+                    content: `${roleRemove}を${roleAdd}に付け替えます`,
                     components: buttonToRow(roleChangeButton.build({ before: roleRemove, after: roleAdd })),
                     ephemeral,
+                    allowedMentions,
                 });
                 break;
             case "self":
@@ -127,7 +134,7 @@ export default new SlashCommand({
                             components: roleList.build(rolesSplited, index * 5 + 1),
                         });
                     }
-                    return;
+                    break;
                 }
                 await interaction.channel?.send(buildRoleRow(roleAdd));
                 await reply(interaction, "ボタンを作成しました");
