@@ -55,15 +55,16 @@ export default new SlashCommand({
         if (choices.length > 24)
             return reply(interaction, { content: "選択肢の数が多すぎます(最大24個)", ephemeral: true });
 
-        const content =
-            args.getString("投票モード", true) === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください";
+        const timeLimit = args.getNumber("制限時間") ?? 5;
+
+        const content = `${
+            args.getString("投票モード", true) === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください"
+        } (制限時間 ${timeLimit}分)`;
 
         const message = await interaction.channel?.send({
             content,
             components: buttonToRow([...selectButton.build({ choices }), ...selectAgregate.build()]),
         });
-
-        const timeLimit = args.getNumber("制限時間") ?? 5;
 
         if (!message) return reply(interaction, "メッセージの送信に失敗しました");
 
