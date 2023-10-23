@@ -18,6 +18,13 @@ export default new SlashCommand({
                     "「先頭につける文字@ユーザー名」の形式に変更します(指定しなかった場合はニックネームをリセット)"
                 )
                 .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName("元の名前に戻す")
+                .setDescription("元のユーザー名にニックネームを戻しますか")
+                .setRequired(false)
+                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
@@ -27,12 +34,14 @@ export default new SlashCommand({
 
         const role = args.getRole("ロール", true) as Role;
         const prefix = args.getString("先頭につける文字");
+        const isReset = args.getString("ユーザー名に戻す") == "true";
         const failed: string[] = [];
 
         await Promise.all(
-            role.members.map(async member => rename(member, prefix).catch(() => failed.push(`${member}`)))
+            role.members.map(async member =>
+                (isReset ? member.setNickname(null) : rename(member, prefix)).catch(() => failed.push(`${member}`))
+            )
         );
-
         await reply(interaction, "ニックネームのリセットが完了しました");
 
         if (failed.length > 0) {
