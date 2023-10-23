@@ -1,4 +1,4 @@
-import { Guild, SlashCommandBuilder, GuildMember, ChannelType, PermissionFlagsBits } from "discord.js";
+import { Guild, SlashCommandBuilder, GuildMember, ChannelType, PermissionFlagsBits, TextChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 
@@ -42,6 +42,7 @@ export default new SlashCommand({
         const title = args.getString("シナリオ名", true);
         const playerCount = args.getInteger("プレイヤー数", true);
         const privateCount = args.getInteger("密談チャンネル数", true);
+        const isCreateIndividualRole = !(args.getString("個別ロールを作成しない") === "true");
         const characters =
             args.getString("キャラ名を指定")?.split(/[ 　,、]/) ?? [...Array(playerCount)].map((_, i) => `PC${i + 1}`);
 
@@ -99,21 +100,27 @@ export default new SlashCommand({
                 parent: category,
                 permissionOverwrites: [...defaultPerm, { id: PL.id, ...invisible }, { id: SP.id, ...writable }],
             }),
-            ...characters.map(async name => {
-                const perm = [...defaultPerm, { id: SP.id, ...visible }];
 
-                if (!(interaction.options.getString("個別ロールを作成しない") === "true")) {
-                    const pcRole = await guild.roles.create({ name: `${title} ${name}`, position });
-                    perm.push({ id: pcRole.id, ...writable });
+            ...(await (async () => {
+                const createIndividualChannel: Promise<TextChannel>[] = [];
+
+                for (const name of characters) {
+                    const perm = [...defaultPerm, { id: SP.id, ...visible }];
+                    if (isCreateIndividualRole) {
+                        const role = await guild.roles.create({ name: `${title} ${name}`, position });
+                        perm.push({ id: role.id, ...writable });
+                    }
+                    createIndividualChannel.push(
+                        guild.channels.create({
+                            name,
+                            type: ChannelType.GuildText,
+                            parent: category,
+                            permissionOverwrites: perm,
+                        })
+                    );
                 }
-
-                await guild.channels.create({
-                    name,
-                    type: ChannelType.GuildText,
-                    parent: category,
-                    permissionOverwrites: perm,
-                });
-            }),
+                return createIndividualChannel;
+            })()),
 
             guild.channels.create({
                 name: "解説",
@@ -128,14 +135,14 @@ export default new SlashCommand({
                 permissionOverwrites: [...defaultPerm, { id: PL.id, ...writable }, { id: SP.id, ...writable }],
             }),
 
-            ...[...Array(privateCount)].map(async (_, i) => {
-                await guild.channels.create({
+            ...[...Array(privateCount)].map(async (_, i) =>
+                guild.channels.create({
                     name: `密談場所${i + 1}`,
                     type: ChannelType.GuildVoice,
                     parent: category,
                     permissionOverwrites: [...defaultPerm, { id: PL.id, ...writable }, { id: SP.id, ...writable }],
-                });
-            }),
+                })
+            ),
         ]);
         await reply(interaction, `「${title}」の作成が完了しました`);
     },
