@@ -11,13 +11,14 @@ import { Button } from "../../structures/Button";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
 import { transferMessage } from "../../utils/transferMessage";
+import { LimitLength } from "../../utils/LimitLength";
 
 export default new Button({
     customId: "transfer",
     build: ({ destination }: { destination: GuildTextBasedChannel }) => [
         new ButtonBuilder()
             .setCustomId(`transfer:${destination.id}`)
-            .setLabel(`「#${destination.name}」へ転送`)
+            .setLabel(`「#${LimitLength(destination.name, 32)}」へ転送`)
             .setStyle(ButtonStyle.Primary),
     ],
     execute: async ({ interaction, args }) => {
