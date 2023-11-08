@@ -51,6 +51,12 @@ export default new SlashCommand({
             return date > last ? date : last;
         }, new Date(0));
 
+
+        // 一度もメッセージが送信されていない場合は今日の日付を入れる
+        if (lastMessageDates.getTime() == new Date(0).getTime()) {
+            lastMessageDates.setTime(new Date().getTime());
+        }
+
         await category.edit({ name: `(${lastMessageDates.toLocaleDateString("ja-JP")}) ${category.name}` });
 
         await Promise.all(
