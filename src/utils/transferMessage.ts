@@ -4,15 +4,12 @@ import {
     AnyThreadChannel,
     Attachment,
     ButtonBuilder,
-    ChannelType,
     GuildChannel,
     GuildTextBasedChannel,
     Message,
     MessageActionRowComponent,
     MessageMentionOptions,
     MessageType,
-    PrivateThreadChannel,
-    PublicThreadChannel,
     ThreadChannel,
 } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";

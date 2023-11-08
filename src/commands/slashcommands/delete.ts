@@ -1,7 +1,6 @@
-import { ChannelType, SlashCommandBuilder, CategoryChannel, OverwriteType } from "discord.js";
+import { ChannelType, SlashCommandBuilder, OverwriteType } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
-import role from "./role";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
