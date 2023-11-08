@@ -71,9 +71,8 @@ export default new SlashCommand({
                     (await child.threads.fetchArchived()).threads
                 );
                 if (threads.size > 0) {
-                    description += `\n${(
-                        await Promise.all(threads.map(async thread => await RunArchive(thread, logChannel)))
-                    ).join("\n")}`;
+                    const threadDescription = await Promise.all(threads.map(thread => RunArchive(thread, logChannel)));
+                    description += `\n${threadDescription.join("\n")}`;
                 }
                 return description;
             })
