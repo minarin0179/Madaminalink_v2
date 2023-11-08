@@ -25,6 +25,20 @@ export default new SlashCommand({
         )
         .addRoleOption(option =>
             option.setName("閲覧用ロール").setDescription("閲覧用ロールにのみ見えるようにします").setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName("ボイスチャンネルを削除する")
+                .setDescription("カテゴリー内のボイスチャンネルを削除しますか？(デフォルトは はい)")
+                .setRequired(false)
+                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+        )
+        .addStringOption(option =>
+            option
+                .setName("日付をカテゴリ名に追加する")
+                .setDescription("カテゴリー名に最後にメッセージが送信された日付を追加します(デフォルトは はい)")
+                .setRequired(false)
+                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
@@ -35,29 +49,32 @@ export default new SlashCommand({
         const role = args.getRole("閲覧用ロール");
 
         // VCを削除
-        const voiceChannels = category.children.cache.filter((ch): ch is VoiceBasedChannel => ch.isVoiceBased());
-        await Promise.all(voiceChannels.map(ch => ch.delete()));
-
+        if (!(args.getString("ボイスチャンネルを削除する") == "false")) {
+            const voiceChannels = category.children.cache.filter((ch): ch is VoiceBasedChannel => ch.isVoiceBased());
+            await Promise.all(voiceChannels.map(ch => ch.delete()));
+        }
         const textChannels = await Promise.all(
             category.children.cache
                 .filter((ch): ch is TextChannel => ch.type == ChannelType.GuildText)
                 .map(ch => ch.fetch())
         );
 
-        const lastMessages = (await Promise.all(textChannels.map(ch => ch.messages.fetch()))).map(m => m.first());
+        const categoryName =
+            args.getString("日付をカテゴリ名に追加する") == "false"
+                ? category.name
+                : await (async () => {
+                    const lastMessageDates = new Date(Math.max(
+                        ...(await Promise.all(textChannels.map(async ch =>
+                            (await ch.messages.fetch({ limit: 1 })).first()?.createdAt.getTime() || 0
+                        )))
+                    ));
+                    if (lastMessageDates.getTime() == 0) {
+                        lastMessageDates.setTime(Date.now());
+                    }
+                    return `(ログ ${lastMessageDates.toLocaleDateString("ja-JP")}) ${category.name}`;
+                })();
 
-        const lastMessageDates = lastMessages.reduce((last, msg) => {
-            const date = msg?.createdAt ?? new Date(0);
-            return date > last ? date : last;
-        }, new Date(0));
-
-
-        // 一度もメッセージが送信されていない場合は今日の日付を入れる
-        if (lastMessageDates.getTime() == new Date(0).getTime()) {
-            lastMessageDates.setTime(new Date().getTime());
-        }
-
-        await category.edit({ name: `(${lastMessageDates.toLocaleDateString("ja-JP")}) ${category.name}` });
+        await category.edit({ name: categoryName });
 
         await Promise.all(
             textChannels.map(ch => {
