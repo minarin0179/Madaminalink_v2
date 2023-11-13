@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "start": "npm run build && node dist/index.js",
+    "demon": "pm2 start dist/index.js --name bot -i max",
+    "build": "tsc"
+  },
   "dependencies": {
     "agenda": "^4.3.0",
     "discord.js": "^14.12.1",
