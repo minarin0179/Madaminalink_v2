@@ -33,7 +33,7 @@ export class ExtendedClient extends Client {
 
         commandsDirs.forEach(async (dir: string) => {
             const dirPath = path.join(commandsPath, dir);
-            const commandFiles = fs.readdirSync(dirPath).filter((file: string) => file.endsWith(".ts"));
+            const commandFiles = fs.readdirSync(dirPath).filter((file: string) => file.endsWith(".ts") || file.endsWith(".js"));
             commandFiles.forEach(async (file: string) => {
                 const filePath = path.join(dirPath, file);
                 const command: Command = await this.importfile(filePath);
@@ -54,7 +54,7 @@ export class ExtendedClient extends Client {
         });
 
         const eventsPath = path.join(main, "events");
-        const eventFiles = fs.readdirSync(eventsPath).filter((file: string) => file.endsWith(".ts"));
+        const eventFiles = fs.readdirSync(eventsPath).filter((file: string) => file.endsWith(".ts") || file.endsWith(".js"));
 
         eventFiles.forEach(async (file: string) => {
             const filePath = path.join(eventsPath, file);
