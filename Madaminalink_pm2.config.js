@@ -1,7 +1,8 @@
 module.exports = {
   apps : [{
     name   : "Madaminalink",
-    script : "./src/bot.ts",
+    script : "dist/index.js",
+    instances: "max",
     cron_restart: '0 4 * * *',
   }]
 }
