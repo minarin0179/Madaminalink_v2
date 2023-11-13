@@ -67,7 +67,7 @@ export class ExtendedClient extends Client {
 
         componentsDirs.forEach(async (directory: string) => {
             const dirPath = path.join(componentsPath, directory);
-            const componentFiles = fs.readdirSync(dirPath).filter((file: string) => file.endsWith(".ts"));
+            const componentFiles = fs.readdirSync(dirPath).filter((file: string) => file.endsWith(".ts") || file.endsWith(".js"));
             componentFiles.forEach(async (file: string) => {
                 const filePath = path.join(dirPath, file);
                 const component: Component = await this.importfile(filePath);
