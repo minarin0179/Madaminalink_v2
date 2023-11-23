@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "npm run build && node dist/index.js",
-    "demon": "pm2 start Madaminalink_pm2.config.js",
+    "demon": "npm run build && pm2 --no-daemon start Madaminalink_pm2.config.js",
     "build": "tsc"
   },
   "dependencies": {
