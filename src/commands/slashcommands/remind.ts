@@ -91,7 +91,8 @@ export default new SlashCommand({
 
             if (date.getTime() < now.getTime()) {
                 date.setFullYear(++year); //過去の日付だったら１年後
-            } else if (date.getTime() > lim.getTime()) {
+            }
+            if (date.getTime() > lim.getTime()) {
                 return reply(
                     interaction,
                     "日時の入力が正しくありません\n過去の日付や3ヶ月以上先の日付は設定できません"
@@ -137,16 +138,17 @@ const buildEmbed = (content: string, date: Date, channelId: string) =>
         );
 
 agenda.define("send remind", async (job: any) => {
+    console.log("try to send remind");
     const { channelId, authorId, content } = job.attrs.data;
     const channel = await client.channels.fetch(channelId);
     const author = await client.users.fetch(authorId);
 
-    if (!channel || !channel.isTextBased()) return;
-
-    try {
-        await channel.send(content);
-        await job.remove();
-    } catch (e) {
-        //何もしない
+    console.log(channel)
+    if (!channel || !channel.isTextBased()) {
+        console.error("this channel is invalid");
+        return
     }
+
+    await channel.send(content);
+    await job.remove();
 });
