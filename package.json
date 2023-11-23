@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "start": "npm run build && node dist/index.js",
+    "demon": "npm run build && pm2 --no-daemon start Madaminalink_pm2.config.js",
+    "build": "tsc"
+  },
   "dependencies": {
     "agenda": "^4.3.0",
     "discord.js": "^14.12.1",
