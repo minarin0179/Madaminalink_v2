@@ -27,8 +27,9 @@ export default new Event(Events.InteractionCreate, async interaction => {
             if (!component) return;
             await component.execute({ client, interaction, args });
         }
-    } catch (e: any) {
-        await showError(interaction, e).catch(console.log);
+    } catch (error: any) {
+        await showError(interaction, error).catch(console.log);
+        console.log({ interaction, error });
     }
 });
 
