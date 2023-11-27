@@ -19,6 +19,8 @@ import { client } from "../bot";
 import { ChannelLink } from "../structures/ChannelLink";
 import { buildTransferMessage } from "../commands/slashcommands/transfer";
 
+const MaxFileSize = 25 * 1024 * 1024; //25MB
+
 type transferOptions = {
     noReaction?: boolean;
     allowedMentions?: MessageMentionOptions;
@@ -51,7 +53,7 @@ export const transferMessage = async (
     const { attachments, embeds } = message;
 
     //巨大なファイルを除外
-    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size < 0x8000000);
+    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MaxFileSize);
 
     let components: ActionRow<MessageActionRowComponent>[] | ActionRowBuilder<ButtonBuilder>[] = message.components;
 
