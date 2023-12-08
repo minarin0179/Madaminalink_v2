@@ -19,7 +19,8 @@ import { client } from "../bot";
 import { ChannelLink } from "../structures/ChannelLink";
 import { buildTransferMessage } from "../commands/slashcommands/transfer";
 
-const MaxFileSize = 25 * 1024 * 1024; //25MB
+const MaxFileSizeMB = 25;
+const MaxFileSizeByte = MaxFileSizeMB * 1024 * 1024;
 
 type transferOptions = {
     noReaction?: boolean;
@@ -53,7 +54,7 @@ export const transferMessage = async (
     const { attachments, embeds } = message;
 
     //巨大なファイルを除外
-    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MaxFileSize);
+    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MaxFileSizeByte);
 
     let components: ActionRow<MessageActionRowComponent>[] | ActionRowBuilder<ButtonBuilder>[] = message.components;
 
@@ -63,14 +64,14 @@ export const transferMessage = async (
     if (message.author.id !== client.user?.id) {
         components = []; //自分以外のメッセージはcomponentsを削除
     } else if (customId?.startsWith("transfer")) {
-        const [, destinationId] = customId?.split(/[;:,]/);
+        const [, destinationId] = customId.split(/[;:,]/);
         const destinationChannel = updates?.find(({ before }) => before.id == destinationId)?.after;
 
         if (destinationChannel) {
             ({ content, components } = buildTransferMessage(destinationChannel));
         }
     } else if (customId?.startsWith("open")) {
-        const [, channelId, mentionableId] = customId?.split(/[;:,]/);
+        const [, channelId, mentionableId] = customId.split(/[;:,]/);
         const targetChannel = updates?.find(({ before }) => before.id == channelId)?.after;
         const mentionable =
             message.guild?.roles.cache.get(mentionableId) ?? message.guild?.members.cache.get(mentionableId);
@@ -96,7 +97,9 @@ export const transferMessage = async (
         if (message.pinned) await newMessage.pin();
 
         if (!options?.noReaction) {
-            for await (const reaction of message.reactions.cache.keys()) newMessage.react(reaction);
+            await Promise.all(
+                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => {}))
+            );
         }
         const { thread } = message;
         if (thread && "threads" in destination) {
@@ -114,6 +117,12 @@ export const transferMessage = async (
             throw e;
         }
     }
+
+    if (largeFiles.size > 0) {
+        await destination.send(`\`\`\`diff
+- ${largeFiles.map(file => file.name).join(", ")}のコピーに失敗しました
+- ファイル容量の上限は${MaxFileSizeMB}MBです\`\`\``);
+    }
 };
 
 export const transferAllMessages = async (
@@ -129,7 +138,7 @@ export const transferAllMessages = async (
 };
 
 const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
-    updates.map(({ before, after }) => {
+    updates.forEach(({ before, after }) => {
         content = content.replace(new RegExp(`${before}`, "g"), `${after}`);
     });
     return content;
