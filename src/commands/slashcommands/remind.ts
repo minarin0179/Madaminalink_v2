@@ -76,10 +76,9 @@ export default new SlashCommand({
             const day = args.getInteger("日", true);
             const hour = args.getInteger("時", true);
             const minute = args.getInteger("分", true);
+            // eslint-disable-next-line no-irregular-whitespace
             const content = args.getString("本文", true).replace(/ {2}|　{2}|\\n/g, "\n");
             const destination = args.getChannel("送信先") ?? interaction.channel;
-
-            process.env.TZ = "Asia/Tokyo";
 
             const date = new Date(year, month - 1, day, hour, minute);
             const now = new Date();
@@ -138,17 +137,23 @@ const buildEmbed = (content: string, date: Date, channelId: string) =>
         );
 
 agenda.define("send remind", async (job: any) => {
-    console.log("try to send remind");
-    const { channelId, authorId, content } = job.attrs.data;
-    const channel = await client.channels.fetch(channelId);
-    const author = await client.users.fetch(authorId);
-
-    console.log(channel)
-    if (!channel || !channel.isTextBased()) {
-        console.error("this channel is invalid");
-        return
-    }
-
-    await channel.send(content);
+    const { channelId, content } = job.attrs.data;
     await job.remove();
+    await sendMessage(channelId, content);
 });
+
+const sendMessage = async (channelID: string, content: string) => {
+    // try to get guild from all the shards
+    const req = await client.shard?.broadcastEval(
+        (c, { channelID, content }) => {
+            const channel = c.channels.cache.get(channelID);
+            if (channel?.isTextBased()) {
+                channel.send(content);
+            }
+            return channel;
+        },
+        { context: { channelID, content } }
+    );
+
+    return req?.find(res => !!res) || null;
+};

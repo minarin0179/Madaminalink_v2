@@ -16,5 +16,6 @@ services:
       - TOKEN=***************
       - DEV_SERVER_ID=***************
       - mongodb=mongodb://mongodb:27017/agenda
+      - TZ=Asia/Tokyo
     depends_on:
       - mongo
