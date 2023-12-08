@@ -97,7 +97,9 @@ export const transferMessage = async (
         if (message.pinned) await newMessage.pin();
 
         if (!options?.noReaction) {
-            for await (const reaction of message.reactions.cache.keys()) newMessage.react(reaction);
+            await Promise.all(
+                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => { }))
+            );
         }
         const { thread } = message;
         if (thread && "threads" in destination) {
