@@ -63,14 +63,14 @@ export const transferMessage = async (
     if (message.author.id !== client.user?.id) {
         components = []; //自分以外のメッセージはcomponentsを削除
     } else if (customId?.startsWith("transfer")) {
-        const [, destinationId] = customId?.split(/[;:,]/);
+        const [, destinationId] = customId.split(/[;:,]/);
         const destinationChannel = updates?.find(({ before }) => before.id == destinationId)?.after;
 
         if (destinationChannel) {
             ({ content, components } = buildTransferMessage(destinationChannel));
         }
     } else if (customId?.startsWith("open")) {
-        const [, channelId, mentionableId] = customId?.split(/[;:,]/);
+        const [, channelId, mentionableId] = customId.split(/[;:,]/);
         const targetChannel = updates?.find(({ before }) => before.id == channelId)?.after;
         const mentionable =
             message.guild?.roles.cache.get(mentionableId) ?? message.guild?.members.cache.get(mentionableId);
@@ -129,7 +129,7 @@ export const transferAllMessages = async (
 };
 
 const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
-    updates.map(({ before, after }) => {
+    updates.forEach(({ before, after }) => {
         content = content.replace(new RegExp(`${before}`, "g"), `${after}`);
     });
     return content;
