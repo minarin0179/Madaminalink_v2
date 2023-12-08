@@ -19,7 +19,7 @@ import { client } from "../bot";
 import { ChannelLink } from "../structures/ChannelLink";
 import { buildTransferMessage } from "../commands/slashcommands/transfer";
 
-const MaxFileSizeMB = 10;
+const MaxFileSizeMB = 25;
 const MaxFileSizeByte = MaxFileSizeMB * 1024 * 1024;
 
 type transferOptions = {
@@ -98,7 +98,7 @@ export const transferMessage = async (
 
         if (!options?.noReaction) {
             await Promise.all(
-                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => { }))
+                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => {}))
             );
         }
         const { thread } = message;
