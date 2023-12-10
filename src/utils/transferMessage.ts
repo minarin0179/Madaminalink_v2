@@ -84,12 +84,6 @@ export const transferMessage = async (
     }
     try {
         const newMessage = await destination.send(newMessageOptions);
-        
-        for await (const file of largeFiles.values()) {
-            await destination.send(`\\\\\\diff
-- ${file.name}のコピーに失敗しました
-- ファイル容量の上限は8MBです\\\\\\`);
-        }
 
         if (message.pinned) await newMessage.pin();
 
