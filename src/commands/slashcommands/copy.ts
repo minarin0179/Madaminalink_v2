@@ -5,6 +5,8 @@ import { reply } from "../../utils/Reply";
 import { transferAllMessages } from "../../utils/transferMessage";
 import { ChannelLink } from "../../structures/ChannelLink";
 
+const OPTION_NAME_NEED_MESSAGE_COPY = "メッセージを複製しない";
+
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("copy")
@@ -17,6 +19,13 @@ export default new SlashCommand({
                 .setDescription("コピーするチャンネル/カテゴリー")
                 .addChannelTypes(ChannelType.GuildCategory, ChannelType.GuildText)
                 .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName(OPTION_NAME_NEED_MESSAGE_COPY)
+                .setDescription("チャンネルは複製されますが、メッセージは複製されません")
+                .setRequired(false)
+                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
@@ -26,14 +35,16 @@ export default new SlashCommand({
 
         const channelLinks = await duplicateChannel(originalChannel);
 
-        await Promise.all(
-            channelLinks.map(async ({ before, after }) =>
-                transferAllMessages(before, after, {
-                    allowedMentions: { parse: [] },
-                    updates: channelLinks,
-                })
-            )
-        );
+        if (args.getString(OPTION_NAME_NEED_MESSAGE_COPY) !== "true") {
+            await Promise.all(
+                channelLinks.map(async ({ before, after }) =>
+                    transferAllMessages(before, after, {
+                        allowedMentions: { parse: [] },
+                        updates: channelLinks,
+                    })
+                )
+            );
+        }
 
         await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`);
     },
