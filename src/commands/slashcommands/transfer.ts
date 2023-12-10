@@ -50,9 +50,7 @@ export default new SlashCommand({
         } else {
             await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`);
 
-            await interaction.channel?.send({
-                components: buttonToRow(transferButton.build({ destination })),
-            });
+            await interaction.channel?.send(buildTransferMessage(destination));
         }
     },
 });
