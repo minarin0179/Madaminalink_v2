@@ -1,13 +1,10 @@
 import {
-    ActionRow,
-    ActionRowBuilder,
     AnyThreadChannel,
     Attachment,
-    ButtonBuilder,
     GuildChannel,
     GuildTextBasedChannel,
     Message,
-    MessageActionRowComponent,
+    MessageCreateOptions,
     MessageMentionOptions,
     MessageType,
     ThreadChannel,
@@ -51,24 +48,30 @@ export const transferMessage = async (
         await destination.send({ content: msg, allowedMentions });
     }
 
-    const { attachments, embeds } = message;
+    const { attachments, components, embeds } = message;
 
     //巨大なファイルを除外
     const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MaxFileSizeByte);
 
-    let components: ActionRow<MessageActionRowComponent>[] | ActionRowBuilder<ButtonBuilder>[] = message.components;
+    let newMessageOptions = {
+        content,
+        files: files.map((file: Attachment) => file.url),
+        components,
+        embeds,
+        allowedMentions,
+    } as MessageCreateOptions;
 
     //transfer,openのボタンを更新
-    const customId = components[0]?.components[0]?.customId;
+    const customId = components[0]?.components[0]?.customId ?? '';
 
     if (message.author.id !== client.user?.id) {
-        components = []; //自分以外のメッセージはcomponentsを削除
+        newMessageOptions.components = []; //自分以外のメッセージはcomponentsを削除
     } else if (customId?.startsWith("transfer")) {
         const [, destinationId] = customId.split(/[;:,]/);
         const destinationChannel = updates?.find(({ before }) => before.id == destinationId)?.after;
 
         if (destinationChannel) {
-            ({ content, components } = buildTransferMessage(destinationChannel));
+            newMessageOptions = { ...newMessageOptions, ...buildTransferMessage(destinationChannel) };
         }
     } else if (customId?.startsWith("open")) {
         const [, channelId, mentionableId] = customId.split(/[;:,]/);
@@ -76,18 +79,12 @@ export const transferMessage = async (
         const mentionable =
             message.guild?.roles.cache.get(mentionableId) ?? message.guild?.members.cache.get(mentionableId);
         if (targetChannel && mentionable) {
-            ({ content, components } = openMessage(targetChannel, mentionable));
+            newMessageOptions = { ...newMessageOptions, ...openMessage(targetChannel, mentionable) };
         }
     }
     try {
-        const newMessage = await destination.send({
-            content,
-            files: files.map((file: Attachment) => file.url),
-            components,
-            embeds,
-            allowedMentions,
-        });
-
+        const newMessage = await destination.send(newMessageOptions);
+        
         for await (const file of largeFiles.values()) {
             await destination.send(`\\\\\\diff
 - ${file.name}のコピーに失敗しました
@@ -98,7 +95,7 @@ export const transferMessage = async (
 
         if (!options?.noReaction) {
             await Promise.all(
-                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => {}))
+                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => { }))
             );
         }
         const { thread } = message;
