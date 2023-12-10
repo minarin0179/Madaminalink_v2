@@ -5,6 +5,7 @@ import {
     discordSort,
     GuildChannel,
     GuildTextBasedChannel,
+    MessageCreateOptions,
     NewsChannel,
     SlashCommandBuilder,
     TextChannel,
@@ -48,7 +49,7 @@ export default new SlashCommand({
                 components: transferList.build([...discordSort(channels).values()]),
             });
         } else {
-            await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`);
+            await reply(interaction, `ボタンと転送したいメッセージに同じリアクションを付けて、転送するメッセージを選択してください`);
 
             await interaction.channel?.send(buildTransferMessage(destination));
         }
@@ -57,7 +58,6 @@ export default new SlashCommand({
 
 export const buildTransferMessage = (
     destination: GuildChannel | ThreadChannel | APIInteractionDataResolvedChannel
-) => ({
-    content: `ボタンを押すとメッセージを${destination}に転送します`,
+): MessageCreateOptions => ({
     components: buttonToRow(transferButton.build({ destination })),
 });
