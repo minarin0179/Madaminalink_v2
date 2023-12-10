@@ -1,8 +1,7 @@
 import { ActionRowBuilder, GuildTextBasedChannel, StringSelectMenuBuilder } from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
-import { reply } from "../../utils/Reply";
-import { buildTransferMessage } from "../../commands/slashcommands/transfer";
+import { sendTransferMessage } from "../../commands/slashcommands/transfer";
 
 export default new SelectMenu({
     customId: "transferList",
@@ -25,10 +24,8 @@ export default new SelectMenu({
     execute: async ({ interaction }) => {
         for await (const id of interaction.values) {
             const destination = interaction.guild?.channels.cache.get(id);
-            if (!destination) continue;
-            await reply(interaction, `「${destination}」に転送するメッセージと同じリアクションを付けてください`);
-
-            await interaction.channel?.send(buildTransferMessage(destination));
+            if (!destination?.isTextBased()) continue;
+            await sendTransferMessage(interaction, destination);
         }
     },
 });

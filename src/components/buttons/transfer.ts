@@ -20,6 +20,10 @@ export default new Button({
             .setCustomId(`transfer:${destination.id}`)
             .setLabel(`「#${LimitLength(destination.name, 32)}」へ転送`)
             .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setLabel('転送先')
+            .setStyle(ButtonStyle.Link)
+            .setURL(destination.url)
     ],
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
