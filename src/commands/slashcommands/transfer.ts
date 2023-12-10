@@ -2,9 +2,11 @@ import {
     APIInteractionDataResolvedChannel,
     CategoryChannel,
     ChannelType,
+    CommandInteraction,
     discordSort,
     GuildChannel,
     GuildTextBasedChannel,
+    MessageComponentInteraction,
     MessageCreateOptions,
     NewsChannel,
     SlashCommandBuilder,
@@ -18,6 +20,8 @@ import transferList from "../../components/selectmenu/transferList";
 import { reply } from "../../utils/Reply";
 import { buttonToRow } from "../../utils/ButtonToRow";
 
+const OPTION_NAME_DESTINATION = "転送先";
+
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("transfer")
@@ -26,33 +30,34 @@ export default new SlashCommand({
         .setDefaultMemberPermissions(0)
         .addChannelOption(option =>
             option
-                .setName("転送先")
+                .setName(OPTION_NAME_DESTINATION)
                 .setDescription("転送先のチャンネルを選択してください")
                 .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
                 .setRequired(false)
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        const destination = args.getChannel("転送先");
+        const destination = args.getChannel<ChannelType.GuildText | ChannelType.GuildAnnouncement>(OPTION_NAME_DESTINATION);
 
-        if (!destination) {
-            const channel = interaction.channel as GuildTextBasedChannel;
-            const category = channel.parent?.parent ?? (channel.parent as CategoryChannel | undefined);
-            const channels = (
-                category?.children.cache ?? interaction.guild?.channels.cache.filter(ch => !ch.parent)
-            )?.filter((channel): channel is TextChannel | NewsChannel | VoiceChannel => channel.isTextBased());
-
-            if (!channels) return;
-
-            await reply(interaction, {
-                content: "転送先のチャンネルを選択してください",
-                components: transferList.build([...discordSort(channels).values()]),
-            });
-        } else {
-            await reply(interaction, `ボタンと転送したいメッセージに同じリアクションを付けて、転送するメッセージを選択してください`);
-
-            await interaction.channel?.send(buildTransferMessage(destination));
+        // 転送先が選択されている場合
+        if (destination) {
+            await sendTransferMessage(interaction, destination);
+            return;
         }
+
+        //転送先が選択されていない場合
+        const channel = interaction.channel as GuildTextBasedChannel;
+        const category = channel.parent?.parent ?? (channel.parent as CategoryChannel | undefined);
+        const channels = (
+            category?.children.cache ?? interaction.guild?.channels.cache.filter(ch => !ch.parent)
+        )?.filter((channel): channel is TextChannel | NewsChannel | VoiceChannel => channel.isTextBased());
+
+        if (!channels) return;
+
+        await reply(interaction, {
+            content: "転送先のチャンネルを選択してください",
+            components: transferList.build([...discordSort(channels).values()]),
+        });
     },
 });
 
@@ -61,3 +66,11 @@ export const buildTransferMessage = (
 ): MessageCreateOptions => ({
     components: buttonToRow(transferButton.build({ destination })),
 });
+
+export const sendTransferMessage = async (interaction: CommandInteraction | MessageComponentInteraction, destination: GuildTextBasedChannel) => {
+    await reply(
+        interaction,
+        `ボタンと転送したいメッセージに同じリアクションを付けて、転送するメッセージを選択してください`
+    );
+    await interaction.channel?.send(buildTransferMessage(destination));
+};
