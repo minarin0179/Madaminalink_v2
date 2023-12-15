@@ -128,9 +128,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             .filter(message => message.content != "")
             .map(message => {
                 const date = new Date(message.createdAt);
-                const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${(
-                    "0" + date.getHours()
-                ).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
+                const timeStamp = dateToTimestamp(date);
 
                 const reactions = message.reactions.cache;
                 const reactionText = reactions
@@ -168,3 +166,12 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
     return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;
 };
+
+const dateToTimestamp = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    return `${year}/${month}/${day} ${hour}:${minute}`;
+}
