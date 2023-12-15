@@ -148,7 +148,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         const files = messages
             .slice(-1)[0]
-            .attachments.filter(attachment => attachment.size <= 8388608)
+            .attachments.filter(attachment => attachment.size <= MyConstants.maxFileSize)
             .map(attachment => attachment.url);
 
         //ファイルを一括で送るとメモリを食う

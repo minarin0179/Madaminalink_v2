@@ -16,9 +16,6 @@ import { client } from "../bot";
 import { ChannelLink } from "../structures/ChannelLink";
 import { buildTransferMessage } from "../commands/slashcommands/transfer";
 
-const MaxFileSizeMB = 25;
-const MaxFileSizeByte = MaxFileSizeMB * 1024 * 1024;
-
 type transferOptions = {
     noReaction?: boolean;
     allowedMentions?: MessageMentionOptions;
@@ -51,7 +48,7 @@ export const transferMessage = async (
     const { attachments, components, embeds } = message;
 
     //巨大なファイルを除外
-    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MaxFileSizeByte);
+    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MyConstants.maxFileSize);
 
     let newMessageOptions = {
         content,
@@ -112,7 +109,7 @@ export const transferMessage = async (
     if (largeFiles.size > 0) {
         await destination.send(`\`\`\`diff
 - ${largeFiles.map(file => file.name).join(", ")}のコピーに失敗しました
-- ファイル容量の上限は${MaxFileSizeMB}MBです\`\`\``);
+- ファイル容量の上限は${MyConstants.maxFileSizeMB}MBです\`\`\``);
     }
 };
 
