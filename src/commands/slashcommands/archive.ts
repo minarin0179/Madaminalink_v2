@@ -136,9 +136,11 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
                     .join(" ");
 
                 const description = `${message.content}\n${reactionText}`
+                const authorName = message.member?.nickname || message.author.globalName || message.author.username;
+
                 return new EmbedBuilder()
                     .setAuthor({
-                        name: message.member?.nickname || message.author.username,
+                        name: authorName,
                         iconURL: message.author.avatarURL() ?? undefined,
                     })
                     .setColor([47, 49, 54])
