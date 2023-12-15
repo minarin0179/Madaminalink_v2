@@ -39,24 +39,22 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        const targetCategory = args.getChannel("保存するカテゴリ", true) as CategoryChannel | TextChannel;
+        const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>("保存するカテゴリ", true);
 
-        const logChannel = (args.getChannel("保存先") ??
-            (await interaction.guild?.channels.create({
+        const logChannel = args.getChannel<ChannelType.GuildText>("保存先") ??
+            await interaction.guild?.channels.create({
                 name: `ログ ${targetCategory.name}`,
                 type: ChannelType.GuildText,
                 permissionOverwrites: targetCategory.permissionOverwrites.cache,
-            }))) as TextChannel;
+            });
 
-        const children = (() => {
-            if (targetCategory instanceof CategoryChannel) {
-                return discordSort(
-                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
-                );
-            }
-            return new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
-        })();
+        if (!logChannel) {
+            return reply(interaction, { content: "保存先のチャンネルが見つかりません", ephemeral: true });
+        }
 
+        const children = (targetCategory instanceof CategoryChannel)
+            ? discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+            : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
         }
