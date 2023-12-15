@@ -132,13 +132,19 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
                     "0" + date.getHours()
                 ).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
 
+                const reactions = message.reactions.cache;
+                const reactionText = reactions
+                    .map(reaction => `\`${reaction.emoji} ${reaction.count}\``)
+                    .join(" ");
+
+                const description = `${message.content}\n${reactionText}`
                 return new EmbedBuilder()
                     .setAuthor({
                         name: message.member?.nickname || message.author.username,
                         iconURL: message.author.avatarURL() ?? undefined,
                     })
                     .setColor([47, 49, 54])
-                    .setDescription(message.content)
+                    .setDescription(description)
                     .setFooter({ text: timeStamp });
             });
 
@@ -157,7 +163,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.send({ files: [file] });
         }
     }
-    (await destinationThread.fetchStarterMessage())?.delete().catch(() => {});
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
     await destinationThread.setArchived(true);
 
     return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;
