@@ -1,5 +1,6 @@
 import { ButtonBuilder, ButtonStyle, Role } from "discord.js";
 import { Button } from "../../structures/Button";
+import { isEditable } from "../../utils/isEditable";
 import { reply } from "../../utils/Reply";
 
 export default new Button({
@@ -16,6 +17,7 @@ export default new Button({
         const after = await interaction.guild?.roles.fetch(afterId);
 
         if (!before || !after) return reply(interaction, "ロールが見つかりません");
+        if (!isEditable(before) || !isEditable(after)) return reply(interaction, "マダミナリンクより上位のロールは編集できません");
         await interaction.deferReply({ ephemeral: true });
 
         await interaction.guild?.members.fetch();
