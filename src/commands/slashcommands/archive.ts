@@ -130,8 +130,15 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
                 const reactions = message.reactions.cache;
                 const reactionText = reactions
-                    .map(reaction => `\`${reaction.emoji} ${reaction.count}\``)
-                    .join(" ");
+                    .map(reaction => {
+                        //idを持つならカスタム絵文字
+                        if (reaction.emoji.id) {
+                            return `${reaction.emoji} ${reaction.count}`;
+                        } else {
+                            return `\\${reaction.emoji} ${reaction.count}`;
+                        }
+                    })
+                    .join("　");//Embedは半角スペースだと詰められるので全角スペース
 
                 const description = `${message.content}\n${reactionText}`
                 const authorName = message.member?.nickname || message.author.globalName || message.author.username;
