@@ -26,9 +26,10 @@ export default new Button({
         if (members.size === 0) return reply(interaction, `${before}を持つメンバーがいません`);
 
         await Promise.all(
-            members.map(async member =>
-                member.roles.set([after, ...member.roles.cache.values()].filter(role => role.id !== before.id))
-            )
+            members.map(async member => {
+                member.roles.remove(before);
+                member.roles.add(after);
+            })
         );
 
         await reply(interaction, `${[...members.values()].join(", ")}の${before}を${after}に変更しました`);
