@@ -4,6 +4,7 @@ import {
     Collection,
     discordSort,
     EmbedBuilder,
+    GuildEmoji,
     GuildTextBasedChannel,
     Message,
     SlashCommandBuilder,
@@ -131,14 +132,15 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
                 const reactions = message.reactions.cache;
                 const reactionText = reactions
                     .map(reaction => {
-                        //idを持つならカスタム絵文字
-                        if (reaction.emoji.id) {
-                            return `${reaction.emoji} ${reaction.count}`;
+                        const { emoji, count } = reaction;
+                        //idが存在する場合はカスタム絵文字
+                        if (emoji.id) {
+                            return (emoji instanceof GuildEmoji) ? `${emoji} ${count}` : ""; //絵文字がサーバーにない場合は空文字
                         } else {
-                            return `\`${reaction.emoji} ${reaction.count}\``;
+                            return `\`${emoji} ${count}\``;
                         }
                     })
-                    .join("　");//Embedは半角スペースだと詰められるので全角スペース
+                    .join(" ");
 
                 const description = `${message.content}\n${reactionText}`
                 const authorName = message.member?.nickname || message.author.globalName || message.author.username;
