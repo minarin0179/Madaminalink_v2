@@ -135,7 +135,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
                         if (reaction.emoji.id) {
                             return `${reaction.emoji} ${reaction.count}`;
                         } else {
-                            return `\\${reaction.emoji} ${reaction.count}`;
+                            return `\`${reaction.emoji} ${reaction.count}\``;
                         }
                     })
                     .join("　");//Embedは半角スペースだと詰められるので全角スペース
