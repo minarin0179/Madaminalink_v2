@@ -7,6 +7,7 @@ import {
     GuildEmoji,
     GuildTextBasedChannel,
     Message,
+    MessageReaction,
     SlashCommandBuilder,
     TextChannel,
 } from "discord.js";
@@ -15,6 +16,7 @@ import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
 import { splitMessage } from "../../utils/SplitMessage";
+import { isEmptyText } from "../../utils/isEmptyMessage";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -130,17 +132,8 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
                 const timeStamp = dateToTimestamp(date);
 
                 const reactions = message.reactions.cache;
-                const reactionText = reactions
-                    .map(reaction => {
-                        const { emoji, count } = reaction;
-                        //idが存在する場合はカスタム絵文字
-                        if (emoji.id) {
-                            return (emoji instanceof GuildEmoji) ? `${emoji} ${count}` : ""; //絵文字がサーバーにない場合は空文字
-                        } else {
-                            return `\`${emoji} ${count}\``;
-                        }
-                    })
-                    .join(" ");
+                const reactionText = (message.attachments.size > 0) ? "" : reactionsToString(reactions);
+                //添付ファイルがある場合はリアクションは後で送る
 
                 const description = `${message.content}\n${reactionText}`
                 const authorName = message.member?.nickname || message.author.globalName || message.author.username;
@@ -159,8 +152,8 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.send({ embeds: embeds });
         }
 
-        const files = messages
-            .slice(-1)[0]
+        const lastMessage = messages.slice(-1)[0];
+        const files = lastMessage
             .attachments.filter(attachment => attachment.size <= 8388608)
             .map(attachment => attachment.url);
 
@@ -169,6 +162,15 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.sendTyping();
             await destinationThread.send({ files: [file] });
         }
+
+        if (files.length > 0) {
+            const reactions = lastMessage.reactions.cache;
+            const reactionText = reactionsToString(reactions);
+            if (!isEmptyText(reactionText)) {
+                await destinationThread.send(reactionText);
+            }
+        }
+
     }
     (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
     await destinationThread.setArchived(true);
@@ -184,3 +186,17 @@ const dateToTimestamp = (date: Date) => {
     const minute = String(date.getMinutes()).padStart(2, "0");
     return `${year}/${month}/${day} ${hour}:${minute}`;
 }
+
+const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
+    return reactions
+        .map(reaction => {
+            const { emoji, count } = reaction;
+            //idが存在する場合はカスタム絵文字
+            if (emoji.id) {
+                return (emoji instanceof GuildEmoji) ? `${emoji} ${count}` : ""; //絵文字がサーバーにない場合は空文字
+            } else {
+                return `\`${emoji} ${count}\``;
+            }
+        })
+        .join(" ");
+};
