@@ -1,6 +1,9 @@
 import {
+    BaseInteraction,
     ButtonInteraction,
+    ChatInputCommandInteraction,
     Collection,
+    CommandInteraction,
     ComponentType,
     EmbedBuilder,
     GuildMember,
@@ -14,7 +17,7 @@ import { buttonToRow } from "../../utils/ButtonToRow";
 import agregatePollButton from "../../components/buttons/agregatePoll";
 import unehemeralButton from "../../components/buttons/unehemeral";
 import { rename } from "./rename";
-import { Choice, PollModel } from "../../structures/Poll";
+import { Choice, PollModel, PollOptions } from "../../structures/Poll";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -52,28 +55,31 @@ export default new SlashCommand({
         if (choices.length > 24)
             return reply(interaction, { content: "選択肢の数が多すぎます(最大24個)", ephemeral: true });
 
-        const content = voteType === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください";
 
-
-        const poll = new PollModel({
+        const pollOptions = {
             type: args.getString("投票モード", true),
             ownerId: interaction.user.id,
             choices: choices,
             voters: new Map(),
-        });
+        };
 
-        const res = await poll.save();
-
-        await interaction.channel?.send({
-            content,
-            components: buttonToRow([
-                ...pollButton.build({ pollId: res._id, choices }),
-                ...agregatePollButton.build({ pollId: res._id }),
-            ]),
-        });
+        await sendPoll(interaction, pollOptions);
 
         await reply(interaction, "投票を開始しました");
     },
 });
 
-const getArgs = (interaction: ButtonInteraction): string[] => interaction.customId.split(/[:,]/);
+export const sendPoll = async (interaction: BaseInteraction, options: PollOptions) => {
+
+    const poll = new PollModel(options);
+
+    const res = await poll.save();
+
+    await interaction.channel?.send({
+        content: options.type === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください",
+        components: buttonToRow([
+            ...pollButton.build({ pollId: res._id, choices: options.choices }),
+            ...agregatePollButton.build({ pollId: res._id }),
+        ]),
+    });
+}
