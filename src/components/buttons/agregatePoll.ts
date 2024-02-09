@@ -3,6 +3,7 @@ import { Button } from "../../structures/Button";
 import { PollModel } from "../../structures/Poll";
 import { reply } from "../../utils/Reply";
 import unehemeralButton from "../../components/buttons/unehemeral";
+import revoteButton from "../../components/buttons/revote";
 import { buttonToRow } from "../../utils/ButtonToRow";
 
 export default new Button({
@@ -29,6 +30,7 @@ export default new Button({
             if (!result.has(choiceIndex)) result.set(choiceIndex, []);
             result.get(choiceIndex)?.push(userId);
         });
+        const guild = interaction.guild!;
 
         if (poll.type === "char") {
             let warn = false;
@@ -36,7 +38,9 @@ export default new Button({
                 const choice = poll.choices[choiceIndex];
                 if (result.get(choiceIndex)?.length === 1) {
                     const roleId = poll.choices[choiceIndex].roleId
-                    const role = roleId ? interaction.guild?.roles.cache.get(roleId) : null;
+                    const role = roleId ? guild.roles.cache.get(roleId) : null;
+                    const member = guild.members.cache.get(userId);
+                    if (role && member) member.roles.add(role);
                     return `<@${userId}> → ${role ? role : choice.label} ✅`;
                 } else {
                     warn = true;
@@ -49,6 +53,7 @@ export default new Button({
                     .addFields({ name: "集計結果", value: content || "なし" })
                     .setColor(warn ? 0xffcc4d : 0x77b255)],
                 allowedMentions: { parse: [] },
+                components: warn ? buttonToRow(revoteButton.build({ pollId })) : []
             });
         }
 
@@ -81,6 +86,7 @@ export default new Button({
             });
         }
 
+        await reply(interaction, "集計が完了しました");
 
     },
 });
