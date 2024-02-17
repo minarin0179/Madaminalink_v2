@@ -1,13 +1,5 @@
 import {
     BaseInteraction,
-    ButtonInteraction,
-    ChatInputCommandInteraction,
-    Collection,
-    CommandInteraction,
-    ComponentType,
-    EmbedBuilder,
-    GuildMember,
-    Role,
     SlashCommandBuilder,
 } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
@@ -15,8 +7,7 @@ import { reply } from "../../utils/Reply";
 import pollButton from "../../components/buttons/poll";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import agregatePollButton from "../../components/buttons/agregatePoll";
-import unehemeralButton from "../../components/buttons/unehemeral";
-import { rename } from "./rename";
+import confirmPollButton from "../../components/buttons/confirmPoll";
 import { Choice, PollModel, PollOptions } from "../../structures/Poll";
 
 export default new SlashCommand({
@@ -57,7 +48,7 @@ export default new SlashCommand({
 
 
         const pollOptions = {
-            type: args.getString("投票モード", true),
+            type: voteType,
             ownerId: interaction.user.id,
             choices: choices,
             voters: new Map(),
@@ -79,7 +70,8 @@ export const sendPoll = async (interaction: BaseInteraction, options: PollOption
         content: options.type === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください",
         components: buttonToRow([
             ...pollButton.build({ pollId: res._id, choices: options.choices }),
-            ...agregatePollButton.build({ pollId: res._id }),
+            ...confirmPollButton.build({ pollId: res._id }),
+            ...agregatePollButton.build({ pollId: res._id })
         ]),
     });
 }
