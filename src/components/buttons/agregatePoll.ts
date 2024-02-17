@@ -85,6 +85,7 @@ export default new Button({
                 components: buttonToRow(unehemeralButton.build()),
             });
         }
+        await interaction.message.delete();
 
         await reply(interaction, "集計が完了しました");
 
