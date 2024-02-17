@@ -4,8 +4,10 @@ import {
     Collection,
     discordSort,
     EmbedBuilder,
+    GuildEmoji,
     GuildTextBasedChannel,
     Message,
+    MessageReaction,
     SlashCommandBuilder,
     TextChannel,
 } from "discord.js";
@@ -14,6 +16,7 @@ import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
 import { splitMessage } from "../../utils/SplitMessage";
+import { isEmptyText } from "../../utils/isEmptyMessage";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -39,24 +42,22 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        const targetCategory = args.getChannel("保存するカテゴリ", true) as CategoryChannel | TextChannel;
+        const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>("保存するカテゴリ", true);
 
-        const logChannel = (args.getChannel("保存先") ??
-            (await interaction.guild?.channels.create({
+        const logChannel = args.getChannel<ChannelType.GuildText>("保存先") ??
+            await interaction.guild?.channels.create({
                 name: `ログ ${targetCategory.name}`,
                 type: ChannelType.GuildText,
                 permissionOverwrites: targetCategory.permissionOverwrites.cache,
-            }))) as TextChannel;
+            });
 
-        const children = (() => {
-            if (targetCategory instanceof CategoryChannel) {
-                return discordSort(
-                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
-                );
-            }
-            return new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
-        })();
+        if (!logChannel) {
+            return reply(interaction, { content: "保存先のチャンネルが見つかりません", ephemeral: true });
+        }
 
+        const children = (targetCategory instanceof CategoryChannel)
+            ? discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+            : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
         }
@@ -128,17 +129,22 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             .filter(message => message.content != "")
             .map(message => {
                 const date = new Date(message.createdAt);
-                const timeStamp = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${(
-                    "0" + date.getHours()
-                ).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`;
+                const timeStamp = dateToTimestamp(date);
+
+                const reactions = message.reactions.cache;
+                const reactionText = (message.attachments.size > 0) ? "" : reactionsToString(reactions);
+                //添付ファイルがある場合はリアクションは後で送る
+
+                const description = `${message.content}\n${reactionText}`
+                const authorName = message.member?.nickname || message.author.globalName || message.author.username;
 
                 return new EmbedBuilder()
                     .setAuthor({
-                        name: message.member?.nickname || message.author.username,
+                        name: authorName,
                         iconURL: message.author.avatarURL() ?? undefined,
                     })
                     .setColor([47, 49, 54])
-                    .setDescription(message.content)
+                    .setDescription(description)
                     .setFooter({ text: timeStamp });
             });
 
@@ -146,8 +152,8 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.send({ embeds: embeds });
         }
 
-        const files = messages
-            .slice(-1)[0]
+        const lastMessage = messages.slice(-1)[0];
+        const files = lastMessage
             .attachments.filter(attachment => attachment.size <= 8388608)
             .map(attachment => attachment.url);
 
@@ -156,9 +162,41 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             await destinationThread.sendTyping();
             await destinationThread.send({ files: [file] });
         }
+
+        if (files.length > 0) {
+            const reactions = lastMessage.reactions.cache;
+            const reactionText = reactionsToString(reactions);
+            if (!isEmptyText(reactionText)) {
+                await destinationThread.send(reactionText);
+            }
+        }
+
     }
-    (await destinationThread.fetchStarterMessage())?.delete().catch(() => {});
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
     await destinationThread.setArchived(true);
 
     return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;
+};
+
+const dateToTimestamp = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    return `${year}/${month}/${day} ${hour}:${minute}`;
+}
+
+const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
+    return reactions
+        .map(reaction => {
+            const { emoji, count } = reaction;
+            //idが存在する場合はカスタム絵文字
+            if (emoji.id) {
+                return (emoji instanceof GuildEmoji) ? `${emoji} ${count}` : ""; //絵文字がサーバーにない場合は空文字
+            } else {
+                return `\`${emoji} ${count}\``;
+            }
+        })
+        .join(" ");
 };
