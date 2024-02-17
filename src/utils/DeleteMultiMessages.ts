@@ -5,15 +5,16 @@ export const deleteMultiMessages = async (
     channel: GuildTextBasedChannel | DMChannel | PartialDMChannel,
     messages: Collection<string, Message<boolean>>
 ) => {
-    const threads = messages.filter(m => m.hasThread).map(m => m.thread as AnyThreadChannel);
-    const [recentMessages, oldMessages] = messages.partition(
+    const nonSystemMessages = messages.filter(message => !message.system);
+    const threads = nonSystemMessages.filter(m => m.hasThread).map(m => m.thread as AnyThreadChannel);
+    const [recentMessages, oldMessages] = nonSystemMessages.partition(
         message => Date.now() - message.createdTimestamp < 1_209_600_000
     );
 
     if (!("bulkDelete" in channel)) {
         //bulkDeleteがない場合は一つずつ削除
         await Promise.all(
-            messages.map(async message => {
+            nonSystemMessages.map(async message => {
                 await message.delete();
             })
         );
