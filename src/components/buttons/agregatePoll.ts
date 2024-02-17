@@ -5,6 +5,7 @@ import { reply } from "../../utils/Reply";
 import unehemeralButton from "../../components/buttons/unehemeral";
 import revoteButton from "../../components/buttons/revote";
 import { buttonToRow } from "../../utils/ButtonToRow";
+import { rename } from "../../commands/slashcommands/rename";
 
 export default new Button({
     customId: "agregatePoll",
@@ -12,7 +13,7 @@ export default new Button({
         new ButtonBuilder()
             .setCustomId(`agregatePoll:${pollId}`)
             .setLabel("集計")
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Danger)
     ],
     execute: async ({ interaction, args }) => {
         const pollId = args[0];
@@ -36,15 +37,18 @@ export default new Button({
             let warn = false;
             const content = [...votes.entries()].map(([userId, choiceIndex]) => {
                 const choice = poll.choices[choiceIndex];
+                const { roleId } = choice;
+                const role = roleId ? guild.roles.cache.get(roleId) : undefined;
+                const member = guild.members.cache.get(userId);
+                const roleName = role ? role.name : choice.label;
                 if (result.get(choiceIndex)?.length === 1) {
-                    const roleId = poll.choices[choiceIndex].roleId
-                    const role = roleId ? guild.roles.cache.get(roleId) : null;
-                    const member = guild.members.cache.get(userId);
-                    if (role && member) member.roles.add(role);
-                    return `<@${userId}> → ${role ? role : choice.label} ✅`;
+                    if (member) {
+                        rename(member, roleName).catch(() => { });
+                    }
+                    return `<@${userId}> → ${roleName} ✅`;
                 } else {
                     warn = true;
-                    return `<@${userId}> → ${choice.label} ⚠️`;
+                    return `<@${userId}> → ${roleName} ⚠️`;
                 }
             }).join("\n");
 
@@ -87,7 +91,7 @@ export default new Button({
         }
         await interaction.message.delete();
 
-        await reply(interaction, "集計が完了しました");
+        await reply(interaction, "集計結果を表示しました");
 
     },
 });
