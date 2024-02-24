@@ -7,7 +7,6 @@ import {
     EmbedBuilder,
     GuildEmoji,
     GuildTextBasedChannel,
-    Message,
     MessageReaction,
     SlashCommandBuilder,
     TextChannel,
@@ -46,20 +45,22 @@ export default new SlashCommand({
 
         const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>("保存するカテゴリ", true);
 
-        const logChannel = args.getChannel<ChannelType.GuildText>("保存先") ??
-            await interaction.guild?.channels.create({
+        const logChannel =
+            args.getChannel<ChannelType.GuildText>("保存先") ??
+            (await interaction.guild?.channels.create({
                 name: `ログ ${targetCategory.name}`,
                 type: ChannelType.GuildText,
                 permissionOverwrites: targetCategory.permissionOverwrites.cache,
-            });
+            }));
 
         if (!logChannel) {
             return reply(interaction, { content: "保存先のチャンネルが見つかりません", ephemeral: true });
         }
 
-        const children = (targetCategory instanceof CategoryChannel)
-            ? discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
-            : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
+        const children =
+            targetCategory instanceof CategoryChannel
+                ? discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+                : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
         }
@@ -112,16 +113,17 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
     const destinationThread = await destination.threads.create({ name: source.name });
 
-    const archiveDatas: ArchiveData[] = messages.map(message => {
+    const archiveDatas = messages.map(message => {
         const date = new Date(message.createdAt);
         const timeStamp = dateToTimestamp(date);
 
         const reactions = message.reactions.cache;
-        const [reactionText, reactionTextLater] = (message.attachments.size > 0)
-            ? ["", reactionsToString(reactions)] //添付ファイルがある場合はリアクションは後で送る
-            : [reactionsToString(reactions), ""];
+        const [reactionText, reactionTextLater] =
+            message.attachments.size > 0
+                ? ["", reactionsToString(reactions)] //添付ファイルがある場合はリアクションは後で送る
+                : [reactionsToString(reactions), ""];
 
-        const description = `${message.content}\n${reactionText}`
+        const description = `${message.content}\n${reactionText}`;
         const authorName = message.member?.nickname || message.author.globalName || message.author.username;
 
         const messageEmbed = new EmbedBuilder()
@@ -135,8 +137,10 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         const data: ArchiveData = {
             embed: messageEmbed,
-            files: message.attachments.filter(attachment => attachment.size <= MyConstants.maxFileSize).map(attachment => attachment.url) || [],
-            reactions: reactionTextLater
+            files: message.attachments
+                    .filter(attachment => attachment.size <= MyConstants.maxFileSize)
+                    .map(attachment => attachment.url) || [],
+            reactions: reactionTextLater,
         };
         return [data, ...message.embeds.map(embed => ({ embed: embed, files: [], reactions: "" }))];
     }).flat();
@@ -148,11 +152,12 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
         embedSize += data.embed.length;
 
         if (
-            data.files.length == 0 // ファイルがあれば区切る
-            && index - lastIndex < 9 //一つのメッセージにつきembedは10個まで
-            && index != archiveDatas.length - 1 // 最後まで到達したら送る
-            && embedSize + archiveDatas[index + 1].embed.length < 6000 // 一つのメッセージにつきembedは6000文字まで
-        ) continue;
+            data.files.length == 0 && // ファイルがあれば区切る
+            index - lastIndex < 9 && //一つのメッセージにつきembedは10個まで
+            index != archiveDatas.length - 1 && // 最後まで到達したら送る
+            embedSize + archiveDatas[index + 1].embed.length < 6000 // 一つのメッセージにつきembedは6000文字まで
+        )
+            continue;
 
         const slicedDatas = archiveDatas.slice(lastIndex, index + 1);
         const embeds = slicedDatas.map(data => data.embed);
@@ -168,7 +173,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         lastIndex = index + 1;
         embedSize = 0;
-    };
+    }
 
     (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
     await destinationThread.setArchived(true);
@@ -183,7 +188,7 @@ const dateToTimestamp = (date: Date) => {
     const hour = String(date.getHours()).padStart(2, "0");
     const minute = String(date.getMinutes()).padStart(2, "0");
     return `${year}/${month}/${day} ${hour}:${minute}`;
-}
+};
 
 const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
     return reactions
@@ -191,7 +196,7 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
             const { emoji, count } = reaction;
             //idが存在する場合はカスタム絵文字
             if (emoji.id) {
-                return (emoji instanceof GuildEmoji) ? `${emoji} ${count}` : ""; //絵文字がサーバーにない場合は空文字
+                return emoji instanceof GuildEmoji ? `${emoji} ${count}` : ""; //絵文字がサーバーにない場合は空文字
             } else {
                 return `\`${emoji} ${count}\``;
             }
