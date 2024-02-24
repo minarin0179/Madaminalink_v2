@@ -3,6 +3,7 @@ import {
     ChannelType,
     Collection,
     discordSort,
+    Embed,
     EmbedBuilder,
     GuildEmoji,
     GuildTextBasedChannel,
@@ -100,78 +101,78 @@ export default new SlashCommand({
     },
 });
 
+interface ArchiveData {
+    embed: EmbedBuilder | Embed;
+    files: string[];
+    reactions: string;
+}
+
 const RunArchive = async (source: GuildTextBasedChannel, destination: TextChannel): Promise<string> => {
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
-    const slicedMessages: Message[][] = [];
     const destinationThread = await destination.threads.create({ name: source.name });
 
-    const embedSize = (message: Message) =>
-        message.content.length + (message.member?.nickname || message.author.username).length + 16;
-    let tail = 0;
-    let length = 0;
-    messages.map((message, index) => {
-        if (index - tail == 9 || message.attachments.size > 0 || length + embedSize(message) > 4000) {
-            slicedMessages.push(messages.slice(tail, index + 1));
-            tail = index + 1;
-            length = 0;
+    const archiveDatas: ArchiveData[] = messages.map(message => {
+        const date = new Date(message.createdAt);
+        const timeStamp = dateToTimestamp(date);
+
+        const reactions = message.reactions.cache;
+        const [reactionText, reactionTextLater] = (message.attachments.size > 0)
+            ? ["", reactionsToString(reactions)] //添付ファイルがある場合はリアクションは後で送る
+            : [reactionsToString(reactions), ""];
+
+        const description = `${message.content}\n${reactionText}`
+        const authorName = message.member?.nickname || message.author.globalName || message.author.username;
+
+        const messageEmbed = new EmbedBuilder()
+            .setAuthor({
+                name: authorName,
+                iconURL: message.author.avatarURL() ?? undefined,
+            })
+            .setColor([47, 49, 54])
+            .setDescription(description)
+            .setFooter({ text: timeStamp });
+
+        const data: ArchiveData = {
+            embed: messageEmbed,
+            files: message.attachments.filter(attachment => attachment.size <= 8388608).map(attachment => attachment.url) || [],
+            reactions: reactionTextLater
+        };
+        return [data, ...message.embeds.map(embed => ({ embed: embed, files: [], reactions: "" }))];
+    }).flat();
+
+    let lastIndex = 0;
+    let embedSize = 0;
+
+    for await (const [index, data] of archiveDatas.entries()) {
+        let slicedDatas: ArchiveData[] = [];
+
+        console.log(`embed size : ${embedSize}`);
+        if (embedSize + data.embed.length > 6000) {
+            slicedDatas = archiveDatas.slice(lastIndex, index);
+            lastIndex = index;
+            embedSize = data.embed.length;
+        } else if (data.files.length > 0 || index - lastIndex == 9 || index == archiveDatas.length - 1) {
+            slicedDatas = archiveDatas.slice(lastIndex, index + 1);
+            lastIndex = index + 1;
+            embedSize = 0;
+        } else {
+            embedSize += data.embed.length;
+            continue;
         }
-        length += embedSize(message);
-    });
 
-    if (tail < messages.length) {
-        slicedMessages.push(messages.slice(tail));
-    }
+        const embeds = slicedDatas.map(data => data.embed);
+        console.log(embeds.reduce((acc, cur) => acc + cur.length, 0));
+        await destinationThread.send({ embeds: embeds });
 
-    for await (const messages of slicedMessages) {
-        await destinationThread.sendTyping();
-
-        const embeds = messages
-            .filter(message => message.content != "")
-            .map(message => {
-                const date = new Date(message.createdAt);
-                const timeStamp = dateToTimestamp(date);
-
-                const reactions = message.reactions.cache;
-                const reactionText = (message.attachments.size > 0) ? "" : reactionsToString(reactions);
-                //添付ファイルがある場合はリアクションは後で送る
-
-                const description = `${message.content}\n${reactionText}`
-                const authorName = message.member?.nickname || message.author.globalName || message.author.username;
-
-                return new EmbedBuilder()
-                    .setAuthor({
-                        name: authorName,
-                        iconURL: message.author.avatarURL() ?? undefined,
-                    })
-                    .setColor([47, 49, 54])
-                    .setDescription(description)
-                    .setFooter({ text: timeStamp });
-            });
-
-        if (embeds.length > 0) {
-            await destinationThread.send({ embeds: embeds });
-        }
-
-        const lastMessage = messages.slice(-1)[0];
-        const files = lastMessage
-            .attachments.filter(attachment => attachment.size <= 8388608)
-            .map(attachment => attachment.url);
-
-        //ファイルを一括で送るとメモリを食う
-        for await (const file of files) {
-            await destinationThread.sendTyping();
+        for await (const file of data.files) {
             await destinationThread.send({ files: [file] });
         }
 
-        if (files.length > 0) {
-            const reactions = lastMessage.reactions.cache;
-            const reactionText = reactionsToString(reactions);
-            if (!isEmptyText(reactionText)) {
-                await destinationThread.send(reactionText);
-            }
+        if (!isEmptyText(data.reactions)) {
+            await destinationThread.send(data.reactions);
         }
+    };
 
-    }
     (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
     await destinationThread.setArchived(true);
 
