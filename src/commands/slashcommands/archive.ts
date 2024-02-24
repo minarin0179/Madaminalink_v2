@@ -144,24 +144,17 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     let embedSize = 0;
 
     for await (const [index, data] of archiveDatas.entries()) {
-        let slicedDatas: ArchiveData[] = [];
+        embedSize += data.embed.length;
 
-        console.log(`embed size : ${embedSize}`);
-        if (embedSize + data.embed.length > 6000) {
-            slicedDatas = archiveDatas.slice(lastIndex, index);
-            lastIndex = index;
-            embedSize = data.embed.length;
-        } else if (data.files.length > 0 || index - lastIndex == 9 || index == archiveDatas.length - 1) {
-            slicedDatas = archiveDatas.slice(lastIndex, index + 1);
-            lastIndex = index + 1;
-            embedSize = 0;
-        } else {
-            embedSize += data.embed.length;
-            continue;
-        }
+        if (
+            data.files.length == 0 // ファイルがあれば区切る
+            && index - lastIndex < 9 //一つのメッセージにつきembedは10個まで
+            && index != archiveDatas.length - 1 // 最後まで到達したら送る
+            && embedSize + archiveDatas[index + 1].embed.length < 6000 // 一つのメッセージにつきembedは6000文字まで
+        ) continue;
 
+        const slicedDatas = archiveDatas.slice(lastIndex, index + 1);
         const embeds = slicedDatas.map(data => data.embed);
-        console.log(embeds.reduce((acc, cur) => acc + cur.length, 0));
         await destinationThread.send({ embeds: embeds });
 
         for await (const file of data.files) {
@@ -171,6 +164,9 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
         if (!isEmptyText(data.reactions)) {
             await destinationThread.send(data.reactions);
         }
+
+        lastIndex = index + 1;
+        embedSize = 0;
     };
 
     (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
