@@ -18,6 +18,7 @@ import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
 import { splitMessage } from "../../utils/SplitMessage";
 import { isEmptyText } from "../../utils/isEmptyMessage";
+import { MyConstants } from "../../constants/constants";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -134,7 +135,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         const data: ArchiveData = {
             embed: messageEmbed,
-            files: message.attachments.filter(attachment => attachment.size <= 8388608).map(attachment => attachment.url) || [],
+            files: message.attachments.filter(attachment => attachment.size <= MyConstants.maxFileSize).map(attachment => attachment.url) || [],
             reactions: reactionTextLater
         };
         return [data, ...message.embeds.map(embed => ({ embed: embed, files: [], reactions: "" }))];
