@@ -138,8 +138,8 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
         const data: ArchiveData = {
             embed: messageEmbed,
             files: message.attachments
-                    .filter(attachment => attachment.size <= MyConstants.maxFileSize)
-                    .map(attachment => attachment.url) || [],
+                .filter(attachment => attachment.size <= MyConstants.maxFileSize)
+                .map(attachment => attachment.url) || [],
             reactions: reactionTextLater,
         };
         return [data, ...message.embeds.map(embed => ({ embed: embed, files: [], reactions: "" }))];
