@@ -1,14 +1,16 @@
-FROM node:20
+FROM debian
 
 WORKDIR /app
 
-RUN npm install -g bun
+RUN apt-get update && apt-get install -y curl unzip nodejs git-all
+RUN curl -fsSL https://bun.sh/install | bash
+# ENV PATH="~/.bun/bin:${PATH}"
+
 #package.jsonが変更されてない場合はキャッシュで高速化される
 COPY package.json package-lock.json ./
-RUN bun install
-ENV PATH="/app/node_modules/.bin:$PATH"
+RUN ~/.bun/bin/bun install
 
-COPY . .
+# COPY . .
 
 # コンテナの起動時にボットを起動
 # ENTRYPOINT [ "npm", "run", "demon" ]

@@ -3,7 +3,7 @@ module.exports = {
     name   : "bot",
     // script : "dist/index.js",
     script : "src/index.ts",
-    interpreter: "/usr/local/bin/bun",
+    interpreter: "/root/.bun/bin/bun",
     // instances: "max",
     cron_restart: '0 4 * * *',
   }]
