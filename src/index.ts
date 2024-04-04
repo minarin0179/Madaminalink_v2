@@ -1,7 +1,9 @@
 import { ShardingManager } from "discord.js";
 import "dotenv/config";
 
-const manager = new ShardingManager("./dist/bot.js", {
+//sharding typescript file
+
+const manager = new ShardingManager("./src/bot.ts", {
     token: process.env.TOKEN,
     respawn: true,
 });

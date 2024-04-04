@@ -24,7 +24,8 @@ export class ExtendedClient extends Client {
     }
 
     async registerModules() {
-        const main = path.dirname(require.main?.filename ?? __filename);
+        // const main = path.dirname(require.main?.filename ?? __filename);
+        const main = "/workspaces/Madaminalink_v2/src"
         const commandsPath = path.join(main, "commands");
 
         const commandsDirs = fs.readdirSync(commandsPath);
