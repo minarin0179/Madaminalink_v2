@@ -14,7 +14,7 @@
 		"ghcr.io/devcontainers/features/sshd:1": {}
 	},
 	// Uncomment the next line to run commands after the container is created.
-	"postCreateCommand": "bun install",
+	"postCreateCommand": "cp .env.sample .env && bun install",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
