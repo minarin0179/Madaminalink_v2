@@ -1,6 +1,6 @@
 FROM debian:bookworm as base
 
-RUN apt-get update && apt-get install -y curl unzip nodejs git-all
+RUN apt-get update && apt-get install -y curl unzip nodejs
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH /root/.bun/bin:$PATH
 
@@ -11,4 +11,4 @@ COPY package.json package-lock.json ./
 RUN bun install --production
 
 COPY . .
-ENTRYPOINT bun demon
+CMD bun demon
