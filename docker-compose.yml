@@ -10,7 +10,12 @@ services:
       - ./.db:/data/db
 
   bot:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
     container_name: madaminalink
+    environment:
+      NODE_ENV: production
     depends_on:
       - mongo
