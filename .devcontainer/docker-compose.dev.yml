@@ -8,4 +8,8 @@ services:
       NODE_ENV: development
     volumes:
       - ..:/app:cached
+      - node_modules:/app/node_modules
     command: sleep infinity
+
+volumes:
+  node_modules:
