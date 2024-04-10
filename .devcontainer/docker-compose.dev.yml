@@ -8,4 +8,4 @@ services:
       NODE_ENV: development
     volumes:
       - ..:/app:cached
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sleep infinity
