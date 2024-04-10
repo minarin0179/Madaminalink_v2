@@ -10,8 +10,7 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.0.2",
     "mongodb": "^4.10.0",
-    "pm2": "^5.2.2",
-    "ts-node": "^10.9.1"
+    "pm2": "^5.2.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.62.0",
