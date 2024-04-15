@@ -17,4 +17,4 @@ services:
     depends_on:
       - mongo
     env_file:
-      - fileName: .env
+      - ".env"
