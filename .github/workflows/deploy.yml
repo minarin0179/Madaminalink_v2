@@ -48,5 +48,4 @@ jobs:
 
       - name: Deploy
         run: |
-          docker compose up -d | at 04:00
-          
+          echo "cd $(pwd) && docker compose up -d " | at -b 04:00
