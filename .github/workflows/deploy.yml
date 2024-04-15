@@ -41,10 +41,4 @@ jobs:
 
       - name: Deploy
         run: |
-          docker compose -f production-compose.yml up -d
-
-        #   自動で最新バージョンが取得されなさそう
-        #   dcoker pullを実行 / metadataを取得して最新バージョンを取得する必要がある
-        #   ref : 
-            # - https://qiita.com/_kei_s/items/15c067090d5142648aac
-            # - https://github.com/marketplace/actions/build-and-push-docker-images
+          docker compose up -d
