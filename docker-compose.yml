@@ -16,3 +16,5 @@ services:
       NODE_ENV: production
     depends_on:
       - mongo
+    env_file:
+      - fileName: .env
