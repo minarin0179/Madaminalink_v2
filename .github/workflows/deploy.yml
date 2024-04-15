@@ -24,8 +24,6 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: ./
-          file: ./Dockerfile
           tags: minarin0179/madaminalink:latest
           push: true
 
