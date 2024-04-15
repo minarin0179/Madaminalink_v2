@@ -1,8 +1,8 @@
-name: Deployment
+name: Auto Deploy
 on:
   push:
     branches:
-      [node2bun]
+      [ master ]
 
 jobs:
   build_and_push:
