@@ -2,8 +2,7 @@
   "scripts": {
     "dev": "bun src/bot.ts",
     "start": "bun src/index.ts",
-    "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
-    "build": "tsc"
+    "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js"
   },
   "dependencies": {
     "agenda": "^4.3.0",
