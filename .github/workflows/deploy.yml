@@ -41,4 +41,8 @@ jobs:
 
       - name: Deploy
         run: |
-          docker compose up -d
+          docker compose up -d \
+            -e TOKEN=${{ secrets.TOKEN }} \
+            -e DEV_SERVER_ID=${{ secrets.DEV_SERVER_ID }}
+            -e mongodb=${{ secrets.MONGODB }}
+            -e TZ=${{ secrets.TZ }}
