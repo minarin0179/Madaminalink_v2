@@ -12,7 +12,7 @@ if [ ! -f .env ]; then
   cat << EOF > .env
 TOKEN=$TOKEN
 DEV_SERVER_ID=$DEV_SERVER_ID
-mongodb=mongodb://mongodb:27017/agenda
+MONGODB=mongodb://mongodb:27017/agenda
 TZ=Asia/Tokyo
 EOF
 fi
