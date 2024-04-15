@@ -1,5 +1,8 @@
 name: Deployment
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      [node2bun]
 
 jobs:
   build_and_push:
