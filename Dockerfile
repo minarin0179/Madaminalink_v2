@@ -1,7 +1,8 @@
 FROM debian:bookworm as base
 
-RUN apt-get update && apt-get install -y curl unzip nodejs && \
-    curl -fsSL https://bun.sh/install | bash
+RUN apt-get update && apt-get install -y curl unzip nodejs at && \
+    curl -fsSL https://bun.sh/install | bash \
+    atd
 
 ENV PATH /root/.bun/bin:$PATH
 

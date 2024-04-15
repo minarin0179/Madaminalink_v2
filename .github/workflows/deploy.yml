@@ -48,5 +48,5 @@ jobs:
 
       - name: Deploy
         run: |
-          docker compose up -d
+          docker compose up -d | at 04:00
           
