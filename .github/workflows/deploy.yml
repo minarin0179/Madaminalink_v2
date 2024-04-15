@@ -38,11 +38,15 @@ jobs:
 
       - name: Pull image
         run: docker pull minarin0179/madaminalink:latest
+      
+      - name: Env
+        run: |
+          echo "TOKEN=${{ secrets.TOKEN }}" >> .env
+          echo "DEV_SERVER_ID=${{ secrets.DEV_SERVER_ID }}" >> .env
+          echo "MONGODB=${{ secrets.MONGODB }}" >> .env
+          echo "TZ=${{ secrets.TZ }}" >> .env
 
       - name: Deploy
         run: |
-          docker compose up -d \
-            -e TOKEN=${{ secrets.TOKEN }} \
-            -e DEV_SERVER_ID=${{ secrets.DEV_SERVER_ID }}
-            -e mongodb=${{ secrets.MONGODB }}
-            -e TZ=${{ secrets.TZ }}
+          docker compose up -d
+          
