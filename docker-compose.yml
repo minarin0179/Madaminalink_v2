@@ -14,7 +14,9 @@ services:
     container_name: madaminalink
     environment:
       NODE_ENV: production
+      TOKEN: ${TOKEN}
+      DEV_SERVER_ID: ${DEV_SERVER_ID}
+      MONGODB: ${MONGODB}
+      TZ: ${TZ}
     depends_on:
       - mongo
-    env_file:
-      - ".env"
