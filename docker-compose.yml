@@ -12,6 +12,7 @@ services:
   bot:
     image: minarin0179/madaminalink:latest
     container_name: madaminalink
+    restart: always
     environment:
       NODE_ENV: production
       TOKEN: ${TOKEN}
