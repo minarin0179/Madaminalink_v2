@@ -1,8 +1,11 @@
 name: Auto Deploy
+
 on:
   push:
     branches:
-      [ master ]
+      - master
+  workflow_dispatch:
+    
 
 jobs:
   build_and_push:
