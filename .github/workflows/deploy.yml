@@ -36,7 +36,7 @@ jobs:
     runs-on: [self-hosted, my-runner]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Pull image
         run: docker pull minarin0179/madaminalink:latest
