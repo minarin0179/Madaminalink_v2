@@ -54,6 +54,12 @@ export default new SlashCommand({
             return reply(interaction, "カテゴリーに入り切りません\nチャンネル数を減らしてください");
         if (characters.length !== playerCount) return reply(interaction, "プレイヤー数とキャラクター数が一致しません");
 
+        // カテゴリ, 一般, 共通情報, 観戦, 解説, 全体会議, 個別チャンネル(playerCount), 密談場所(privateCount))
+        if (6 + playerCount + privateCount + (await guild.channels.fetch()).size > 500) {
+            const error = new Error("Maximum number of guild channels reached (500)") as any;
+            error.code = 30013;
+            throw error;
+        }
         await interaction.deferReply({ ephemeral: true });
 
         const GM = await guild.roles.create({ name: `${title} GM`, position });
