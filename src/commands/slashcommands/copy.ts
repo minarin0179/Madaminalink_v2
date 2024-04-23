@@ -1,4 +1,4 @@
-import { ChannelType, GuildChannel, SlashCommandBuilder } from "discord.js";
+import { ChannelType, GuildChannel, GuildChannelCloneOptions, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
@@ -55,8 +55,18 @@ export default new SlashCommand({
  * originalChannel:CategoryChannel -> [...[originalChannel,newChannel]]
  */
 
-const duplicateChannel = async (originalChannel: GuildChannel, option?: any): Promise<ChannelLink[]> => {
+const duplicateChannel = async (
+    originalChannel: GuildChannel,
+    option?: GuildChannelCloneOptions
+): Promise<ChannelLink[]> => {
     if (isCategory(originalChannel)) {
+        // originalChannel.guild.channels.cache.sizeだとスレッドチャンネル数も含まれる
+        if (originalChannel.children.cache.size + 1 + (await originalChannel.guild.channels.fetch()).size > 500) {
+            const error = new Error("Maximum number of guild channels reached (500)") as any;
+            error.code = 30013;
+            throw error;
+        }
+
         const newCategory = await originalChannel.clone({
             name: `(copy) ${originalChannel.name}`,
             type: ChannelType.GuildCategory,
