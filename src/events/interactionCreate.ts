@@ -28,8 +28,8 @@ export default new Event(Events.InteractionCreate, async interaction => {
             await component.execute({ client, interaction, args });
         }
     } catch (error: any) {
+        // eslint-disable-next-line no-console
         await showError(interaction, error).catch(console.log);
-        console.log({ interaction, error });
     }
 });
 
@@ -56,7 +56,6 @@ const showError = async (
                 embeds: [new EmbedBuilder().setColor(Colors.Red).setDescription(e.stack)],
             });
     }
-    console.log(interaction, e);
     return reply(interaction, {
         embeds: [new EmbedBuilder().setColor(Colors.Red).setDescription(description)],
     });

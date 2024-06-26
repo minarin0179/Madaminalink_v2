@@ -10,12 +10,14 @@ services:
       - ./.db:/data/db
 
   bot:
-    build: .
+    image: minarin0179/madaminalink:latest
     container_name: madaminalink
+    restart: always
     environment:
-      - TOKEN=***************
-      - DEV_SERVER_ID=***************
-      - mongodb=mongodb://mongodb:27017/agenda
-      - TZ=Asia/Tokyo
+      NODE_ENV: production
+      TOKEN: ${TOKEN}
+      DEV_SERVER_ID: ${DEV_SERVER_ID}
+      MONGODB: ${MONGODB}
+      TZ: ${TZ}
     depends_on:
       - mongo

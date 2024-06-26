@@ -24,7 +24,7 @@ export class ExtendedClient extends Client {
     }
 
     async registerModules() {
-        const main = path.dirname(require.main?.filename ?? __filename);
+        const main = path.join(__dirname, "..");
         const commandsPath = path.join(main, "commands");
 
         const commandsDirs = fs.readdirSync(commandsPath);

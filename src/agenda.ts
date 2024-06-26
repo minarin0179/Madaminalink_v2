@@ -1,7 +1,7 @@
 import Agenda from "agenda";
 import "dotenv/config";
 
-export const agenda = new Agenda({ db: { address: process.env.mongodb ?? "" } });
+export const agenda = new Agenda({ db: { address: process.env.MONGODB ?? "" } });
 
 agenda.on("ready", async () => {
     agenda.start();
