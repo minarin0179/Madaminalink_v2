@@ -1,4 +1,5 @@
 import {
+    APIEmbed,
     CategoryChannel,
     ChannelType,
     Collection,
@@ -125,24 +126,40 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         const description = `${message.content}\n${reactionText}`;
         const authorName = message.member?.nickname || message.author.globalName || message.author.username;
+        const splittedDescription = splitMessage(description, { maxLength: 3000 });
+        const datas: ArchiveData[] = splittedDescription.map((description, index) => {
+            const messageEmbed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor([47, 49, 54]);
+            const data: ArchiveData = {
+                embed: messageEmbed,
+                files: [],
+                reactions: "",
+            }
 
-        const messageEmbed = new EmbedBuilder()
-            .setAuthor({
-                name: authorName,
-                iconURL: message.author.avatarURL() ?? undefined,
-            })
-            .setColor([47, 49, 54])
-            .setDescription(description)
-            .setFooter({ text: timeStamp });
-
-        const data: ArchiveData = {
-            embed: messageEmbed,
-            files: message.attachments
-                .filter(attachment => attachment.size <= MyConstants.maxFileSize)
-                .map(attachment => attachment.url) || [],
-            reactions: reactionTextLater,
-        };
-        return [data, ...message.embeds.map(embed => ({ embed: embed, files: [], reactions: "" }))];
+            if (index == 0) {
+                messageEmbed.setAuthor({
+                    name: authorName,
+                    iconURL: message.author.avatarURL() ?? undefined,
+                })
+            }
+            if (index == splittedDescription.length - 1) {
+                messageEmbed.setFooter({ text: timeStamp });
+                data.files = message.attachments
+                    .filter(attachment => attachment.size <= MyConstants.maxFileSize)
+                    .map(attachment => attachment.url) || [];
+                data.reactions = reactionTextLater;
+            }
+            return data;
+        })
+        return [...datas, ...message.embeds.map(embed => {
+            const { description } = embed;
+            const newEmbed: APIEmbed = {
+                ...embed,
+                description: description?.length > 3000 ? description?.substring(0, 3000) + "…" : description
+            };
+            return ({ embed: newEmbed, files: [], reactions: "" })
+        })];
     }).flat();
 
     let lastIndex = 0;
