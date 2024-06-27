@@ -1,4 +1,4 @@
-name: Auto Deploy
+name: Restart
 
 on:
   workflow_dispatch:
