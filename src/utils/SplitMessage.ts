@@ -1,10 +1,10 @@
 export const splitMessage = (text: string, { maxLength = 2000, delimeter = "\n" } = {}): string[] => {
     if (text.length <= maxLength) return [text];
 
-    const splitText = text.split(delimeter).map(t => (t == "" ? delimeter : t));
-
-    //delimeterでsplitしてもなおmaxLengthを超えたら無理やり分ける
-    splitText.flatMap(t => t.match(new RegExp(`.{1,${maxLength}}`, "g")));
+    const splitText = text
+        .split(delimeter)
+        .map(t => (t == "" ? delimeter : t))
+        .flatMap(t => t.match(new RegExp(`.{1,${maxLength}}`, "g")) || ""); // 文字数で無理やり分割
 
     const messages: string[] = [];
 
