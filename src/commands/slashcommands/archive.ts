@@ -172,7 +172,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             data.files.length == 0 && // ファイルがあれば区切る
             index - lastIndex < 9 && //一つのメッセージにつきembedは10個まで
             index != archiveDatas.length - 1 && // 最後まで到達したら送る
-            embedSize + archiveDatas[index + 1].embed.length < 6000 // 一つのメッセージにつきembedは6000文字まで
+            embedSize + archiveDatas[index + 1].embed.length < 3392 // 一つのメッセージにつきembedは6000文字まで
         )
             continue;
 
