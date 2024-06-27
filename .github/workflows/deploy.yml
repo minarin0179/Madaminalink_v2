@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - node2bun #masterにマージしたら削除
+  workflow_dispatch:
 
 jobs:
   build_and_push:
