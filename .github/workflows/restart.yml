@@ -1,0 +1,13 @@
+name: Auto Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: restart
+    runs-on: [self-hosted, my-runner]
+    steps:
+      - name: restart
+        run: |
+            docker compose up -d
