@@ -14,6 +14,8 @@ export default new Button({
         new ButtonBuilder().setCustomId(`agregatePoll:${pollId}`).setLabel("集計").setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
+
+        await interaction.deferReply({ ephemeral: true });
         const pollId = args[0];
         const poll = await PollModel.findById(pollId);
         if (!poll) return;
@@ -33,24 +35,38 @@ export default new Button({
 
         if (poll.type === "char") {
             let warn = false;
-            const content = [...votes.entries()]
-                .map(([userId, choiceIndex]) => {
-                    const choice = poll.choices[choiceIndex];
-                    const { roleId } = choice;
-                    const role = roleId ? guild.roles.cache.get(roleId) : undefined;
-                    const member = guild.members.cache.get(userId);
-                    const roleName = role ? role.name : choice.label;
-                    if (result.get(choiceIndex)?.length === 1) {
-                        if (member) {
-                            rename(member, roleName).catch(() => { });
+            const content = (
+                await Promise.all(
+                    [...votes.entries()].map(async ([userId, choiceIndex]) => {
+                        const choice = poll.choices[choiceIndex];
+                        const { roleId } = choice;
+                        const role = roleId ? guild.roles.cache.get(roleId) : undefined;
+                        const member = guild.members.cache.get(userId);
+                        const roleName = role ? role.name : choice.label;
+                        if (result.get(choiceIndex)?.length === 1) {
+                            if (member) {
+                                rename(member, roleName).catch(() => { });
+                                if (role?.editable) {
+                                    member.roles.add(role).catch(() => { });
+                                    await interaction.followUp({
+                                        content: `${member}に${role}を付与しました`,
+                                        ephemeral: true,
+                                    });
+                                } else {
+                                    await interaction.followUp({
+                                        content: `${member}に${role}を付与できませんでした\nマダミナリンクより上位のロールは付与できません`,
+                                        ephemeral: true,
+                                    });
+                                }
+                            }
+                            return `<@${userId}> → ${roleName} ✅`;
+                        } else {
+                            warn = true;
+                            return `<@${userId}> → ${roleName} ⚠️`;
                         }
-                        return `<@${userId}> → ${roleName} ✅`;
-                    } else {
-                        warn = true;
-                        return `<@${userId}> → ${roleName} ⚠️`;
-                    }
-                })
-                .join("\n");
+                    })
+                )
+            ).join("\n");
 
             await interaction.channel?.send({
                 embeds: [
