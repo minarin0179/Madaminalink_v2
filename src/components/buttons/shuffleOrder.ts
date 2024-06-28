@@ -1,12 +1,12 @@
-import { APIEmbed, ButtonBuilder, ButtonStyle, Embed } from "discord.js";
+import { APIEmbed, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
 import { Button } from "../../structures/Button";
+import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: "shuffleOrder",
-    build: () => [new ButtonBuilder().setCustomId(`shuffleOrder`).setLabel(`並べ替え`).setStyle(ButtonStyle.Secondary)],
-    execute: async ({ interaction, args }) => {
-
-        const embed = interaction.message.embeds[0];
+    build: () => [new ButtonBuilder().setCustomId(`shuffleOrder`).setLabel(`並べ替え`).setStyle(ButtonStyle.Success)],
+    execute: async ({ interaction }) => {
+        const embed = interaction.message.embeds[0] as APIEmbed;
 
         const { description } = embed;
 
@@ -14,15 +14,18 @@ export default new Button({
 
         const members = description.split("\n");
         const shuffledMembers = shuffleArray(members);
-        const newEmbed: APIEmbed = {
-            ...embed,
-            description: `${shuffledMembers.join("\n")}`,
-        };
+        const newEmbed = new EmbedBuilder(embed).setTitle("並び替え結果").setDescription(
+            Array.from(shuffledMembers)
+                .map((m, i) => `${i}. ${m}`)
+                .join("\n")
+        );
 
-        await interaction.update({ embeds: [newEmbed] });
+        await reply(interaction, {
+            embeds: [newEmbed],
+            ephemeral: false,
+        });
     },
 });
-
 
 const shuffleArray = <T>(array: T[]): T[] => {
     const newArray = [...array]; // 元の配列をコピーして新しい配列を作成

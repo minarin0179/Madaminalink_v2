@@ -1,21 +1,21 @@
-import { APIEmbed, ButtonBuilder, ButtonStyle, Embed } from "discord.js";
+import { APIEmbed, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
 import { Button } from "../../structures/Button";
+import { NO_USER_MESSAGE } from "../../commands/slashcommands/order";
 
 export default new Button({
     customId: "joinOrder",
     build: () => [new ButtonBuilder().setCustomId(`joinOrder`).setLabel(`参加`).setStyle(ButtonStyle.Primary)],
-    execute: async ({ interaction, args }) => {
+    execute: async ({ interaction }) => {
+        const embed = interaction.message.embeds[0] as APIEmbed;
 
-        const embed = interaction.message.embeds[0];
+        const { description } = embed;
 
-        const {description} = embed;
+        if (!description) return;
 
         const members = new Set(description.split("\n"));
+        members.delete(NO_USER_MESSAGE);
         members.add(interaction.user.toString());
-        const newEmbed: APIEmbed = {
-            ...embed,
-            description: `${Array.from(members).join("\n")}`,
-        };
+        const newEmbed = new EmbedBuilder(embed).setDescription(Array.from(members).join("\n"));
 
         await interaction.update({ embeds: [newEmbed] });
     },
