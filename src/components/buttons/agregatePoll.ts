@@ -6,6 +6,7 @@ import unehemeralButton from "../../components/buttons/unehemeral";
 import revoteButton from "./revote";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { rename } from "../../commands/slashcommands/rename";
+import runoffVoteButton from "./runoffVote";
 
 export default new Button({
     customId: "agregatePoll",
@@ -76,6 +77,7 @@ export default new Button({
                     return `<@${userId}> → ${choice.label}`;
                 })
                 .join("\n");
+            const topVoteGetters = result.filter(voters => voters.length === result.first()?.length);
 
             await reply(interaction, {
                 embeds: [
@@ -87,7 +89,10 @@ export default new Button({
                         .setColor(0x3b88c3),
                 ],
                 allowedMentions: { parse: [] },
-                components: buttonToRow(unehemeralButton.build()),
+                components: buttonToRow([
+                    ...unehemeralButton.build(),
+                    ...(topVoteGetters.size >= 2 ? runoffVoteButton.build({ pollId }) : []),
+                ]),
             });
         }
         await interaction.message.delete();
