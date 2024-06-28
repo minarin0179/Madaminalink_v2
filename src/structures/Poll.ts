@@ -21,4 +21,4 @@ const pollSchema = new Schema<PollOptions>({
 
 export const PollModel = model<PollOptions>("Poll", pollSchema);
 
-connect("mongodb://mongodb:27017/poll");
+connect(`${process.env.MONGODB}/poll`);
