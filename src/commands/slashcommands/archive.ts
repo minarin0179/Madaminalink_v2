@@ -52,7 +52,7 @@ export default new SlashCommand({
         const logChannel =
             args.getChannel<ChannelType.GuildText>("保存先") ??
             (await interaction.guild?.channels.create({
-                name: `ログ ${targetCategory.name}`,
+                name: `ログ ${targetCategory.name}`.substring(0, 100),
                 type: ChannelType.GuildText,
                 permissionOverwrites: targetCategory.permissionOverwrites.cache,
             }));
