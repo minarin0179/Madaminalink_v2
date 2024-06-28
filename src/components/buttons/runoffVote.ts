@@ -7,7 +7,7 @@ import { sendPoll } from "../../commands/slashcommands/poll";
 export default new Button({
     customId: "runoff",
     build: ({ pollId }: { pollId: string }) => [
-        new ButtonBuilder().setCustomId(`runoff:${pollId}`).setLabel("決選投票").setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId(`runoff:${pollId}`).setLabel("決選投票").setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         const pollId = args[0];

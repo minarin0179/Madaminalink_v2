@@ -7,7 +7,7 @@ import { sendPoll } from "../../commands/slashcommands/poll";
 export default new Button({
     customId: "revote",
     build: ({ pollId }: { pollId: string }) => [
-        new ButtonBuilder().setCustomId(`revote:${pollId}`).setLabel("再投票").setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId(`revote:${pollId}`).setLabel("再投票").setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         const pollId = args[0];
