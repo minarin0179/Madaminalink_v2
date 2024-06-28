@@ -57,7 +57,7 @@ export default new SlashCommand({
 
         await reply(interaction, {
             embeds: [embed],
-            components: buttonToRow([...joinOrder.build(), ...shuffleOrder.build()]),
+            components: buttonToRow([...joinOrder.build(), ...shuffleOrder.build({ author: interaction.member })]),
         });
     },
 });

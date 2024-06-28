@@ -1,16 +1,24 @@
-import { APIEmbed, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
+import { APIEmbed, ButtonBuilder, ButtonStyle, EmbedBuilder, GuildMember } from "discord.js";
 import { Button } from "../../structures/Button";
 import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: "shuffleOrder",
-    build: () => [new ButtonBuilder().setCustomId(`shuffleOrder`).setLabel(`並べ替え`).setStyle(ButtonStyle.Success)],
-    execute: async ({ interaction }) => {
+    build: ({ author }: { author: GuildMember }) => [
+        new ButtonBuilder().setCustomId(`shuffleOrder:${author.id}`).setLabel(`並べ替え`).setStyle(ButtonStyle.Success),
+    ],
+    execute: async ({ interaction, args }) => {
         const embed = interaction.message.embeds[0] as APIEmbed;
 
         const { description } = embed;
 
         if (!description) return;
+
+        const [authorId] = args;
+        if (authorId !== interaction.user.id) {
+            await reply(interaction, "並べ替えはコマンドの実行者のみが行えます");
+            return;
+        }
 
         const members = description.split("\n");
         const shuffledMembers = shuffleArray(members);
