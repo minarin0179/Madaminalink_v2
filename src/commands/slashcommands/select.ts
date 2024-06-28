@@ -18,7 +18,7 @@ import { rename } from "./rename";
 export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("select")
-        .setDescription("キャラ選択/犯人投票を行います")
+        .setDescription("※このコマンドは廃止されます 代わりに/pollを利用して下さい")
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addStringOption(option =>
