@@ -9,9 +9,11 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.0.2",
     "mongodb": "^4.10.0",
+    "mongoose": "^8.4.4",
     "pm2": "^5.2.2"
   },
   "devDependencies": {
+    "@types/mongoose": "^5.11.97",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^8.10.0",
