@@ -44,7 +44,10 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>("保存するカテゴリ", true);
+        const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>(
+            "保存するカテゴリ",
+            true
+        );
 
         const logChannel =
             args.getChannel<ChannelType.GuildText>("保存先") ??
@@ -60,7 +63,9 @@ export default new SlashCommand({
 
         const children =
             targetCategory instanceof CategoryChannel
-                ? discordSort(targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText))
+                ? discordSort(
+                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
+                )
                 : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
@@ -114,53 +119,62 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
     const destinationThread = await destination.threads.create({ name: source.name });
 
-    const archiveDatas = messages.map(message => {
-        const date = new Date(message.createdAt);
-        const timeStamp = dateToTimestamp(date);
+    const archiveDatas = messages
+        .map(message => {
+            const date = new Date(message.createdAt);
+            const timeStamp = dateToTimestamp(date);
 
-        const reactions = message.reactions.cache;
-        const [reactionText, reactionTextLater] =
-            message.attachments.size > 0
-                ? ["", reactionsToString(reactions)] //添付ファイルがある場合はリアクションは後で送る
-                : [reactionsToString(reactions), ""];
+            const reactions = message.reactions.cache;
+            const [reactionText, reactionTextLater] =
+                message.attachments.size > 0
+                    ? ["", reactionsToString(reactions)] //添付ファイルがある場合はリアクションは後で送る
+                    : [reactionsToString(reactions), ""];
 
-        const description = `${message.content}\n${reactionText}`;
-        const authorName = message.member?.nickname || message.author.globalName || message.author.username;
-        const splittedDescription = splitMessage(description, { maxLength: 3000 });
-        const datas: ArchiveData[] = splittedDescription.map((description, index) => {
-            const messageEmbed = new EmbedBuilder()
-                .setDescription(description)
-                .setColor([47, 49, 54]);
-            const data: ArchiveData = {
-                embed: messageEmbed,
-                files: [],
-                reactions: "",
-            }
+            const description = `${message.content}\n${reactionText}`;
+            const authorName = message.member?.nickname || message.author.globalName || message.author.username;
+            const splittedDescription = splitMessage(description, { maxLength: 3000 });
+            const datas: ArchiveData[] = splittedDescription.map((description, index) => {
+                const messageEmbed = new EmbedBuilder().setDescription(description).setColor([47, 49, 54]);
+                const data: ArchiveData = {
+                    embed: messageEmbed,
+                    files: [],
+                    reactions: "",
+                };
 
-            if (index == 0) {
-                messageEmbed.setAuthor({
-                    name: authorName,
-                    iconURL: message.author.avatarURL() ?? undefined,
-                })
-            }
-            if (index == splittedDescription.length - 1) {
-                messageEmbed.setFooter({ text: timeStamp });
-                data.files = message.attachments
-                    .filter(attachment => attachment.size <= MyConstants.maxFileSize)
-                    .map(attachment => attachment.url) || [];
-                data.reactions = reactionTextLater;
-            }
-            return data;
+                if (index == 0) {
+                    messageEmbed.setAuthor({
+                        name: authorName,
+                        iconURL: message.author.avatarURL() ?? undefined,
+                    });
+                }
+                if (index == splittedDescription.length - 1) {
+                    messageEmbed.setFooter({ text: timeStamp });
+                    data.files =
+                        message.attachments
+                            .filter(attachment => attachment.size <= MyConstants.maxFileSize)
+                            .map(attachment => attachment.url) || [];
+                    data.reactions = reactionTextLater;
+                }
+                return data;
+            });
+            return [
+                ...datas,
+                ...message.embeds.map(embed => {
+                    const { description } = embed;
+                    const newEmbed = new EmbedBuilder(embed);
+                    if (description) {
+                        if (description?.length > 3000) {
+                            newEmbed.setDescription(description.substring(0, 3000) + "…");
+                        } else {
+                            newEmbed.setDescription(description);
+                        }
+                    }
+
+                    return { embed: newEmbed, files: [], reactions: "" };
+                }),
+            ];
         })
-        return [...datas, ...message.embeds.map(embed => {
-            const { description } = embed;
-            const newEmbed: APIEmbed = {
-                ...embed,
-                description: description?.length > 3000 ? description?.substring(0, 3000) + "…" : description
-            };
-            return ({ embed: newEmbed, files: [], reactions: "" })
-        })];
-    }).flat();
+        .flat();
 
     let lastIndex = 0;
     let embedSize = 0;
