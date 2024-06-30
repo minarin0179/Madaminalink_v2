@@ -85,9 +85,6 @@ export const sendPoll = async (interaction: CommandInteraction | ButtonInteracti
             }
         }
     });
-    collector.on("end", async () => {
-        await reply(interaction, "投票開始から15分が経過しました\nこれ以降は投票時の通知は行われません");
-    });
 };
 
 const getArgs = (interaction: ButtonInteraction): string[] => interaction.customId.split(/[:,]/);
