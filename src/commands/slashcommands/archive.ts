@@ -1,5 +1,4 @@
 import {
-    APIEmbed,
     CategoryChannel,
     ChannelType,
     Collection,
@@ -8,6 +7,7 @@ import {
     EmbedBuilder,
     GuildEmoji,
     GuildTextBasedChannel,
+    Message,
     MessageReaction,
     SlashCommandBuilder,
     TextChannel,
@@ -19,6 +19,9 @@ import { arraySplit } from "../../utils/ArraySplit";
 import { splitMessage } from "../../utils/SplitMessage";
 import { isEmptyText } from "../../utils/isEmptyMessage";
 import { MyConstants } from "../../constants/constants";
+
+const MAX_DESCRIPTION_LENGTH = 2500;
+const MAX_EMBED_LENGTH = 3000;
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -64,8 +67,8 @@ export default new SlashCommand({
         const children =
             targetCategory instanceof CategoryChannel
                 ? discordSort(
-                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
-                )
+                      targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
+                  )
                 : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
@@ -119,62 +122,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
     const destinationThread = await destination.threads.create({ name: source.name });
 
-    const archiveDatas = messages
-        .map(message => {
-            const date = new Date(message.createdAt);
-            const timeStamp = dateToTimestamp(date);
-
-            const reactions = message.reactions.cache;
-            const [reactionText, reactionTextLater] =
-                message.attachments.size > 0
-                    ? ["", reactionsToString(reactions)] //添付ファイルがある場合はリアクションは後で送る
-                    : [reactionsToString(reactions), ""];
-
-            const description = `${message.content}\n${reactionText}`;
-            const authorName = message.member?.nickname || message.author.globalName || message.author.username;
-            const splittedDescription = splitMessage(description, { maxLength: 3000 });
-            const datas: ArchiveData[] = splittedDescription.map((description, index) => {
-                const messageEmbed = new EmbedBuilder().setDescription(description).setColor([47, 49, 54]);
-                const data: ArchiveData = {
-                    embed: messageEmbed,
-                    files: [],
-                    reactions: "",
-                };
-
-                if (index == 0) {
-                    messageEmbed.setAuthor({
-                        name: authorName,
-                        iconURL: message.author.avatarURL() ?? undefined,
-                    });
-                }
-                if (index == splittedDescription.length - 1) {
-                    messageEmbed.setFooter({ text: timeStamp });
-                    data.files =
-                        message.attachments
-                            .filter(attachment => attachment.size <= MyConstants.maxFileSize)
-                            .map(attachment => attachment.url) || [];
-                    data.reactions = reactionTextLater;
-                }
-                return data;
-            });
-            return [
-                ...datas,
-                ...message.embeds.map(embed => {
-                    const { description } = embed;
-                    const newEmbed = new EmbedBuilder(embed);
-                    if (description) {
-                        if (description?.length > 3000) {
-                            newEmbed.setDescription(description.substring(0, 3000) + "…");
-                        } else {
-                            newEmbed.setDescription(description);
-                        }
-                    }
-
-                    return { embed: newEmbed, files: [], reactions: "" };
-                }),
-            ];
-        })
-        .flat();
+    const archiveDatas = messages.map(messageToArchiveDatas).flat();
 
     let lastIndex = 0;
     let embedSize = 0;
@@ -184,11 +132,13 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         if (
             data.files.length == 0 && // ファイルがあれば区切る
+            data.reactions == "" && // リアクションがあれば区切る
             index - lastIndex < 9 && //一つのメッセージにつきembedは10個まで
             index != archiveDatas.length - 1 && // 最後まで到達したら送る
-            embedSize + archiveDatas[index + 1].embed.length < 3392 // 一つのメッセージにつきembedは6000文字まで
-        )
+            embedSize + archiveDatas[index + 1].embed.length < MAX_EMBED_LENGTH // 一つのメッセージにつきembedは6000文字まで
+        ) {
             continue;
+        }
 
         const slicedDatas = archiveDatas.slice(lastIndex, index + 1);
         const embeds = slicedDatas.map(data => data.embed);
@@ -206,7 +156,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
         embedSize = 0;
     }
 
-    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => {});
     await destinationThread.setArchived(true);
 
     return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;
@@ -233,4 +183,77 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
             }
         })
         .join(" ");
+};
+
+const messageToArchiveDatas = (message: Message): ArchiveData[] => {
+    const date = new Date(message.createdAt);
+    const timeStamp = dateToTimestamp(date);
+
+    const reactions = message.reactions.cache;
+
+    let reactionText = "";
+    let reactionTextLater = "";
+    let reactionTextEmbed = "";
+
+    if (message.embeds.length > 0) {
+        reactionTextEmbed = reactionsToString(reactions);
+    } else if (message.attachments.size > 0) {
+        reactionTextLater = reactionsToString(reactions);
+    } else {
+        reactionText = reactionsToString(reactions);
+    }
+
+    const description = `${message.content}\n${reactionText}`;
+    const authorName = message.member?.nickname || message.author.globalName || message.author.username;
+    const splittedDescription = splitMessage(description, { maxLength: 3000 });
+    const datas: ArchiveData[] = splittedDescription.map((description, index) => {
+        const messageEmbed = new EmbedBuilder().setDescription(description).setColor([47, 49, 54]);
+        const data: ArchiveData = {
+            embed: messageEmbed,
+            files: [],
+            reactions: "",
+        };
+
+        if (index == 0) {
+            messageEmbed.setAuthor({
+                name: authorName,
+                iconURL: message.author.avatarURL() ?? undefined,
+            });
+        }
+        if (index == splittedDescription.length - 1) {
+            messageEmbed.setFooter({ text: timeStamp });
+            data.files =
+                message.attachments
+                    .filter(attachment => attachment.size <= MyConstants.maxFileSize)
+                    .map(attachment => attachment.url) || [];
+            data.reactions = reactionTextLater;
+        }
+        return data;
+    });
+    const result = [
+        ...datas,
+        ...message.embeds.map(embed => {
+            const { description } = embed;
+            const newEmbed = new EmbedBuilder(embed);
+            if (description) {
+                if (description?.length > MAX_DESCRIPTION_LENGTH) {
+                    newEmbed.setDescription(description.substring(0, MAX_DESCRIPTION_LENGTH - 1) + "…");
+                } else {
+                    newEmbed.setDescription(description);
+                }
+            }
+
+            return {
+                embed: newEmbed,
+                files: [],
+                reactions: "",
+            };
+        }),
+    ];
+
+    if (!isEmptyText(reactionTextEmbed)) {
+        result[result.length - 1].reactions = reactionTextEmbed;
+    }
+
+    return result;
 };
