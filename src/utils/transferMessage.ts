@@ -1,6 +1,7 @@
 import {
     AnyThreadChannel,
     Attachment,
+    AttachmentBuilder,
     GuildChannel,
     GuildTextBasedChannel,
     Message,
@@ -41,7 +42,7 @@ export const transferMessage = async (
     const contentSplit: string[] = splitMessage(contentAll);
 
     //最後の1チャンクだけ取り出して残りは先に送る
-    let content = contentSplit.pop();
+    const content = contentSplit.pop();
     for await (const msg of contentSplit) {
         await destination.send({ content: msg, allowedMentions });
     }
@@ -53,7 +54,12 @@ export const transferMessage = async (
 
     let newMessageOptions = {
         content,
-        files: files.map((file: Attachment) => file.url),
+        files: await Promise.all(
+            files.map(async (file: Attachment) => {
+                const filename = (await fetchDecodedFilename(file.url)) ?? file.name ?? "unknown";
+                return new AttachmentBuilder(file.url).setName(filename);
+            })
+        ),
         components,
         embeds,
         allowedMentions,
@@ -131,4 +137,25 @@ const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
         content = content.replace(new RegExp(`${before}`, "g"), `${after}`);
     });
     return content;
+};
+const fetchDecodedFilename = async (url: string) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            return null;
+        }
+        const contentDisposition = response.headers.get("Content-Disposition");
+        if (!contentDisposition) {
+            return null;
+        }
+
+        const filenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)$/);
+        if (!filenameMatch) {
+            return null;
+        }
+        const filename = decodeURIComponent(filenameMatch[1]);
+        return filename;
+    } catch (error) {
+        return null;
+    }
 };
