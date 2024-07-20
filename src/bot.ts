@@ -11,19 +11,19 @@ export const client: ExtendedClient = new ExtendedClient({
     sweepers: {
         ...Options.DefaultSweeperSettings,
         messages: {
-            interval: 18_000,
-            lifetime: 9_000,
+            interval: 1800,
+            lifetime: 900,
         },
         threads: {
-            interval: 18_000,
-            lifetime: 9_000,
+            interval: 18000,
+            lifetime: 900,
         },
         users: {
-            interval: 3_600,
+            interval: 3600,
             filter: () => user => user.bot && user.id !== user.client.user.id,
         },
         guildMembers: {
-            interval: 3_600,
+            interval: 3600,
             filter: () => member => member.user.bot && member.user.id !== member.client.user.id,
         },
     },
