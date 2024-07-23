@@ -12,4 +12,4 @@ jobs:
     steps:
       - name: restart
         run: |
-            docker compose up -d
+            docker compose restart madaminalink
