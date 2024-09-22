@@ -12,4 +12,5 @@ jobs:
     steps:
       - name: restart
         run: |
-            docker compose pull && docker compose restart bot
+            docker compose up --pull -d
+
