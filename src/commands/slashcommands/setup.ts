@@ -66,11 +66,26 @@ export default new SlashCommand({
         const PL = await guild.roles.create({ name: `${title} PL`, position });
         const SP = await guild.roles.create({ name: `${title} 観戦`, position });
 
-        const invisible = { deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect] }; //見えない
+        const invisible = {
+            //見れない
+            deny: [
+                PermissionFlagsBits.ViewChannel,
+                PermissionFlagsBits.CreatePublicThreads,
+                PermissionFlagsBits.CreatePrivateThreads,
+                PermissionFlagsBits.SendMessagesInThreads,
+                PermissionFlagsBits.Connect,
+            ],
+        };
         const visible = {
+            // 見れるけど書き込めない
             allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect],
-            deny: [PermissionFlagsBits.SendMessages],
-        }; //見るだけ(書き込めない)
+            deny: [
+                PermissionFlagsBits.SendMessages,
+                PermissionFlagsBits.CreatePublicThreads,
+                PermissionFlagsBits.CreatePrivateThreads,
+                PermissionFlagsBits.SendMessagesInThreads,
+            ],
+        };
         const writable = { allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect] }; //書き込める
 
         const defaultPerm = [
