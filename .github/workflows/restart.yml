@@ -12,4 +12,4 @@ jobs:
     steps:
       - name: restart
         run: |
-            docker compose up -d –force-recreate bot
+            docker compose up -d -–force-recreate bot
