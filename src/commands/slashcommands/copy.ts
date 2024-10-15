@@ -1,4 +1,4 @@
-import { ChannelType, GuildChannel, GuildChannelCloneOptions, SlashCommandBuilder } from "discord.js";
+import { ChannelType, GuildChannel, GuildChannelCloneOptions, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
@@ -41,6 +41,7 @@ export default new SlashCommand({
                     transferAllMessages(before, after, {
                         allowedMentions: { parse: [] },
                         updates: channelLinks,
+                        flags: [MessageFlags.SuppressNotifications],
                     })
                 )
             );

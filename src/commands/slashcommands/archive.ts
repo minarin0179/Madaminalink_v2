@@ -8,6 +8,7 @@ import {
     GuildEmoji,
     GuildTextBasedChannel,
     Message,
+    MessageFlags,
     MessageReaction,
     SlashCommandBuilder,
     TextChannel,
@@ -67,8 +68,8 @@ export default new SlashCommand({
         const children =
             targetCategory instanceof CategoryChannel
                 ? discordSort(
-                      targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
-                  )
+                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
+                )
                 : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
@@ -105,6 +106,7 @@ export default new SlashCommand({
                     }
                     return embedBuilder;
                 }),
+                flags: MessageFlags.SuppressNotifications,
             });
         }
 
@@ -142,21 +144,30 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
 
         const slicedDatas = archiveDatas.slice(lastIndex, index + 1);
         const embeds = slicedDatas.map(data => data.embed);
-        await destinationThread.send({ embeds: embeds });
+        await destinationThread.send({
+            embeds: embeds,
+            flags: MessageFlags.SuppressNotifications,
+        });
 
         for await (const file of data.files) {
-            await destinationThread.send({ files: [file] });
+            await destinationThread.send({
+                files: [file],
+                flags: MessageFlags.SuppressNotifications,
+            });
         }
 
         if (!isEmptyText(data.reactions)) {
-            await destinationThread.send(data.reactions);
+            await destinationThread.send({
+                content: data.reactions,
+                flags: MessageFlags.SuppressNotifications,
+            });
         }
 
         lastIndex = index + 1;
         embedSize = 0;
     }
 
-    (await destinationThread.fetchStarterMessage())?.delete().catch(() => {});
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
     await destinationThread.setArchived(true);
 
     return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;

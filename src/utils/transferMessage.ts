@@ -2,10 +2,12 @@ import {
     AnyThreadChannel,
     Attachment,
     AttachmentBuilder,
+    BitFieldResolvable,
     GuildChannel,
     GuildTextBasedChannel,
     Message,
     MessageCreateOptions,
+    MessageFlags,
     MessageMentionOptions,
     MessageType,
     ThreadChannel,
@@ -21,6 +23,10 @@ import { MyConstants } from "../constants/constants";
 type transferOptions = {
     noReaction?: boolean;
     allowedMentions?: MessageMentionOptions;
+    flags?: BitFieldResolvable<
+        "SuppressEmbeds" | "SuppressNotifications",
+        MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications
+    >;
     updates?: ChannelLink[]; //チャンネルリンク差し替え用
 };
 
@@ -32,7 +38,7 @@ export const transferMessage = async (
     await destination.sendTyping();
 
     let contentAll = message.content;
-    const { allowedMentions, updates } = options ?? {};
+    const { allowedMentions, updates, flags } = options ?? {};
 
     if (updates) {
         contentAll = replaceChannelLinks(contentAll, updates);
@@ -44,7 +50,7 @@ export const transferMessage = async (
     //最後の1チャンクだけ取り出して残りは先に送る
     const content = contentSplit.pop();
     for await (const msg of contentSplit) {
-        await destination.send({ content: msg, allowedMentions });
+        await destination.send({ content: msg, allowedMentions, flags });
     }
 
     const { attachments, components, embeds } = message;
@@ -63,6 +69,7 @@ export const transferMessage = async (
         components,
         embeds,
         allowedMentions,
+        flags,
     } as MessageCreateOptions;
 
     //transfer,openのボタンを更新
