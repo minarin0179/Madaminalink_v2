@@ -46,7 +46,7 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await interaction.deferReply({ ephemeral: true });
+        await reply(interaction, "処理を実行中です...");
 
         const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>(
             "保存するカテゴリ",
