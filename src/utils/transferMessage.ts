@@ -111,7 +111,7 @@ export const transferMessage = async (
                     ? await destination.threads.create({ name })
                     : await newMessage.startThread({ name });
 
-            await transferAllMessages(thread, newThread);
+            await transferAllMessages(thread, newThread, options);
         }
     } catch (e: any) {
         // emptyメッセージだったら無視
