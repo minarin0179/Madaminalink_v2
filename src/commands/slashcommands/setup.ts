@@ -70,6 +70,7 @@ export default new SlashCommand({
             //見れない
             deny: [
                 PermissionFlagsBits.ViewChannel,
+                PermissionFlagsBits.SendMessages,
                 PermissionFlagsBits.CreatePublicThreads,
                 PermissionFlagsBits.CreatePrivateThreads,
                 PermissionFlagsBits.SendMessagesInThreads,
@@ -86,7 +87,9 @@ export default new SlashCommand({
                 PermissionFlagsBits.SendMessagesInThreads,
             ],
         };
-        const writable = { allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect] }; //書き込める
+        const writable = {
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.Connect],
+        }; //書き込める
 
         const defaultPerm = [
             { id: everyone.id, ...invisible },
