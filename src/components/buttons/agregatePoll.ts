@@ -1,4 +1,4 @@
-import { ButtonBuilder, ButtonStyle, Collection, EmbedBuilder, GuildMember, Role } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Collection, Colors, EmbedBuilder, GuildMember, Role } from "discord.js";
 import { Button } from "../../structures/Button";
 import { PollModel } from "../../structures/Poll";
 import { reply } from "../../utils/Reply";
@@ -7,6 +7,7 @@ import revoteButton from "./revote";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { rename } from "../../commands/slashcommands/rename";
 import runoffVoteButton from "./runoffVote";
+import { splitMessage } from "../../utils/SplitMessage";
 
 export default new Button({
     customId: "agregatePoll",
@@ -59,12 +60,12 @@ export default new Button({
                 }
             }
 
+            const descrption = `### 集計結果\n${content || "なし"}`;
+
             await interaction.channel?.send({
-                embeds: [
-                    new EmbedBuilder()
-                        .addFields({ name: "集計結果", value: content || "なし" })
-                        .setColor(warn ? 0xffcc4d : 0x77b255),
-                ],
+                embeds: splitMessage(descrption).map(text =>
+                    new EmbedBuilder().setDescription(text).setColor(warn ? Colors.Yellow : Colors.Green)
+                ),
                 allowedMentions: { parse: [] },
                 components: warn ? buttonToRow(revoteButton.build({ pollId })) : [],
             });
@@ -85,7 +86,6 @@ export default new Button({
                     });
                 }
             }
-
         } else if (poll.type === "vote") {
             result.sort((a, b) => b.length - a.length);
 
@@ -104,15 +104,11 @@ export default new Button({
                 .join("\n");
             const topVoteGetters = result.filter(voters => voters.length === result.first()?.length);
 
+            const descrption = `### 投票数\n${numOfVotes || "なし"}\n### 投票先\n${votings || "なし"}`;
             await reply(interaction, {
-                embeds: [
-                    new EmbedBuilder()
-                        .addFields(
-                            { name: "投票数", value: numOfVotes || "なし" },
-                            { name: "投票先", value: votings || "なし" }
-                        )
-                        .setColor(0x3b88c3),
-                ],
+                embeds: splitMessage(descrption).map(text =>
+                    new EmbedBuilder().setDescription(text).setColor(Colors.Blue)
+                ),
                 allowedMentions: { parse: [] },
                 components: buttonToRow([
                     ...unehemeralButton.build(),

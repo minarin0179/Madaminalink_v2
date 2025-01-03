@@ -100,7 +100,9 @@ export default new SlashCommand({
         for await (const descriptions of descriptionsConcat) {
             await logChannel.send({
                 embeds: descriptions.map((description, index) => {
-                    const embedBuilder = new EmbedBuilder().setColor([47, 49, 54]).setDescription(description);
+                    const embedBuilder = new EmbedBuilder()
+                        .setColor(MyConstants.color.embed_background)
+                        .setDescription(description);
                     if (index == 0) {
                         embedBuilder.setTitle(targetCategory.name);
                     }
@@ -218,7 +220,9 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
     const authorName = message.member?.nickname || message.author.globalName || message.author.username;
     const splittedDescription = splitMessage(description, { maxLength: 3000 });
     const datas: ArchiveData[] = splittedDescription.map((description, index) => {
-        const messageEmbed = new EmbedBuilder().setDescription(description).setColor([47, 49, 54]);
+        const messageEmbed = new EmbedBuilder()
+            .setDescription(description)
+            .setColor(MyConstants.color.embed_background);
         const data: ArchiveData = {
             embed: messageEmbed,
             files: [],

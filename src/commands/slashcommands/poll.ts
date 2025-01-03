@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, ComponentType, SlashCommandBuilder } from "discord.js";
+import { ButtonInteraction, CommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import pollButton from "../../components/buttons/poll";
@@ -6,6 +6,7 @@ import { buttonToRow } from "../../utils/ButtonToRow";
 import confirmPollButton from "../../components/buttons/confirmPoll";
 import { Choice, PollModel, PollOptions } from "../../structures/Poll";
 import agregatePollButton from "../../components/buttons/agregatePoll";
+import { MyConstants } from "../../constants/constants";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -39,8 +40,12 @@ export default new SlashCommand({
                 } as Choice;
             });
 
-        if (choices.length > 24)
-            return reply(interaction, { content: "選択肢の数が多すぎます(最大24個)", ephemeral: true });
+        if (choices.length > MyConstants.maxPollChoices) {
+            return reply(interaction, `選択肢の数が多すぎます(最大${MyConstants.maxPollChoices}個)`);
+        }
+        if (choices.some(choice => !!choice.roleId && choice.label.length > MyConstants.maxPollchoiceLength)) {
+            return reply(interaction, `選択肢の文字数が多すぎます(最大${MyConstants.maxPollchoiceLength}文字)`);
+        }
 
         const pollOptions = {
             type: voteType,

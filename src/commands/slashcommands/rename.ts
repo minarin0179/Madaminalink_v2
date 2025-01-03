@@ -1,6 +1,7 @@
 import { GuildMember, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
+import { MyConstants } from "../../constants/constants";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -53,7 +54,10 @@ export default new SlashCommand({
 export const rename = async (member: GuildMember, prefix?: string | null) => {
     const nickname = member.nickname?.replace("＠", "@");
     //@より後ろの名前
-    const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.globalName;
-
-    return member.setNickname(!prefix ? name : `${prefix}@${name}`);
+    const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.globalName || member.user.username;
+    let newName = !prefix ? name : `${prefix}@${name}`;
+    if (newName.length > MyConstants.maxNicknameLength) {
+        newName = newName.substring(0, MyConstants.maxNicknameLength);
+    }
+    return member.setNickname(newName);
 };

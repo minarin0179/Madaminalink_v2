@@ -2,6 +2,7 @@ import { ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
 import { Button } from "../../structures/Button";
 import { PollModel } from "../../structures/Poll";
 import { reply } from "../../utils/Reply";
+import { MyConstants } from "../../constants/constants";
 
 export default new Button({
     customId: "confirmPoll",
@@ -32,7 +33,7 @@ export default new Button({
                 new EmbedBuilder()
                     .addFields({ name: "投票数", value: poll.voters.size.toString() })
                     .addFields({ name: "投票状況", value: content || "まだ投票がありません" })
-                    .setColor(0x2f3136),
+                    .setColor(MyConstants.color.embed_background),
             ],
         });
     },
