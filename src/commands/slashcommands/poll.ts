@@ -43,7 +43,7 @@ export default new SlashCommand({
         if (choices.length > MyConstants.maxPollChoices) {
             return reply(interaction, `選択肢の数が多すぎます(最大${MyConstants.maxPollChoices}個)`);
         }
-        if (choices.some(choice => !!choice.roleId && choice.label.length > MyConstants.maxPollchoiceLength)) {
+        if (choices.some(choice => !choice.roleId && choice.label.length > MyConstants.maxPollchoiceLength)) {
             return reply(interaction, `選択肢の文字数が多すぎます(最大${MyConstants.maxPollchoiceLength}文字)`);
         }
 
