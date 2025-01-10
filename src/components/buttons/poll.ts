@@ -3,10 +3,11 @@ import { Button } from "../../structures/Button";
 import { LimitLength } from "../../utils/LimitLength";
 import { Choice, PollModel } from "../../structures/Poll";
 import { reply } from "../../utils/Reply";
+import { MyConstants } from "../../constants/constants";
 
 export default new Button({
     customId: "poll",
-    build: ({ pollId, choices }: { pollId: string, choices: Choice[]; }) =>
+    build: ({ pollId, choices }: { pollId: string; choices: Choice[] }) =>
         choices.map((choice, index) => {
             const label = LimitLength(choice.label, 16);
 
@@ -22,6 +23,20 @@ export default new Button({
         if (!poll) return;
 
         const isVoted = poll.voters.has(interaction.user.id);
+
+        if (!isVoted) {
+            if (poll.type === "char" && poll.voters.size >= MyConstants.maxCharVoters) {
+                return reply(interaction, {
+                    content: `投票へ参加できる人数が上限に達しています(キャラ選択に参加できるのは最大で${MyConstants.maxCharVoters}人です)`,
+                    ephemeral: false,
+                });
+            } else if (poll.type === "vote" && poll.voters.size >= MyConstants.maxVoteVoters) {
+                return reply(interaction, {
+                    content: `投票へ参加できる人数が上限に達しています(犯人投票に参加できるのは最大で${MyConstants.maxVoteVoters}人です)`,
+                    ephemeral: false,
+                });
+            }
+        }
 
         poll.voters.set(interaction.user.id, choiceId);
 
