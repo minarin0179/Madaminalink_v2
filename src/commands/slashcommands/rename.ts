@@ -57,7 +57,7 @@ export const rename = async (member: GuildMember, prefix?: string | null) => {
     const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.globalName || member.user.username;
     let newName = !prefix ? name : `${prefix}@${name}`;
     if (newName.length > MyConstants.maxNicknameLength) {
-        newName = newName.substring(0, MyConstants.maxNicknameLength);
+        newName = newName.substring(0, MyConstants.maxNicknameLength - 1) + "…";
     }
     return member.setNickname(newName);
 };
