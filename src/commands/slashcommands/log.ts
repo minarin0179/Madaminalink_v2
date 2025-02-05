@@ -1,4 +1,4 @@
-import {
+; import {
     ChannelType,
     SlashCommandBuilder,
     VoiceBasedChannel,
@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
+import { MyConstants } from "../../constants/constants";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -71,7 +72,8 @@ export default new SlashCommand({
                     if (lastMessageDates.getTime() == 0) {
                         lastMessageDates.setTime(Date.now());
                     }
-                    return `(ログ ${lastMessageDates.toLocaleDateString("ja-JP")}) ${category.name}`;
+                    const newCategoryName = `(ログ ${lastMessageDates.toLocaleDateString("ja-JP")}) ${category.name}`.substring(0, MyConstants.maxChannelNameLength);
+                    return newCategoryName;
                 })();
 
         await category.edit({ name: categoryName });

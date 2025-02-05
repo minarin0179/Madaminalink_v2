@@ -4,6 +4,7 @@ import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
 import { transferAllMessages } from "../../utils/transferMessage";
 import { ChannelLink } from "../../structures/ChannelLink";
+import { MyConstants } from "../../constants/constants";
 
 const OPTION_NAME_NEED_MESSAGE_COPY = "メッセージを複製しない";
 
@@ -68,8 +69,9 @@ const duplicateChannel = async (
             throw error;
         }
 
+        const newCategoryname = `(copy) ${originalChannel.name}`.substring(0, MyConstants.maxChannelNameLength);
         const newCategory = await originalChannel.clone({
-            name: `(copy) ${originalChannel.name}`,
+            name: newCategoryname,
             type: ChannelType.GuildCategory,
         });
 
@@ -82,8 +84,9 @@ const duplicateChannel = async (
         return channelLinks.flat();
     }
 
+    const newChannelName = `(copy) ${originalChannel.name}`.substring(0, MyConstants.maxChannelNameLength);
     const newChannel = await originalChannel.clone({
-        name: `(copy) ${originalChannel.name}`,
+        name: newChannelName,
         ...option,
     });
 
