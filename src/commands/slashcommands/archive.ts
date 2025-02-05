@@ -46,7 +46,7 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await reply(interaction, "処理を実行中です...");
+        const progressMessage = await reply(interaction, "処理を実行中です...");
 
         const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>(
             "保存するカテゴリ",
@@ -112,6 +112,9 @@ export default new SlashCommand({
             });
         }
 
+        if (progressMessage) {
+            await progressMessage.delete();
+        }
         await reply(interaction, `「${targetCategory.name}」の保存が完了しました`);
     },
 });

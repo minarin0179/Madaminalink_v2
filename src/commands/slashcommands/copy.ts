@@ -29,7 +29,7 @@ export default new SlashCommand({
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
-        await reply(interaction, "処理を実行中です...");
+        const progressMessage = await reply(interaction, "処理を実行中です...");
 
         const originalChannel = (args.getChannel("対象") ?? interaction.channel) as GuildChannel;
 
@@ -46,7 +46,9 @@ export default new SlashCommand({
                 )
             );
         }
-
+        if (progressMessage) {
+            await progressMessage.delete();
+        }
         await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`);
     },
 });
