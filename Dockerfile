@@ -8,7 +8,7 @@ ENV PATH /root/.bun/bin:$PATH
 FROM base as production
 WORKDIR /app
 #package.jsonが変更されてない場合はキャッシュで高速化される
-COPY package.json yarn.lock ./
+COPY package.json bun.lock ./
 RUN bun install --production
 
 COPY . .
