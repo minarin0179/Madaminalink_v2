@@ -1,6 +1,6 @@
 export namespace MyConstants {
     export const mebi = 1 << 20;
-    export const maxFileSizeMB = 25;
+    export const maxFileSizeMB = 10;
     export const maxFileSize = maxFileSizeMB * mebi;
     export const color = {
         embed_background: 0x2c2d31,
