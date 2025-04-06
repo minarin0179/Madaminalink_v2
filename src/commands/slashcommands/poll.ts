@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ButtonInteraction, CommandInteraction, ComponentType, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import pollButton from "../../components/buttons/poll";
@@ -61,18 +61,7 @@ export default new SlashCommand({
 });
 
 export const sendPoll = async (interaction: CommandInteraction | ButtonInteraction, options: PollOptions) => {
-    const poll = new PollModel(options);
-
-    const res = await poll.save();
-
-    const message = await interaction.channel?.send({
-        content: options.type === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください",
-        components: buttonToRow([
-            ...pollButton.build({ pollId: res._id, choices: options.choices }),
-            ...confirmPollButton.build({ pollId: res._id }),
-            ...agregatePollButton.build({ pollId: res._id }),
-        ]),
-    });
+    const message = await interaction.channel?.send(await createPollMessage(options));
 
     if (!message) return;
     const filter = (interaction: ButtonInteraction) => interaction.customId.startsWith("poll");
@@ -90,6 +79,23 @@ export const sendPoll = async (interaction: CommandInteraction | ButtonInteracti
             }
         }
     });
+};
+
+export const createPollMessage = async (options: PollOptions) => {
+    const poll = new PollModel(options);
+
+    const res = await poll.save();
+
+    const messageOptions = {
+        content: options.type === "char" ? "キャラクターを選択して下さい" : "投票先を選択してください",
+        components: buttonToRow([
+            ...pollButton.build({ pollId: res._id, choices: options.choices }),
+            ...confirmPollButton.build({ pollId: res._id }),
+            ...agregatePollButton.build({ pollId: res._id }),
+        ]),
+    };
+
+    return messageOptions;
 };
 
 const getArgs = (interaction: ButtonInteraction): string[] => interaction.customId.split(/[:,]/);

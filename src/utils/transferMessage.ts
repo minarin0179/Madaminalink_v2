@@ -19,6 +19,8 @@ import { client } from "../bot";
 import { ChannelLink } from "../structures/ChannelLink";
 import { buildTransferMessage } from "../commands/slashcommands/transfer";
 import { MyConstants } from "../constants/constants";
+import { createPollMessage } from "../commands/slashcommands/poll";
+import { PollModel } from "../structures/Poll";
 
 type transferOptions = {
     noReaction?: boolean;
@@ -72,7 +74,7 @@ export const transferMessage = async (
         flags,
     } as MessageCreateOptions;
 
-    //transfer,openのボタンを更新
+    //transfer,open,pollのボタンを更新
     const customId = components[0]?.components[0]?.customId ?? '';
 
     if (message.author.id !== client.user?.id) {
@@ -92,6 +94,17 @@ export const transferMessage = async (
         if (targetChannel && mentionable) {
             newMessageOptions = { ...newMessageOptions, ...openMessage(targetChannel, mentionable) };
         }
+    } else if (customId?.startsWith("poll")) {
+        const [, pollId, _] = customId.split(/[;:,]/);
+        const poll = await PollModel.findById(pollId);
+        if (!poll) return;
+        const options = {
+            type: poll.type,
+            ownerId: poll.ownerId,
+            choices: poll.choices,
+            voters: new Map(),
+        };
+        newMessageOptions = await createPollMessage(options);
     }
     try {
         const newMessage = await destination.send(newMessageOptions);
