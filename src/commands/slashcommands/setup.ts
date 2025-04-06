@@ -68,14 +68,7 @@ export default new SlashCommand({
 
         const invisible = {
             //見れない
-            deny: [
-                PermissionFlagsBits.ViewChannel,
-                PermissionFlagsBits.SendMessages,
-                PermissionFlagsBits.CreatePublicThreads,
-                PermissionFlagsBits.CreatePrivateThreads,
-                PermissionFlagsBits.SendMessagesInThreads,
-                PermissionFlagsBits.Connect,
-            ],
+            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Connect],
         };
         const visible = {
             // 見れるけど書き込めない
