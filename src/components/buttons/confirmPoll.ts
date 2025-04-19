@@ -15,7 +15,13 @@ export default new Button({
         if (!poll) return;
 
         if (interaction.user.id !== poll.ownerId) {
-            await reply(interaction, { content: "投票状況の確認は投票を開始した人のみが行えます", ephemeral: true });
+            const vote = poll.voters.get(interaction.user.id);
+            if (vote == undefined) {
+                await reply(interaction, { content: `あなたはまだ投票していません`, ephemeral: true });
+            } else {
+                const choice = poll.choices[vote].label;
+                await reply(interaction, { content: `あなたは「${choice}」に投票しています`, ephemeral: true });
+            }
             return;
         }
 
