@@ -6,7 +6,7 @@ import { fetchAllMessages } from "../../utils/FetchAllMessages";
 
 export default new ContextMenu({
     data: new ContextMenuCommandBuilder()
-        .setName("これ以降を削除")
+        .setName("これ以降を削除 V")
         .setType(ApplicationCommandType.Message)
         .setDefaultMemberPermissions(0)
         .setDMPermission(false),
