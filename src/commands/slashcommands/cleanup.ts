@@ -14,6 +14,7 @@ import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
+    danger: true,
     data: new SlashCommandBuilder()
         .setName("cleanup")
         .setDescription("メッセージをすべて削除します")

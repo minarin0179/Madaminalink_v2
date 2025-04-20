@@ -3,6 +3,7 @@ import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
+    danger: true,
     data: new SlashCommandBuilder()
         .setName("delete")
         .setDescription("カテゴリを削除します(カテゴリに含まれるチャンネルも削除されます)")
@@ -58,6 +59,6 @@ export default new SlashCommand({
         }
 
         //コマンドを入力したチャンネルが削除されている場合がある
-        await reply(interaction, `「${category.name}」の削除が完了しました`).catch(() => {});
+        await reply(interaction, `「${category.name}」の削除が完了しました`).catch(() => { });
     },
 });

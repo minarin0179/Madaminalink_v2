@@ -17,6 +17,23 @@ export default new Event(Events.InteractionCreate, async interaction => {
         if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
             const command = client.commands.get(interaction.commandName);
             if (!command) return;
+
+            if (command.danger) {
+                const guild = interaction.guild;
+                if (!guild) return;
+
+                const joinedAt = guild.joinedAt;
+                const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+                const timeSinceJoined = Date.now() - joinedAt.getTime();
+
+                if (timeSinceJoined < oneDayInMilliseconds) {
+                    const timeUntilAvailable = new Date(joinedAt.getTime() + oneDayInMilliseconds);
+                    return reply(interaction, {
+                        content: `このコマンドは、Botがサーバーに参加してから24時間以上経過している場合にのみ使用できます。\n利用可能になるのは: <t:${Math.floor(timeUntilAvailable.getTime() / 1000)}:f> です。`,
+                        ephemeral: true,
+                    });
+                }
+            }
             await command.execute({ client, interaction, args: interaction.options });
         }
 

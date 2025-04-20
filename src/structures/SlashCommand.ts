@@ -14,6 +14,7 @@ interface SlashCommandType {
     data: SlashCommandBuilder;
     execute: RunFunction;
     dev?: boolean;
+    danger?: boolean;
 }
 
 export class SlashCommand extends Command implements SlashCommandType {
@@ -26,5 +27,6 @@ export class SlashCommand extends Command implements SlashCommandType {
         this.data = command.data;
         this.execute = command.execute;
         this.dev = command.dev;
+        this.danger = command.danger;
     }
 }

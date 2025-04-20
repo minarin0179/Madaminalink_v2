@@ -5,6 +5,7 @@ import { deleteMultiMessages } from "../../utils/DeleteMultiMessages";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 
 export default new ContextMenu({
+    danger: true,
     data: new ContextMenuCommandBuilder()
         .setName("これ以前を削除")
         .setType(ApplicationCommandType.Message)

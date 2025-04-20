@@ -14,6 +14,7 @@ interface ContextMenuType {
     data: ContextMenuCommandBuilder;
     execute: RunFunction;
     dev?: boolean | undefined;
+    danger?: boolean;
 }
 
 export class ContextMenu extends Command implements ContextMenuType {
@@ -25,5 +26,6 @@ export class ContextMenu extends Command implements ContextMenuType {
         this.data = command.data;
         this.execute = command.execute;
         this.dev = command.dev;
+        this.danger = command.danger;
     }
 }
