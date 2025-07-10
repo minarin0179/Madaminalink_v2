@@ -81,9 +81,7 @@ export default new SlashCommand({
 
                 description += await RunArchive(child, logChannel);
 
-                const threads = (await child.threads.fetchActive()).threads.concat(
-                    (await child.threads.fetchArchived()).threads
-                );
+                const threads = await fetchAllThreads(child);
                 if (threads.size > 0) {
                     const threadDescription = await Promise.all(threads.map(thread => RunArchive(thread, logChannel)));
                     description += `\n${threadDescription.join("\n")}`;
@@ -199,6 +197,22 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
             }
         })
         .join(" ");
+};
+
+const fetchAllThreads = async (channel: TextChannel) => {
+    const activeThreads = await channel.threads.fetchActive();
+    const archivedPublicThreads = await channel.threads.fetchArchived({
+        type: "public",
+        fetchAll: true,
+    });
+    const archivedPrivateThreads = await channel.threads.fetchArchived({
+        type: "private",
+        fetchAll: true,
+    });
+
+    const allThreads = activeThreads.threads.concat(archivedPublicThreads.threads, archivedPrivateThreads.threads);
+
+    return allThreads.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 };
 
 const messageToArchiveDatas = (message: Message): ArchiveData[] => {
