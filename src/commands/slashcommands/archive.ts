@@ -152,11 +152,18 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             flags: MessageFlags.SuppressNotifications,
         });
 
-        for await (const file of data.files) {
-            await destinationThread.send({
-                files: [file],
-                flags: MessageFlags.SuppressNotifications,
-            });
+        try {
+            for await (const file of data.files) {
+                await destinationThread.send({
+                    files: [file],
+                    flags: MessageFlags.SuppressNotifications,
+                });
+            }
+        } catch (e: any) {
+            // Request entity too large は無視
+            if (e.code != 40005) {
+                throw e;
+            }
         }
 
         if (!isEmptyText(data.reactions)) {
