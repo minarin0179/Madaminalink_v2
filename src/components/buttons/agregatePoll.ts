@@ -62,13 +62,15 @@ export default new Button({
 
             const descrption = `### 集計結果\n${content || "なし"}`;
 
-            await interaction.channel?.send({
-                embeds: splitMessage(descrption).map(text =>
-                    new EmbedBuilder().setDescription(text).setColor(warn ? Colors.Yellow : Colors.Green)
-                ),
-                allowedMentions: { parse: [] },
-                components: warn ? buttonToRow(revoteButton.build({ pollId })) : [],
-            });
+            if (interaction.channel?.isSendable()) {
+                await interaction.channel.send({
+                    embeds: splitMessage(descrption).map(text =>
+                        new EmbedBuilder().setDescription(text).setColor(warn ? Colors.Yellow : Colors.Green)
+                    ),
+                    allowedMentions: { parse: [] },
+                    components: warn ? buttonToRow(revoteButton.build({ pollId })) : [],
+                });
+            }
 
             await reply(interaction, { content: "集計結果を表示しました", ephemeral: true });
 
