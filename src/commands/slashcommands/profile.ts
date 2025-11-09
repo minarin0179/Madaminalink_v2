@@ -1,6 +1,5 @@
-import { InteractionContextType, SlashCommandBuilder } from "discord.js";
+import { InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
-import { reply } from "../../utils/Reply";
 import profileModal from "../../components/modal/profileModal";
 
 export default new SlashCommand({
@@ -17,17 +16,12 @@ export default new SlashCommand({
                 .setName("reset")
                 .setDescription("botのプロフィールをすべてリセットします")
         )
-        .setContexts(InteractionContextType.Guild),
+        .setContexts(InteractionContextType.Guild)
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     execute: async ({ client, interaction }) => {
         const guild = interaction.guild;
 
-        if (!guild) {
-            await reply(
-                interaction,
-                "このコマンドはサーバー内でのみ使用できます。"
-            );
-            return;
-        }
+        if (!guild) return;
 
         const subcommand = interaction.options.getSubcommand();
 
@@ -51,7 +45,10 @@ export default new SlashCommand({
                 nick: null,
             });
 
-            await reply(interaction, "プロフィールをすべてリセットしました");
+            await interaction.reply({
+                content: "プロフィールをすべてリセットしました",
+                flags: MessageFlags.Ephemeral
+            });
         }
     },
 });
