@@ -9,20 +9,28 @@ import {
     Attachment,
 } from "discord.js";
 import { Modal } from "../../structures/Modal";
-import { reply } from "../../utils/Reply";
 import { MyConstants } from "../../constants/constants";
+
+interface ProfileModalBuildOptions {
+    defaultName: string;
+    currentNickname?: string;
+}
 
 export default new Modal({
     customId: "profile",
-    build: ({ defaultName, currentNickname }: { defaultName: string; currentNickname?: string }) => {
-        const avatarUpload = new FileUploadBuilder().setCustomId("avatar").setRequired(false);
+    build: ({ defaultName, currentNickname }: ProfileModalBuildOptions) => {
+        const avatarUpload = new FileUploadBuilder()
+            .setCustomId("avatar")
+            .setRequired(false);
 
         const avatarLabel = new LabelBuilder()
             .setLabel("アバター画像")
             .setDescription("アバター画像をアップロードしてください")
             .setFileUploadComponent(avatarUpload);
 
-        const bannerUpload = new FileUploadBuilder().setCustomId("banner").setRequired(false);
+        const bannerUpload = new FileUploadBuilder()
+            .setCustomId("banner")
+            .setRequired(false);
 
         const bannerLabel = new LabelBuilder()
             .setLabel("バナー画像")
@@ -40,21 +48,14 @@ export default new Modal({
             nicknameInput.setValue(currentNickname);
         }
 
-        const nicknameLabel = new LabelBuilder().setLabel("ニックネーム").setTextInputComponent(nicknameInput);
-
-        const bioInput = new TextInputBuilder()
-            .setCustomId("bio")
-            .setStyle(TextInputStyle.Paragraph)
-            .setMaxLength(1024)
-            .setPlaceholder("自己紹介を入力")
-            .setRequired(false);
-
-        const bioLabel = new LabelBuilder().setLabel("自己紹介文").setTextInputComponent(bioInput);
+        const nicknameLabel = new LabelBuilder()
+            .setLabel("ニックネーム")
+            .setTextInputComponent(nicknameInput);
 
         const modal = new ModalBuilder()
             .setCustomId(`profile`)
             .setTitle("プロフィールを設定")
-            .addLabelComponents(avatarLabel, bannerLabel, nicknameLabel, bioLabel);
+            .addLabelComponents(avatarLabel, bannerLabel, nicknameLabel);
 
         return modal;
     },
@@ -62,7 +63,9 @@ export default new Modal({
         const guild = interaction.guild;
 
         if (!guild) {
-            await reply(interaction, "このコマンドはサーバー内でのみ使用できます。");
+            await interaction.editReply(
+                "このコマンドはサーバー内でのみ使用できます。"
+            );
             return;
         }
 
@@ -74,7 +77,9 @@ export default new Modal({
 
         if (avatar) {
             if (!isImageAttachment(avatar)) {
-                await interaction.editReply("アバター画像ファイルの形式が正しくありません。");
+                await interaction.editReply(
+                    "アバター画像ファイルの形式が正しくありません。"
+                );
                 return;
             }
             if (!isValidImageSize(avatar)) {
@@ -88,7 +93,9 @@ export default new Modal({
 
         if (banner) {
             if (!isImageAttachment(banner)) {
-                await interaction.editReply("バナー画像ファイルの形式が正しくありません。");
+                await interaction.editReply(
+                    "バナー画像ファイルの形式が正しくありません。"
+                );
                 return;
             }
             if (!isValidImageSize(banner)) {
@@ -100,8 +107,8 @@ export default new Modal({
             updateData.banner = await urlToBase64(banner.url);
         }
 
-        updateData.bio = interaction.fields.getTextInputValue("bio") || "";
-        updateData.nick = interaction.fields.getTextInputValue("nickname") || "";
+        updateData.nick =
+            interaction.fields.getTextInputValue("nickname") || "";
 
         await guild.members.editMe(updateData);
         const message = `プロフィールを更新しました`;
@@ -109,8 +116,10 @@ export default new Modal({
     },
 });
 
-const isImageAttachment = (attachment: Attachment): boolean => attachment.contentType?.startsWith("image/") ?? false;
-const isValidImageSize = (attachment: Attachment): boolean => attachment.size <= MyConstants.maxFileSize;
+const isImageAttachment = (attachment: Attachment): boolean =>
+    attachment.contentType?.startsWith("image/") ?? false;
+const isValidImageSize = (attachment: Attachment): boolean =>
+    attachment.size <= MyConstants.maxFileSize;
 
 const urlToBase64 = async (url: string): Promise<Base64Resolvable> => {
     const response = await fetch(url);

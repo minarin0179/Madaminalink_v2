@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { InteractionContextType, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import profileModal from "../../components/modal/profileModal";
@@ -7,15 +7,25 @@ export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("profile")
         .setDescription("botのプロフィールを変更します")
-        .addSubcommand(subcommand => subcommand.setName("set").setDescription("botのサーバープロフィールを設定します"))
         .addSubcommand(subcommand =>
-            subcommand.setName("reset").setDescription("botのプロフィールをすべてリセットします")
-        ),
+            subcommand
+                .setName("set")
+                .setDescription("botのサーバープロフィールを設定します")
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName("reset")
+                .setDescription("botのプロフィールをすべてリセットします")
+        )
+        .setContexts(InteractionContextType.Guild),
     execute: async ({ client, interaction }) => {
         const guild = interaction.guild;
 
         if (!guild) {
-            await reply(interaction, "このコマンドはサーバー内でのみ使用できます。");
+            await reply(
+                interaction,
+                "このコマンドはサーバー内でのみ使用できます。"
+            );
             return;
         }
 
@@ -38,7 +48,6 @@ export default new SlashCommand({
             await guild.members.editMe({
                 avatar: null,
                 banner: null,
-                bio: null,
                 nick: null,
             });
 
