@@ -7,6 +7,7 @@ import {
     Base64Resolvable,
     GuildMemberEditMeOptions,
     Attachment,
+    DiscordAPIError,
 } from "discord.js";
 import { Modal } from "../../structures/Modal";
 import { MyConstants } from "../../constants/constants";
@@ -110,9 +111,26 @@ export default new Modal({
         updateData.nick =
             interaction.fields.getTextInputValue("nickname") || "";
 
-        await guild.members.editMe(updateData);
-        const message = `プロフィールを更新しました`;
-        await interaction.editReply(message);
+        try {
+            await guild.members.editMe(updateData);
+            await interaction.editReply("プロフィールを更新しました");
+        } catch (error) {
+            let message = "プロフィールの更新中にエラーが発生しました。再度お試しください。";
+
+            if (error instanceof DiscordAPIError && error.code === 50035 && "errors" in error.rawError) {
+                const errors = error.rawError.errors;
+
+                if (hasErrorCode(errors, "avatar", "AVATAR_RATE_LIMIT")) {
+                    message = "アバターの変更が早すぎます。しばらく待ってから再度お試しください。";
+                } else if (hasErrorCode(errors, "banner", "BANNER_RATE_LIMIT")) {
+                    message = "バナーの変更が早すぎます。しばらく待ってから再度お試しください。";
+                } else {
+                    message = "プロフィールの更新に失敗しました。入力内容を確認してください。";
+                }
+            }
+
+            await interaction.editReply(message);
+        }
     },
 });
 
@@ -133,4 +151,23 @@ const urlToBase64 = async (url: string): Promise<Base64Resolvable> => {
     const base64Data = `data:${content_type};base64,${buffer.toString("base64")}`;
 
     return base64Data;
+};
+
+
+// Discord APIエラーのフィールド構造を表す型
+interface DiscordErrorField {
+    _errors?: Array<{ code: string; message: string }>;
+    [key: string]: unknown;
+}
+
+// 特定のフィールドに特定のエラーコードが含まれているかチェック
+const hasErrorCode = (errors: unknown, field: string, code: string): boolean => {
+    if (typeof errors !== "object" || errors === null) return false;
+    if (!(field in errors)) return false;
+
+    const fieldData = (errors as Record<string, unknown>)[field];
+    if (typeof fieldData !== "object" || fieldData === null) return false;
+
+    const fieldErrors = (fieldData as DiscordErrorField)._errors;
+    return Array.isArray(fieldErrors) && fieldErrors.some(e => e.code === code);
 };
