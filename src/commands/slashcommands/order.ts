@@ -2,6 +2,7 @@ import {
     ChannelType,
     EmbedBuilder,
     GatewayRateLimitError,
+    InteractionContextType,
     SlashCommandBuilder,
     VoiceChannel,
 } from "discord.js";
@@ -17,7 +18,7 @@ export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("order")
         .setDescription("ランダムでユーザーの順位決めを行います")
-        .setDMPermission(false)
+        .setContexts(InteractionContextType.Guild)
         .setDefaultMemberPermissions(0)
         .addStringOption(option =>
             option.setName("ユーザーまたはロール").setDescription("ユーザー，ロールを並べ替えに追加できます")

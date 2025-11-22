@@ -1,4 +1,4 @@
-import { GatewayRateLimitError, SlashCommandBuilder } from "discord.js";
+import { GatewayRateLimitError, InteractionContextType, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
@@ -7,7 +7,7 @@ export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("server")
         .setDescription("メンバー数、ロール数、チャンネル数を表示します")
-        .setDMPermission(false),
+        .setContexts(InteractionContextType.Guild),
 
     execute: async ({ interaction }) => {
         const guild = interaction.guild;

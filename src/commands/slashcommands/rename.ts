@@ -1,4 +1,4 @@
-import { GatewayRateLimitError, GuildMember, Role, SlashCommandBuilder } from "discord.js";
+import { GatewayRateLimitError, GuildMember, InteractionContextType, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import { reply } from "../../utils/Reply";
@@ -8,7 +8,7 @@ export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("rename")
         .setDescription("ニックネームを一括で変更します")
-        .setDMPermission(false)
+        .setContexts(InteractionContextType.Guild)
         .setDefaultMemberPermissions(0)
         .addRoleOption(option =>
             option.setName("ロール").setDescription("ニックネームをリセットするロール").setRequired(true)
