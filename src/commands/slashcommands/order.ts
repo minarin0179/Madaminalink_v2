@@ -1,7 +1,15 @@
-import { ChannelType, EmbedBuilder, SlashCommandBuilder, VoiceChannel } from "discord.js";
+import {
+    ChannelType,
+    EmbedBuilder,
+    GatewayRateLimitError,
+    InteractionContextType,
+    SlashCommandBuilder,
+    VoiceChannel,
+} from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import { buttonToRow } from "../../utils/ButtonToRow";
+import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import joinOrder from "../../components/buttons/joinOrder";
 import shuffleOrder from "../../components/buttons/shuffleOrder";
 
@@ -10,7 +18,7 @@ export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("order")
         .setDescription("ランダムでユーザーの順位決めを行います")
-        .setDMPermission(false)
+        .setContexts(InteractionContextType.Guild)
         .setDefaultMemberPermissions(0)
         .addStringOption(option =>
             option.setName("ユーザーまたはロール").setDescription("ユーザー，ロールを並べ替えに追加できます")
@@ -32,7 +40,15 @@ export default new SlashCommand({
         const { guild } = interaction;
         if (!guild) return;
 
-        await guild.members.fetch();
+        try {
+            await guild.members.fetch();
+        } catch (error) {
+            if (!(error instanceof GatewayRateLimitError)) {
+                throw error;
+            }
+            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
+            return;
+        }
 
         const memberIDs = Array.from(participants.matchAll(membersRegex), m => m[1]);
         const members = new Set(memberIDs?.map(user_id => guild.members.cache.get(user_id)).filter(m => !!m) || []);

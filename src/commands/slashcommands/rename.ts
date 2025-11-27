@@ -1,5 +1,6 @@
-import { GuildMember, Role, SlashCommandBuilder } from "discord.js";
+import { GatewayRateLimitError, GuildMember, InteractionContextType, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
+import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import { reply } from "../../utils/Reply";
 import { MyConstants } from "../../constants/constants";
 
@@ -7,7 +8,7 @@ export default new SlashCommand({
     data: new SlashCommandBuilder()
         .setName("rename")
         .setDescription("ニックネームを一括で変更します")
-        .setDMPermission(false)
+        .setContexts(InteractionContextType.Guild)
         .setDefaultMemberPermissions(0)
         .addRoleOption(option =>
             option.setName("ロール").setDescription("ニックネームをリセットするロール").setRequired(true)
@@ -31,7 +32,15 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        await interaction.guild?.members.fetch();
+        try {
+            await interaction.guild?.members.fetch();
+        } catch (error) {
+            if (!(error instanceof GatewayRateLimitError)) {
+                throw error;
+            }
+            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
+            return;
+        }
 
         const role = args.getRole("ロール", true) as Role;
         const prefix = args.getString("先頭につける文字");
