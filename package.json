@@ -2,7 +2,10 @@
   "scripts": {
     "dev": "bun src/bot.ts",
     "start": "bun src/index.ts",
-    "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js"
+    "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "agenda": "^4.3.0",
@@ -23,6 +26,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^6.1.1",
     "prettier": "^3.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitepress": "^1.6.4"
   }
 }

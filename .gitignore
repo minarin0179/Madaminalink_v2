@@ -1,5 +1,10 @@
 .*
 !.gitignore
+!.vitepress
 node_modules/*
 !.eslintrc.json
 /dist
+
+# VitePress
+docs/.vitepress/dist
+docs/.vitepress/cache
