@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
@@ -70,8 +70,9 @@ jobs:
             - VitePressのMarkdown記法を使用してください
             - コマンドのオプション、使用例、ユースケースを含めてください
             - 変更がない場合や、ドキュメント更新が不要な場合は何もしないでください
-          allowed_tools: "Edit,Write,Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
-          timeout_minutes: 30
+          claude_args: |
+            --allowedTools Edit,Write,Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*)
+            --max-turns 30
 
       - name: Create Pull Request
         if: steps.claude.outputs.conclusion == 'success'
