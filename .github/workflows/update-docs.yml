@@ -56,7 +56,7 @@ jobs:
             - docs/commands/ - 各コマンドの詳細ページ
             - docs/guide/ - 導入ガイド
             - docs/index.md - トップページ
-            - docs/.vitepress/config.mts - サイドバー設定（新規ページ追加時は更新が必要）
+            - docs/.vitepress/config.{mts,ts,js,mjs} - サイドバー設定（新規ページ追加時は更新が必要）
 
             ## 作業手順
             1. 変更されたソースコードを読んで、どのような機能変更があったか理解する
