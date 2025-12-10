@@ -9,6 +9,11 @@ export default defineConfig({
   // カスタムドメイン用（docs.madaminalink.com）
   base: '/',
 
+  // サイトマップ生成
+  sitemap: {
+    hostname: 'https://docs.madaminalink.com'
+  },
+
   // 未作成ページへのリンクを許可（コンテンツ移植時に順次作成）
   ignoreDeadLinks: true,
 
@@ -18,26 +23,66 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/png', href: '/images/common/icon.png' }],
     ['link', { rel: 'apple-touch-icon', href: '/images/common/icon.png' }],
 
-    // メタタグ
+    // SEO基本設定
+    ['meta', { name: 'keywords', content: 'マダミナリンク,マーダーミステリー,Discord,Bot,GM,TRPG,シナリオ管理,ログ保存,チャンネル管理' }],
+    ['meta', { name: 'author', content: 'minarin0179' }],
+    ['meta', { name: 'robots', content: 'index, follow' }],
     ['meta', { name: 'theme-color', content: '#5865F2' }],
+    ['link', { rel: 'canonical', href: 'https://docs.madaminalink.com' }],
 
     // Open Graph / Discord embed
     ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:url', content: 'https://docs.madaminalink.com' }],
     ['meta', { property: 'og:locale', content: 'ja_JP' }],
-    ['meta', { property: 'og:title', content: 'マダミナリンク - ユーザーガイド' }],
+    ['meta', { property: 'og:title', content: 'マダミナリンク - マーダーミステリー向けDiscord Bot' }],
     ['meta', { property: 'og:site_name', content: 'マダミナリンク' }],
-    ['meta', { property: 'og:description', content: 'マーダーミステリー向けDiscord Botのユーザーガイド' }],
+    ['meta', { property: 'og:description', content: 'GMの作業を効率化する多機能Discord Bot。セットアップ、ログ保存、チャンネル管理など、マーダーミステリーの進行をサポートする便利な機能を搭載。' }],
     ['meta', { property: 'og:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
     ['meta', { property: 'og:image:width', content: '512' }],
     ['meta', { property: 'og:image:height', content: '512' }],
-    ['meta', { property: 'og:image:alt', content: 'マダミナリンク' }],
+    ['meta', { property: 'og:image:alt', content: 'マダミナリンクのアイコン' }],
+    ['meta', { property: 'og:image:type', content: 'image/png' }],
 
     // Twitter Card
     ['meta', { name: 'twitter:card', content: 'summary' }],
-    ['meta', { name: 'twitter:title', content: 'マダミナリンク - ユーザーガイド' }],
-    ['meta', { name: 'twitter:description', content: 'マーダーミステリー向けDiscord Botのユーザーガイド' }],
+    ['meta', { name: 'twitter:site', content: '@Madaminalink' }],
+    ['meta', { name: 'twitter:creator', content: '@minarin0179' }],
+    ['meta', { name: 'twitter:title', content: 'マダミナリンク - マーダーミステリー向けDiscord Bot' }],
+    ['meta', { name: 'twitter:description', content: 'GMの作業を効率化する多機能Discord Bot。セットアップ、ログ保存、チャンネル管理など、マーダーミステリーの進行をサポート。' }],
     ['meta', { name: 'twitter:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
-    ['meta', { name: 'twitter:image:alt', content: 'マダミナリンク' }],
+    ['meta', { name: 'twitter:image:alt', content: 'マダミナリンクのアイコン' }],
+
+    // その他のSEO設定
+    ['meta', { name: 'format-detection', content: 'telephone=no' }],
+    ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
+    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }],
+
+    // 構造化データ (JSON-LD)
+    ['script', { type: 'application/ld+json' }, JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      'name': 'マダミナリンク',
+      'applicationCategory': 'UtilityApplication',
+      'operatingSystem': 'Discord',
+      'description': 'マーダーミステリー向けDiscord Bot。GMの作業を効率化する多機能Bot。',
+      'url': 'https://docs.madaminalink.com',
+      'author': {
+        '@type': 'Person',
+        'name': 'minarin0179',
+        'url': 'https://github.com/minarin0179'
+      },
+      'offers': {
+        '@type': 'Offer',
+        'price': '0',
+        'priceCurrency': 'JPY'
+      },
+      'screenshot': 'https://docs.madaminalink.com/images/common/icon.png',
+      'aggregateRating': {
+        '@type': 'AggregateRating',
+        'ratingValue': '5',
+        'ratingCount': '1'
+      }
+    })],
   ],
 
   // テーマ設定
