@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import type { HeadConfig } from 'vitepress'
 
 export default defineConfig({
   // サイト基本設定
@@ -17,6 +18,18 @@ export default defineConfig({
   // 未作成ページへのリンクを許可（コンテンツ移植時に順次作成）
   ignoreDeadLinks: true,
 
+  // ページごとのメタタグを動的に生成
+  transformHead: ({ pageData }) => {
+    const head: HeadConfig[] = []
+    const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
+    const canonicalUrl = `https://docs.madaminalink.com/${path}`
+
+    head.push(['link', { rel: 'canonical', href: canonicalUrl }])
+    head.push(['meta', { property: 'og:url', content: canonicalUrl }])
+
+    return head
+  },
+
   // ヘッド設定
   head: [
     // ファビコン
@@ -28,11 +41,9 @@ export default defineConfig({
     ['meta', { name: 'author', content: 'minarin0179' }],
     ['meta', { name: 'robots', content: 'index, follow' }],
     ['meta', { name: 'theme-color', content: '#5865F2' }],
-    ['link', { rel: 'canonical', href: 'https://docs.madaminalink.com' }],
 
     // Open Graph / Discord embed
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:url', content: 'https://docs.madaminalink.com' }],
     ['meta', { property: 'og:locale', content: 'ja_JP' }],
     ['meta', { property: 'og:title', content: 'マダミナリンク - マーダーミステリー向けDiscord Bot' }],
     ['meta', { property: 'og:site_name', content: 'マダミナリンク' }],
