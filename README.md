@@ -146,7 +146,7 @@ Madaminalink_v2/
 | **deploy.yml** | `main`へのpush（`docs/**`除外） | Dockerイメージをビルド→Docker Hubにpush→本番環境に自動デプロイ |
 | **docs.yml** | `main`の`docs/**`変更 | VitePressでドキュメントをビルド→GitHub Pagesにデプロイ |
 | **update-docs.yml** | `main`の`src/**`変更 | Claude Codeがソースコードを解析→ドキュメントを自動更新→ドラフトPR作成 |
-| **restart.yml** | 手動トリガー | 本番環境のBotを再起動 |
+| **restart.yml** | スケジュール実行（毎日4:00 JST）または手動トリガー | 本番環境のBotを再起動 |
 
 ### コーディング規約
 
