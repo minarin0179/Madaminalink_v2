@@ -75,12 +75,6 @@ export default defineConfig({
         '@type': 'Offer',
         'price': '0',
         'priceCurrency': 'JPY'
-      },
-      'screenshot': 'https://docs.madaminalink.com/images/common/icon.png',
-      'aggregateRating': {
-        '@type': 'AggregateRating',
-        'ratingValue': '5',
-        'ratingCount': '1'
       }
     })],
   ],
