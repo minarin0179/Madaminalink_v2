@@ -18,6 +18,14 @@ docs/
 │   └── config.mts          # VitePress設定ファイル
 ├── public/
 │   └── CNAME               # カスタムドメイン設定
+├── images/                 # 画像ファイル管理
+│   ├── common/             # ロゴ、アイコンなど共通素材
+│   ├── guide/              # ガイドページ用画像
+│   │   └── getting-started/
+│   └── commands/           # コマンド説明用画像
+│       ├── setup/
+│       ├── remind/
+│       └── ...
 ├── guide/
 │   └── getting-started.md  # 導入ガイド
 ├── commands/
@@ -192,8 +200,136 @@ bun run docs:preview # ビルド結果をプレビュー
 ### 移植時の注意点
 
 - コマンドの動作が変更されている場合は最新の動作を反映
-- スクリーンショットは`docs/public/images/`に配置
+- スクリーンショットは`docs/images/`配下の適切なディレクトリに配置
 - 内部リンクは相対パス（例: `[/setup](/commands/setup)`）を使用
+
+## 画像ファイルの管理
+
+### ディレクトリ構成
+
+画像ファイルは`docs/images/`配下で管理します：
+
+```
+docs/images/
+├── common/              # ロゴ、アイコン、ヘッダー画像など共通素材
+├── guide/               # ガイドページ用の画像
+│   ├── getting-started/ # getting-started.md用
+│   └── ...              # 他のガイドページ用（今後追加）
+└── commands/            # コマンド説明用の画像
+    ├── setup/           # /setupコマンド用
+    ├── remind/          # /remindコマンド用
+    ├── role/            # /roleコマンド用
+    └── ...              # 他のコマンド用
+```
+
+### 画像の参照方法
+
+マークダウンファイルから相対パスで画像を参照します：
+
+```markdown
+# docs/guide/getting-started.md から画像を参照する場合
+![説明文](../images/guide/getting-started/ファイル名.png)
+
+# docs/commands/setup.md から画像を参照する場合
+![説明文](../images/commands/setup/ファイル名.png)
+```
+
+### 画像ファイルの命名規則
+
+- **小文字とハイフンを使用**: `add-app-button.png`（推奨）、`AddAppButton.png`（非推奨）
+- **内容が分かりやすい名前**: `screenshot.png`（悪い例）→ `role-order-settings.png`（良い例）
+- **連番が必要な場合は末尾に数字**: `setup-step-1.png`, `setup-step-2.png`
+
+### 代替テキストの記述
+
+画像には必ず適切な代替テキスト（alt text）を設定してください：
+
+```markdown
+# ❌ 悪い例
+![alt text](../images/guide/getting-started/image.png)
+![](../images/commands/setup/screenshot.png)
+
+# ✅ 良い例
+![マダミナリンクのプロフィール画面](../images/guide/getting-started/add-app-button.png)
+![ロール設定の完了画面](../images/commands/setup/role-creation-complete.png)
+```
+
+代替テキストは以下の目的で使用されます：
+- スクリーンリーダー利用者への情報提供
+- 画像が読み込めない場合の代替表示
+- SEO対策
+
+### 画像記述方法の選択
+
+画像を表示する際は、**Markdown記法を基本**としますが、用途に応じてHTML記法を使い分けます。
+
+#### 選択基準
+
+| ケース | 推奨方法 | 理由 |
+|--------|---------|------|
+| 単一画像で説明 | Markdown | シンプル、読みやすい、保守性が高い |
+| 複数画像を横並び表示 | HTML | ユーザーが同時に比較でき、UI/UX向上 |
+| 画像サイズを調整したい | HTML | max-widthで柔軟に制御可能 |
+
+#### Markdown記法（基本）
+
+通常の画像表示にはMarkdown記法を使用します：
+
+```markdown
+![ロール設定画面](../images/guide/getting-started/role-order.png)
+![pingコマンドの実行結果](../images/guide/getting-started/ping-result.png)
+```
+
+**利点**：
+- シンプルで読みやすい
+- 保守性が高い
+- VitePressのデフォルトレスポンシブ対応が効く
+
+#### HTML記法（横並び表示）
+
+複数の画像を横に並べて表示する場合はHTML記法を使用します：
+
+```html
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;">
+  <img src="../images/guide/getting-started/add-app-button.png" alt="マダミナリンクのプロフィール画面" style="max-width: 45%; height: auto;">
+  <img src="../images/guide/getting-started/bot-invite-permissions.png" alt="Bot招待時の権限選択画面" style="max-width: 45%; height: auto;">
+</div>
+```
+
+**スタイル属性の説明**：
+- `display: flex`：横並びレイアウト
+- `gap: 1rem`：画像間の余白（16px相当）
+- `flex-wrap: wrap`：小画面では自動的に縦並びに（レスポンシブ対応）
+- `align-items: flex-start`：画像の高さが異なる場合に上揃え
+- `max-width: 45%`：画像を画面幅の45%に制限（2枚並べる場合）
+- `height: auto`：アスペクト比を維持
+
+**ユースケース**：
+- 操作の前後を比較する（例：設定前・設定後）
+- 連続した操作手順を見せる（例：プロフィール画面 → 招待画面）
+- 似た画面の違いを強調する
+
+#### 実装例の参照
+
+[getting-started.md](guide/getting-started.md) の15-18行目で、2枚の画像を横並び表示する実装例を確認できます。
+
+### 画像の最適化
+
+- **ファイルサイズ**: 1枚あたり100KB以下が推奨（スクリーンショットの場合は200KB程度まで許容）
+- **フォーマット**: PNG（スクリーンショット）、WebP（写真・イラスト）
+- **解像度**: 画面幅1280px程度を基準に、必要以上に高解像度にしない
+
+### 共通素材の管理
+
+ロゴやアイコンなど、複数ページで使用する画像は`docs/images/common/`に配置します：
+
+```markdown
+# ロゴの参照例
+![マダミナリンクロゴ](../images/common/logo.png)
+
+# アイコンの参照例
+![警告アイコン](../images/common/icon-warning.png)
+```
 
 ## 技術仕様
 
@@ -214,30 +350,6 @@ bun run docs:preview # ビルド結果をプレビュー
 
 - `docs/.vitepress/dist` - ビルド出力
 - `docs/.vitepress/cache` - ビルドキャッシュ
-
-## 今後の展開
-
-### フェーズ1: 基盤構築 ✅
-
-- [x] VitePressセットアップ
-- [x] GitHub Pages デプロイ設定
-- [x] カスタムドメイン設定
-- [x] Claude Code Action 統合
-- [x] テンプレート作成
-
-### フェーズ2: コンテンツ作成（進行中）
-
-- [ ] 全コマンドのドキュメント作成
-- [ ] 導入ガイドの充実
-- [ ] ユースケース集の追加
-- [ ] FAQ作成
-
-### フェーズ3: 拡張機能（将来）
-
-- [ ] 検索機能の最適化
-- [ ] ダークモードのカスタマイズ
-- [ ] 動画チュートリアルの埋め込み
-- [ ] 多言語対応（英語版）
 
 ## 参考リンク
 
