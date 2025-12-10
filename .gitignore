@@ -1,6 +1,7 @@
 .*
 !.gitignore
 !.vitepress
+!.github
 node_modules/*
 !.eslintrc.json
 /dist
