@@ -90,6 +90,15 @@ export default defineConfig({
             { text: '/ping - 稼働確認', link: '/commands/ping' }
           ]
         }
+      ],
+      '/legal/': [
+        {
+          text: '法的情報',
+          items: [
+            { text: 'プライバシーポリシー', link: '/legal/privacy-policy' },
+            { text: '利用規約', link: '/legal/terms' }
+          ]
+        }
       ]
     },
 
@@ -97,12 +106,19 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/minarin0179/Madaminalink_v2' },
       { icon: 'discord', link: 'https://discord.com/discovery/applications/926051893728403486' },
-      { icon: 'x', link: 'https://x.com/Madaminalink' }
+      { icon: 'x', link: 'https://x.com/Madaminalink' },
+      {
+        icon: {
+          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>'
+        },
+        link: 'mailto:contact@madaminalink.com',
+        ariaLabel: 'Email'
+      }
     ],
 
     // フッター
     footer: {
-      message: 'マダミナリンク - マーダーミステリー向けDiscord Bot',
+      message: 'マダミナリンク - マーダーミステリー向けDiscord Bot | <a href="/legal/privacy-policy">プライバシーポリシー</a> | <a href="/legal/terms">利用規約</a>',
       copyright: 'Copyright 2024 minarin0179'
     },
 
