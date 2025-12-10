@@ -11,7 +11,8 @@
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/sshd:1": {}
+		"ghcr.io/devcontainers/features/sshd:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 	// Uncomment the next line to run commands after the container is created.
 	"postCreateCommand": "cp .env.sample .env && bun install",
