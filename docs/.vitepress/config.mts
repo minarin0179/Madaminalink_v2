@@ -49,7 +49,7 @@ export default defineConfig({
         {
           text: 'セットアップ系',
           items: [
-            { text: '/setup - カテゴリー作成', link: '/commands/setup' },
+            { text: '/setup - カテゴリ作成', link: '/commands/setup' },
             { text: '/role - ロール管理', link: '/commands/role' }
           ]
         },
@@ -61,23 +61,23 @@ export default defineConfig({
             { text: '/dice - ダイスロール', link: '/commands/dice' },
             { text: '/poll - 投票', link: '/commands/poll' },
             { text: '/remind - リマインダー', link: '/commands/remind' },
-            { text: '/order - 順番管理', link: '/commands/order' }
+            { text: '/order - 順番決め', link: '/commands/order' }
           ]
         },
         {
           text: 'ログ・アーカイブ',
           items: [
-            { text: '/archive - ログ保存', link: '/commands/archive' },
+            { text: '/archive - スレッド保存', link: '/commands/archive' },
             { text: '/transfer - メッセージ転送', link: '/commands/transfer' },
-            { text: '/log - ログ取得', link: '/commands/log' }
+            { text: '/log - ログ化', link: '/commands/log' }
           ]
         },
         {
           text: 'クリーンアップ',
           items: [
             { text: '/cleanup - メッセージ削除', link: '/commands/cleanup' },
-            { text: '/delete - チャンネル削除', link: '/commands/delete' },
-            { text: '/rename - ニックネームリセット', link: '/commands/rename' }
+            { text: '/delete - カテゴリ削除', link: '/commands/delete' },
+            { text: '/rename - ニックネーム変更', link: '/commands/rename' }
           ]
         },
         {
@@ -86,8 +86,8 @@ export default defineConfig({
             { text: '/copy - チャンネル複製', link: '/commands/copy' },
             { text: '/sync - 権限同期', link: '/commands/sync' },
             { text: '/server - サーバー情報', link: '/commands/server' },
-            { text: '/profile - プロフィール', link: '/commands/profile' },
-            { text: '/ping - 疎通確認', link: '/commands/ping' }
+            { text: '/profile - アイコン設定', link: '/commands/profile' },
+            { text: '/ping - 稼働確認', link: '/commands/ping' }
           ]
         }
       ]
