@@ -29,6 +29,7 @@ export default defineConfig({
       { text: 'ホーム', link: '/' },
       { text: 'はじめに', link: '/guide/getting-started' },
       { text: 'コマンド一覧', link: '/commands/' },
+      { text: 'リリースノート', link: '/releases' },
       { text: 'サポート', link: 'https://discord.gg/JMqcQstFSK' }
     ],
 

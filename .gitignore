@@ -8,3 +8,4 @@ node_modules/*
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/releases.md
