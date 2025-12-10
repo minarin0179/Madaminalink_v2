@@ -37,6 +37,7 @@ export default defineConfig({
     ['meta', { name: 'twitter:title', content: 'マダミナリンク - ユーザーガイド' }],
     ['meta', { name: 'twitter:description', content: 'マーダーミステリー向けDiscord Botのユーザーガイド' }],
     ['meta', { name: 'twitter:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
+    ['meta', { name: 'twitter:image:alt', content: 'マダミナリンク' }],
   ],
 
   // テーマ設定
