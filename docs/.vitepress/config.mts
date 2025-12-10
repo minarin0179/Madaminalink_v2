@@ -14,12 +14,29 @@ export default defineConfig({
 
   // ヘッド設定
   head: [
+    // ファビコン
+    ['link', { rel: 'icon', type: 'image/png', href: '/images/common/icon.png' }],
+    ['link', { rel: 'apple-touch-icon', href: '/images/common/icon.png' }],
+
+    // メタタグ
     ['meta', { name: 'theme-color', content: '#5865F2' }],
+
+    // Open Graph / Discord embed
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:locale', content: 'ja_JP' }],
     ['meta', { property: 'og:title', content: 'マダミナリンク - ユーザーガイド' }],
     ['meta', { property: 'og:site_name', content: 'マダミナリンク' }],
     ['meta', { property: 'og:description', content: 'マーダーミステリー向けDiscord Botのユーザーガイド' }],
+    ['meta', { property: 'og:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
+    ['meta', { property: 'og:image:width', content: '512' }],
+    ['meta', { property: 'og:image:height', content: '512' }],
+    ['meta', { property: 'og:image:alt', content: 'マダミナリンク' }],
+
+    // Twitter Card
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { name: 'twitter:title', content: 'マダミナリンク - ユーザーガイド' }],
+    ['meta', { name: 'twitter:description', content: 'マーダーミステリー向けDiscord Botのユーザーガイド' }],
+    ['meta', { name: 'twitter:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
   ],
 
   // テーマ設定

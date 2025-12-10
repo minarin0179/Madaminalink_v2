@@ -227,32 +227,83 @@ bun run docs:preview # ビルド結果をプレビュー
 
 ### ディレクトリ構成
 
-画像ファイルは`docs/images/`配下で管理します：
+画像ファイルは用途に応じて配置場所を分けます：
 
 ```
-docs/images/
-├── common/              # ロゴ、アイコン、ヘッダー画像など共通素材
-├── guide/               # ガイドページ用の画像
-│   ├── getting-started/ # getting-started.md用
-│   └── ...              # 他のガイドページ用（今後追加）
-└── commands/            # コマンド説明用の画像
-    ├── setup/           # /setupコマンド用
-    ├── remind/          # /remindコマンド用
-    ├── role/            # /roleコマンド用
-    └── ...              # 他のコマンド用
+docs/
+├── images/                      # ページ固有の画像
+│   ├── guide/                   # ガイドページ用の画像
+│   │   ├── getting-started/     # getting-started.md用
+│   │   └── ...                  # 他のガイドページ用（今後追加）
+│   └── commands/                # コマンド説明用の画像
+│       ├── setup/               # /setupコマンド用
+│       ├── remind/              # /remindコマンド用
+│       └── ...                  # 他のコマンド用
+└── public/
+    └── images/
+        └── common/              # 共通素材（例: icon.png）
 ```
+
+### 配置場所の使い分け
+
+| 配置場所 | 用途 | 参照方法 | 例 |
+|---------|------|---------|-----|
+| `docs/images/` | ページ固有の画像（スクリーンショット、説明図） | 相対パス参照 | 操作手順のスクリーンショット |
+| `docs/public/images/common/` | 共通素材（ロゴ、アイコン） | 絶対パス参照 | ファビコン、OG画像、ヒーロー画像 |
 
 ### 画像の参照方法
 
-マークダウンファイルから相対パスで画像を参照します：
+#### ページ固有の画像（`docs/images/`）
+
+相対パスで参照：
 
 ```markdown
-# docs/guide/getting-started.md から画像を参照する場合
-![説明文](../images/guide/getting-started/ファイル名.png)
+# docs/guide/getting-started.md から画像を参照
+![ロール設定画面](../images/guide/getting-started/role-order.png)
 
-# docs/commands/setup.md から画像を参照する場合
-![説明文](../images/commands/setup/ファイル名.png)
+# docs/commands/setup.md から画像を参照
+![設定完了画面](../images/commands/setup/complete.png)
 ```
+
+#### 共通素材（`docs/public/images/common/`）
+
+絶対パス（ルートからのパス）で参照：
+
+```typescript
+// docs/.vitepress/config.mts
+head: [
+  // ファビコン
+  ['link', { rel: 'icon', href: '/images/common/icon.png' }],
+  // OG画像（Discord embedなど）
+  ['meta', { property: 'og:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
+]
+```
+
+```markdown
+# docs/index.md（ヒーロー画像）
+---
+hero:
+  image:
+    src: /images/common/icon.png
+    alt: マダミナリンク
+---
+```
+
+```markdown
+# Markdownページ内で共通素材を表示する場合
+![マダミナリンクのアイコン](/images/common/icon.png)
+```
+
+### 共通素材の管理
+
+ロゴ、アイコンなどの共通素材は**`docs/public/images/common/`に一元管理**します。
+
+この配置により以下が可能になります：
+- Markdownページからの参照（絶対パス `/images/common/...`）
+- VitePress設定（config.mts）からの参照
+- 外部サービス（Discord、Twitter）からの直接アクセス
+
+ファイルを重複させる必要がなく、管理がシンプルになります
 
 ### 画像ファイルの命名規則
 
@@ -339,17 +390,6 @@ docs/images/
 - **フォーマット**: PNG（スクリーンショット）、WebP（写真・イラスト）
 - **解像度**: 画面幅1280px程度を基準に、必要以上に高解像度にしない
 
-### 共通素材の管理
-
-ロゴやアイコンなど、複数ページで使用する画像は`docs/images/common/`に配置します：
-
-```markdown
-# ロゴの参照例
-![マダミナリンクロゴ](../images/common/logo.png)
-
-# アイコンの参照例
-![警告アイコン](../images/common/icon-warning.png)
-```
 
 ## 技術仕様
 
