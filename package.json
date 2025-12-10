@@ -4,8 +4,9 @@
     "start": "bun src/index.ts",
     "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:build": "bun scripts/generate-releases.mjs && vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "releases:generate": "bun scripts/generate-releases.mjs"
   },
   "dependencies": {
     "agenda": "^4.3.0",
