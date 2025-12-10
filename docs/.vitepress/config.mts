@@ -97,7 +97,7 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/minarin0179/Madaminalink_v2' },
       { icon: 'discord', link: 'https://discord.gg/JMqcQstFSK' },
-      { icon: 'x', link: 'https://twitter.com/minarin0179' }
+      { icon: 'x', link: 'https://x.com/Madaminalink' }
     ],
 
     // フッター

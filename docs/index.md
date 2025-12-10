@@ -17,7 +17,7 @@ hero:
       link: https://discord.com/api/oauth2/authorize?client_id=926051893728403486&permissions=8&scope=bot%20applications.commands
 
 features:
-  - icon: "🎭"
+  - icon: "🔰"
     title: 簡単セットアップ
     details: /setup コマンドでシナリオ用のカテゴリー、チャンネル、ロールを一括作成
   - icon: "📝"
@@ -35,7 +35,7 @@ features:
 
 - このBotはあくまで個人によって運営されているものであり、常に動作を保証するわけではありません
 - コマンドの濫用はお控えください
-- 不具合は[Twitter(@minarin0179)](https://twitter.com/minarin0179)または[サポートサーバー](https://discord.gg/JMqcQstFSK)へ報告ください
+- 不具合は[X(@Madaminalink)](https://x.com/Madaminalink)または[サポートサーバー](https://discord.gg/JMqcQstFSK)へ報告ください
 
 ## 支援について
 
