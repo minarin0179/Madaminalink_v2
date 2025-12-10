@@ -5,6 +5,9 @@ hero:
   name: "マダミナリンク"
   text: "マーダーミステリー向けDiscord Bot"
   tagline: GMの作業を効率化する多機能Bot
+  image:
+    src: /images/common/icon.png
+    alt: マダミナリンク
   actions:
     - theme: brand
       text: はじめに
@@ -35,7 +38,7 @@ features:
 
 - このBotはあくまで個人によって運営されているものであり、常に動作を保証するわけではありません
 - コマンドの濫用はお控えください
-- 不具合は[X(@Madaminalink)](https://x.com/Madaminalink)または[サポートサーバー](https://discord.gg/JMqcQstFSK)へ報告ください
+- 不具合は[サポートサーバー](https://discord.gg/JMqcQstFSK)へ報告ください
 
 ## 支援について
 
