@@ -59,15 +59,22 @@ export const transferMessage = async (
 
     //巨大なファイルを除外
     const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MyConstants.maxFileSize);
+    const attachmentFiles: (AttachmentBuilder | null)[] = await Promise.all(
+        files.map(async (file: Attachment) => {
+            const response = await fetch(file.url);
+            if (!isFetchedFilesizeOK(response)) {
+                largeFiles.set(file.id, file);
+                return null;
+            }
+            const filename = decodeResponseFilename(response) ?? file.name ?? "unknown";
+            return new AttachmentBuilder(file.url).setName(filename);
+        })
+    );
+    const attachmentFilesFiltered: AttachmentBuilder[] = attachmentFiles.filter(file => file !== null);
 
     let newMessageOptions = {
         content,
-        files: await Promise.all(
-            files.map(async (file: Attachment) => {
-                const filename = (await fetchDecodedFilename(file.url)) ?? file.name ?? "unknown";
-                return new AttachmentBuilder(file.url).setName(filename);
-            })
-        ),
+        files: attachmentFilesFiltered,
         components,
         embeds,
         allowedMentions,
@@ -158,9 +165,12 @@ const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
     });
     return content;
 };
-const fetchDecodedFilename = async (url: string) => {
+
+const decodeResponseFilename = (response: Response) => {
     try {
-        const response = await fetch(url);
+        if (!response) {
+            return null;
+        }
         if (!response.ok) {
             return null;
         }
@@ -168,7 +178,6 @@ const fetchDecodedFilename = async (url: string) => {
         if (!contentDisposition) {
             return null;
         }
-
         const filenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)$/);
         if (!filenameMatch) {
             return null;
@@ -178,4 +187,15 @@ const fetchDecodedFilename = async (url: string) => {
     } catch (error) {
         return null;
     }
+};
+
+const isFetchedFilesizeOK = (response: Response) => {
+    if (!response.ok) {
+        return null;
+    }
+    const contentLength = response.headers.get("content-length");
+    if (!contentLength) {
+        return null;
+    }
+    return parseInt(contentLength) <= MyConstants.maxFileSize;
 };
