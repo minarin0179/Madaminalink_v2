@@ -1,12 +1,15 @@
 import {
     ButtonBuilder,
+    ButtonInteraction,
     ButtonStyle,
     TextChannel,
     GuildTextBasedChannel,
+    Message,
     NewsChannel,
     VoiceChannel,
     TextBasedChannel,
 } from "discord.js";
+import { MyConstants } from "../../constants/constants";
 import { Button } from "../../structures/Button";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
 import { reply } from "../../utils/Reply";
@@ -42,16 +45,67 @@ export default new Button({
         if (!messages) return;
 
         let count = 0;
+        // TODO 活用できてない
+        let errorCount = 0;
+        // try {
         for await (const message of messages.values()) {
             const keys = message.reactions.cache.keys();
             if (reactions.hasAny(...keys)) {
                 await Promise.all(
-                    destinations.map(async destination => transferMessage(message, destination, { noReaction: true }))
+                    destinations.map(async destination => 
+                        // {
+                        isFetchedFilesizeOK(message, destination, interaction)
+                        // transferMessage(message, destination, { noReaction: true })
+                        // ;
+//                         const largeFiles = await transferMessage(message, destination, { noReaction: true });
+//                         if (largeFiles != undefined) {
+//                             await reply(
+//                                 interaction,
+//                                 `\`\`\`diff
+// - ${largeFiles.map(file => file.name).join(", ")}のコピーに失敗しました
+// - ファイル容量の上限は${MyConstants.maxFileSizeMB}MBです\`\`\``
+//                             );
+//                             errorCount += largeFiles.size;
+//                         }
+                    // }
+                )
                 );
                 count++;
             }
         }
+        // } catch (e: any) {
+        //     console.log(e);
+        //     errorCount++;
+        // }
         if (count > 0) await reply(interaction, `${count}件のメッセージを転送しました`);
         else await reply(interaction, "転送するメッセージがありませんでした");
+        // TODO ephemeral になってるけど設計思想的にいいのか
+        if (errorCount > 0)
+            await reply(
+                interaction,
+                `\`\`\`diff
+- ${errorCount}件のファイルの転送に失敗しています
+- 詳しくは上部をご確認ください\`\`\``
+            );
     },
 });
+
+const isFetchedFilesizeOK = async (
+    message: Message,
+    destination: GuildTextBasedChannel,
+    interaction: ButtonInteraction
+) => {
+    // transferMessage(message, destination, { noReaction: true });
+    // ;
+    const largeFiles = await transferMessage(message, destination, { noReaction: true });
+    if (largeFiles != undefined) {
+        await reply(
+            interaction,
+            `\`\`\`diff
+- ${largeFiles.map(file => file.name).join(", ")}のコピーに失敗しました
+- ファイル容量の上限は${MyConstants.maxFileSizeMB}MBです\`\`\``
+        );
+        // errorCount += largeFiles.size;
+        // };
+    }
+};

@@ -58,10 +58,15 @@ export const transferMessage = async (
     const { attachments, components, embeds } = message;
 
     //巨大なファイルを除外
-    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MyConstants.maxFileSize);
+    // TODO 後で戻す（クライアントで上限超過に気付けないことを再現するための調整用）
+    const [files, largeFiles] = attachments.partition(
+        (f: Attachment) => f.size <= MyConstants.maxFileSize + 0 * MyConstants.mebi
+    );
     const attachmentFiles: (AttachmentBuilder | null)[] = await Promise.all(
         files.map(async (file: Attachment) => {
+            // TODO fetchはcatchされなくなったけど大丈夫なのか
             const response = await fetch(file.url);
+            // TODO nullの時の扱いはこれでいいのか確認（多分容量超過と同等扱い）
             if (!isFetchedFilesizeOK(response)) {
                 largeFiles.set(file.id, file);
                 return null;
@@ -142,9 +147,14 @@ export const transferMessage = async (
 
     if (largeFiles.size > 0) {
         await destination.send(`\`\`\`diff
-- ${largeFiles.map(file => file.name).join(", ")}のコピーに失敗しました
-- ファイル容量の上限は${MyConstants.maxFileSizeMB}MBです\`\`\``);
+- コピーに失敗したファイルがあります
+- 詳しくはコピー元のチャンネルをご確認ください\`\`\``);
+        //         await destination.send(`\`\`\`diff
+        // - ${largeFiles.map(file => file.name).join(", ")}のコピーに失敗しました
+        // - ファイル容量の上限は${MyConstants.maxFileSizeMB}MBです\`\`\``);
+        // throw new Error(`画像のダウンロードに失敗しました。`);
     }
+    return largeFiles;
 };
 
 export const transferAllMessages = async (
@@ -166,6 +176,7 @@ const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
     return content;
 };
 
+// TODO try-catchがまだいるか確認
 const decodeResponseFilename = (response: Response) => {
     try {
         if (!response) {
