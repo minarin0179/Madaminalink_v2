@@ -10,6 +10,3 @@ node_modules/*
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/releases.md
-
-# Cloudflare Tunnel（認証情報を含む）
-scripts/cloudflared-config.yml
