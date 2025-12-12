@@ -4,7 +4,7 @@
     "start": "bun src/index.ts",
     "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "bun scripts/generate-releases.mjs && vitepress build docs",
+    "docs:build": "bun scripts/generate-releases.mjs && vitepress build docs && bun docs/.vitepress/generateOgImages.mts",
     "docs:preview": "vitepress preview docs",
     "docs:tunnel": "bash scripts/docs-tunnel.sh",
     "releases:generate": "bun scripts/generate-releases.mjs"
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/mongoose": "^5.11.97",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@vercel/og": "^0.8.5",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^8.10.0",
     "eslint-config-standard-with-typescript": "^37.0.0",
@@ -27,6 +28,8 @@
     "eslint-plugin-n": "^16.0.1",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^6.1.1",
+    "glob": "^13.0.0",
+    "gray-matter": "^4.0.3",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6",
     "vitepress": "^1.6.4"
