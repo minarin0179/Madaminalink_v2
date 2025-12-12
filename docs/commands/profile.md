@@ -1,6 +1,8 @@
-# /profile
-
-Botのサーバープロフィール（ニックネームやアバター）を変更します。
+---
+title: /profile
+description: Botのサーバープロフィール（ニックネームやアバター）を変更します。
+---
+<PageHeader />
 
 ## 使用方法
 
