@@ -1,4 +1,6 @@
 ---
+title: マダミナリンク
+description: GMの作業を効率化する多機能Bot
 layout: home
 
 hero:
