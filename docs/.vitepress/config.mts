@@ -114,6 +114,10 @@ export default defineConfig({
 
   // テーマ設定
   themeConfig: {
+    // サイトタイトルとロゴ
+    siteTitle: 'マダミナリンク',
+    logo: '/images/common/icon.png',
+
     // ナビゲーション
     nav: [
       { text: 'ホーム', link: '/' },
