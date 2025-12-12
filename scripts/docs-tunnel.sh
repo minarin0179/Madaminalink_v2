@@ -5,6 +5,10 @@
 
 set -e
 
+# 設定
+MAX_WAIT_SECONDS=30        # トンネルURL取得のタイムアウト（秒）
+PREVIEW_STARTUP_WAIT=2     # プレビューサーバー起動待機時間（秒）
+
 TUNNEL_LOG=$(mktemp)
 TUNNEL_PID=""
 PREVIEW_PID=""
@@ -26,7 +30,7 @@ TUNNEL_PID=$!
 # トンネルURLが出力されるまで待機
 echo "Waiting for tunnel URL..."
 TUNNEL_URL=""
-for i in {1..30}; do
+for i in $(seq 1 $MAX_WAIT_SECONDS); do
   TUNNEL_URL=$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$TUNNEL_LOG" | head -1)
   if [ -n "$TUNNEL_URL" ]; then
     break
@@ -52,7 +56,7 @@ echo ""
 echo "Starting preview server..."
 bun run docs:preview &
 PREVIEW_PID=$!
-sleep 2
+sleep $PREVIEW_STARTUP_WAIT
 
 echo ""
 echo "=========================================="

@@ -16,6 +16,10 @@ const OG_HEIGHT = 630
 const DISCORD_BLURPLE = '#5865F2'
 const BACKGROUND_COLOR = '#1a1b26'
 
+// テキスト切り詰め設定
+const MAX_TITLE_LENGTH = 20
+const MAX_DESCRIPTION_LENGTH = 80
+
 interface PageInfo {
   title: string
   description: string
@@ -56,16 +60,21 @@ function getPageInfo(filePath: string): PageInfo {
 
 /**
  * OGP画像を生成
+ * @param pageInfo ページ情報（タイトル、説明、パスを含む）
+ * @param iconBase64 Data URL形式のBase64エンコード済みアイコン画像
+ * @returns 生成されたOGP画像のバイナリデータ
  */
 async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<Buffer> {
   // タイトルが長い場合は切り詰め
   const displayTitle =
-    pageInfo.title.length > 20 ? pageInfo.title.substring(0, 18) + '...' : pageInfo.title
+    pageInfo.title.length > MAX_TITLE_LENGTH
+      ? pageInfo.title.substring(0, MAX_TITLE_LENGTH - 2) + '...'
+      : pageInfo.title
 
   // 説明が長い場合は切り詰め（2行程度）
   const displayDescription =
-    pageInfo.description.length > 80
-      ? pageInfo.description.substring(0, 78) + '...'
+    pageInfo.description.length > MAX_DESCRIPTION_LENGTH
+      ? pageInfo.description.substring(0, MAX_DESCRIPTION_LENGTH - 2) + '...'
       : pageInfo.description
 
   const html = {

@@ -21,7 +21,7 @@ function loadCache() {
       return JSON.parse(readFileSync(CACHE_FILE, 'utf-8'));
     }
   } catch (error) {
-    console.log('キャッシュの読み込みに失敗しました（新規取得します）');
+    console.warn('キャッシュの読み込みに失敗しました（新規取得します）:', error.message);
   }
   return null;
 }
@@ -42,7 +42,7 @@ function saveCache(releases) {
       releases
     }, null, 2), 'utf-8');
   } catch (error) {
-    console.log('キャッシュの保存に失敗しました:', error.message);
+    console.warn('キャッシュの保存に失敗しました:', error.message);
   }
 }
 
@@ -80,7 +80,7 @@ async function checkForUpdates(cache) {
 
     return { hasUpdates: true, useCache: false };
   } catch (error) {
-    console.log('更新確認に失敗しました - キャッシュを使用します:', error.message);
+    console.warn('更新確認に失敗しました - キャッシュを使用します:', error.message);
     return { hasUpdates: false, useCache: true };
   }
 }
