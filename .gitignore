@@ -10,3 +10,4 @@ node_modules/*
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/releases.md
+scripts/releases-cache.json
