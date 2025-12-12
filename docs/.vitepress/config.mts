@@ -24,7 +24,7 @@ export default defineConfig({
   // ページごとのメタタグを動的に生成
   transformHead: ({ pageData, siteData }) => {
     const head: HeadConfig[] = []
-    const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
+    const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '').replace(/\/$/, '')
     const canonicalUrl = `${SITE_URL}/${path}`
 
     // OGP画像パスの生成（ビルド時に生成される画像を参照）
