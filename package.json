@@ -6,6 +6,7 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "bun scripts/generate-releases.mjs && vitepress build docs",
     "docs:preview": "vitepress preview docs",
+    "docs:tunnel": "bash scripts/docs-tunnel.sh",
     "releases:generate": "bun scripts/generate-releases.mjs"
   },
   "dependencies": {

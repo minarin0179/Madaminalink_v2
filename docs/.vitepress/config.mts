@@ -19,13 +19,30 @@ export default defineConfig({
   ignoreDeadLinks: true,
 
   // ページごとのメタタグを動的に生成
-  transformHead: ({ pageData }) => {
+  transformHead: ({ pageData, siteData }) => {
     const head: HeadConfig[] = []
     const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
     const canonicalUrl = `https://docs.madaminalink.com/${path}`
 
+    // ページタイトルの生成（VitePressの<title>タグと同じ形式）
+    const pageTitle = pageData.title
+      ? `${pageData.title} | ${siteData.title}`
+      : siteData.title
+
+    // ページの説明（frontmatterまたはデフォルト）
+    const pageDescription = pageData.frontmatter.description || siteData.description
+
+    // canonical & og:url
     head.push(['link', { rel: 'canonical', href: canonicalUrl }])
     head.push(['meta', { property: 'og:url', content: canonicalUrl }])
+
+    // 動的なOGPタイトル・説明
+    head.push(['meta', { property: 'og:title', content: pageTitle }])
+    head.push(['meta', { property: 'og:description', content: pageDescription }])
+
+    // Twitter Card
+    head.push(['meta', { name: 'twitter:title', content: pageTitle }])
+    head.push(['meta', { name: 'twitter:description', content: pageDescription }])
 
     return head
   },
@@ -42,24 +59,20 @@ export default defineConfig({
     ['meta', { name: 'robots', content: 'index, follow' }],
     ['meta', { name: 'theme-color', content: '#5865F2' }],
 
-    // Open Graph / Discord embed
+    // Open Graph / Discord embed（og:title, og:descriptionはtransformHeadで動的生成）
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:locale', content: 'ja_JP' }],
-    ['meta', { property: 'og:title', content: 'マダミナリンク - マーダーミステリー向けDiscord Bot' }],
     ['meta', { property: 'og:site_name', content: 'マダミナリンク' }],
-    ['meta', { property: 'og:description', content: 'GMの作業を効率化する多機能Discord Bot。セットアップ、ログ保存、チャンネル管理など、マーダーミステリーの進行をサポートする便利な機能を搭載。' }],
     ['meta', { property: 'og:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
     ['meta', { property: 'og:image:width', content: '512' }],
     ['meta', { property: 'og:image:height', content: '512' }],
     ['meta', { property: 'og:image:alt', content: 'マダミナリンクのアイコン' }],
     ['meta', { property: 'og:image:type', content: 'image/png' }],
 
-    // Twitter Card
+    // Twitter Card（twitter:title, twitter:descriptionはtransformHeadで動的生成）
     ['meta', { name: 'twitter:card', content: 'summary' }],
     ['meta', { name: 'twitter:site', content: '@Madaminalink' }],
     ['meta', { name: 'twitter:creator', content: '@minarin0179' }],
-    ['meta', { name: 'twitter:title', content: 'マダミナリンク - マーダーミステリー向けDiscord Bot' }],
-    ['meta', { name: 'twitter:description', content: 'GMの作業を効率化する多機能Discord Bot。セットアップ、ログ保存、チャンネル管理など、マーダーミステリーの進行をサポート。' }],
     ['meta', { name: 'twitter:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
     ['meta', { name: 'twitter:image:alt', content: 'マダミナリンクのアイコン' }],
 
