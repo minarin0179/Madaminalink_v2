@@ -217,7 +217,7 @@ export default defineConfig({
     // フッター
     footer: {
       message: 'マダミナリンク 公式ガイド - マーダーミステリー向けDiscord Bot | <a href="/legal/privacy-policy">プライバシーポリシー</a> | <a href="/legal/terms">利用規約</a>',
-      copyright: 'Copyright 2024 minarin0179'
+      copyright: 'Copyright 2025 minarin0179'
     },
 
     // ローカル検索
