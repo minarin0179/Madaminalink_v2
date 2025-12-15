@@ -3,10 +3,14 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { dirname, join, resolve } from 'path'
 import matter from 'gray-matter'
 import { globSync } from 'glob'
+import config from './config.mts'
 
 const DOCS_DIR = resolve(import.meta.dirname, '..')
 const OUTPUT_DIR = join(DOCS_DIR, '.vitepress/dist/og')
 const ICON_PATH = join(DOCS_DIR, 'public/images/common/icon.png')
+
+// config.mtsのsrcExcludeを取得（VitePressと同じ除外ルールを使用）
+const srcExclude = config.srcExclude || []
 
 // OGP画像のサイズ（推奨: 1200x630）
 const OG_WIDTH = 1200
@@ -208,7 +212,7 @@ async function generateAllOgImages(): Promise<void> {
 
   const mdFiles = globSync('**/*.md', {
     cwd: DOCS_DIR,
-    ignore: ['node_modules/**', '.vitepress/**'],
+    ignore: ['node_modules/**', '.vitepress/**', ...srcExclude],
   })
 
   console.log(`📄 ${mdFiles.length}個のMarkdownファイルを検出`)
@@ -217,16 +221,8 @@ async function generateAllOgImages(): Promise<void> {
     mkdirSync(OUTPUT_DIR, { recursive: true })
   }
 
-  let generated = 0
-  let skipped = 0
-
   for (const mdFile of mdFiles) {
     const filePath = join(DOCS_DIR, mdFile)
-
-    if (mdFile.includes('_template')) {
-      skipped++
-      continue
-    }
 
     try {
       const pageInfo = getPageInfo(filePath)
@@ -241,13 +237,12 @@ async function generateAllOgImages(): Promise<void> {
       writeFileSync(outputPath, imageBuffer)
 
       console.log(`  ✅ ${pageInfo.path}.png (${pageInfo.title})`)
-      generated++
     } catch (error) {
       console.error(`  ❌ ${mdFile}: ${error}`)
     }
   }
 
-  console.log(`\n🎉 完了: ${generated}個生成, ${skipped}個スキップ`)
+  console.log(`\n🎉 完了: ${mdFiles.length}個生成`)
 }
 
 generateAllOgImages().catch(console.error)
