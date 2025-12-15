@@ -3,10 +3,14 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { dirname, join, resolve } from 'path'
 import matter from 'gray-matter'
 import { globSync } from 'glob'
+import config from './config.mts'
 
 const DOCS_DIR = resolve(import.meta.dirname, '..')
 const OUTPUT_DIR = join(DOCS_DIR, '.vitepress/dist/og')
 const ICON_PATH = join(DOCS_DIR, 'public/images/common/icon.png')
+
+// config.mtsのsrcExcludeを取得（VitePressと同じ除外ルールを使用）
+const srcExclude = config.srcExclude || []
 
 // OGP画像のサイズ（推奨: 1200x630）
 const OG_WIDTH = 1200
@@ -18,7 +22,7 @@ const BACKGROUND_COLOR = '#1a1b26'
 
 // テキスト切り詰め設定
 const MAX_TITLE_LENGTH = 20
-const MAX_DESCRIPTION_LENGTH = 80
+const MAX_DESCRIPTION_LENGTH = 100
 
 interface PageInfo {
   title: string
@@ -43,7 +47,7 @@ function getPageInfo(filePath: string): PageInfo {
     frontmatter.title ||
     frontmatter.hero?.name ||
     relativePath.split('/').pop() ||
-    'マダミナリンク'
+    'マダミナリンク 公式ガイド'
 
   // 説明の取得（frontmatter優先）
   const description =
@@ -91,14 +95,14 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
         position: 'relative',
       },
       children: [
-        // 右上: アイコンとサービス名
+        // 左上: アイコンとサービス名
         {
           type: 'div',
           props: {
             style: {
               position: 'absolute',
-              top: '40px',
-              right: '50px',
+              top: '50px',
+              left: '60px',
               display: 'flex',
               alignItems: 'center',
             },
@@ -107,8 +111,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'img',
                 props: {
                   src: iconBase64,
-                  width: 40,
-                  height: 40,
+                  width: 72,
+                  height: 72,
                   style: {
                     borderRadius: '50%',
                   },
@@ -118,11 +122,12 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'span',
                 props: {
                   style: {
-                    marginLeft: '12px',
-                    fontSize: '24px',
-                    color: '#888888',
+                    marginLeft: '20px',
+                    fontSize: '40px',
+                    fontWeight: 'bold',
+                    color: '#cccccc',
                   },
-                  children: 'マダミナリンク',
+                  children: 'マダミナリンク 公式ガイド',
                 },
               },
             ],
@@ -135,9 +140,7 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
             style: {
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'center',
-              flex: 1,
-              paddingTop: '40px',
+              paddingTop: '180px',
             },
             children: [
               // メインタイトル（大きく）
@@ -150,6 +153,7 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                     color: '#ffffff',
                     lineHeight: 1.1,
                     marginBottom: '30px',
+                    whiteSpace: 'pre-wrap',
                   },
                   children: displayTitle,
                 },
@@ -159,10 +163,10 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: '36px',
-                    color: '#aaaaaa',
-                    lineHeight: 1.4,
-                    maxWidth: '1000px',
+                    fontSize: '32px',
+                    color: '#cccccc',
+                    lineHeight: 1.5,
+                    maxWidth: '1050px',
                   },
                   children: displayDescription,
                 },
@@ -208,7 +212,7 @@ async function generateAllOgImages(): Promise<void> {
 
   const mdFiles = globSync('**/*.md', {
     cwd: DOCS_DIR,
-    ignore: ['node_modules/**', '.vitepress/**'],
+    ignore: ['node_modules/**', '.vitepress/**', ...srcExclude],
   })
 
   console.log(`📄 ${mdFiles.length}個のMarkdownファイルを検出`)
@@ -217,16 +221,8 @@ async function generateAllOgImages(): Promise<void> {
     mkdirSync(OUTPUT_DIR, { recursive: true })
   }
 
-  let generated = 0
-  let skipped = 0
-
   for (const mdFile of mdFiles) {
     const filePath = join(DOCS_DIR, mdFile)
-
-    if (mdFile.includes('_template')) {
-      skipped++
-      continue
-    }
 
     try {
       const pageInfo = getPageInfo(filePath)
@@ -241,13 +237,12 @@ async function generateAllOgImages(): Promise<void> {
       writeFileSync(outputPath, imageBuffer)
 
       console.log(`  ✅ ${pageInfo.path}.png (${pageInfo.title})`)
-      generated++
     } catch (error) {
       console.error(`  ❌ ${mdFile}: ${error}`)
     }
   }
 
-  console.log(`\n🎉 完了: ${generated}個生成, ${skipped}個スキップ`)
+  console.log(`\n🎉 完了: ${mdFiles.length}個生成`)
 }
 
 generateAllOgImages().catch(console.error)

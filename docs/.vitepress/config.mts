@@ -4,9 +4,197 @@ import type { HeadConfig } from 'vitepress'
 // 環境変数でサイトURLを切り替え可能（トンネルテスト用）
 const SITE_URL = process.env.SITE_URL || 'https://docs.madaminalink.com'
 
+// 構造化データ: WebSite
+const webSiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  'name': 'マダミナリンク 公式ガイド',
+  'url': SITE_URL,
+  'description': 'マーダーミステリー向けDiscord Bot ユーザーガイド',
+  'inLanguage': 'ja-JP',
+  'publisher': {
+    '@type': 'Person',
+    'name': 'minarin0179',
+    'url': 'https://github.com/minarin0179'
+  }
+}
+
+// 構造化データ: Organization
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  'name': 'マダミナリンク',
+  'url': SITE_URL,
+  'logo': `${SITE_URL}/images/common/icon.png`,
+  'sameAs': [
+    'https://github.com/minarin0179/Madaminalink_v2',
+    'https://x.com/Madaminalink',
+    'https://discord.com/discovery/applications/926051893728403486'
+  ],
+  'contactPoint': {
+    '@type': 'ContactPoint',
+    'contactType': 'customer support',
+    'url': 'https://discord.gg/JMqcQstFSK',
+    'email': 'contact@madaminalink.com'
+  }
+}
+
+// 構造化データ: SoftwareApplication
+const softwareAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  'name': 'マダミナリンク',
+  'applicationCategory': 'UtilityApplication',
+  'operatingSystem': 'Discord',
+  'description': 'マーダーミステリー向けDiscord Bot。GMの作業を効率化する多機能Bot。',
+  'url': SITE_URL,
+  'author': {
+    '@type': 'Person',
+    'name': 'minarin0179',
+    'url': 'https://github.com/minarin0179'
+  },
+  'offers': {
+    '@type': 'Offer',
+    'price': '0',
+    'priceCurrency': 'JPY'
+  }
+}
+
+// インデックスページがあるカテゴリ（パンくずにリンクを含める）
+const categoriesWithIndex: Record<string, string> = {
+  'commands': 'コマンド'
+}
+
+/**
+ * パンくずリストの構造化データを生成
+ * @param path ページのパス
+ * @param pageTitle ページのタイトル（frontmatterから取得）
+ */
+function generateBreadcrumbSchema(path: string, pageTitle: string): object | null {
+  if (!path || path === 'index') return null
+
+  const segments = path.split('/').filter(Boolean)
+  if (segments.length === 0) return null
+
+  const items: object[] = [
+    {
+      '@type': 'ListItem',
+      'position': 1,
+      'name': 'ホーム',
+      'item': SITE_URL
+    }
+  ]
+
+  let currentPath = ''
+  let position = 2
+
+  segments.forEach((segment, index) => {
+    currentPath += `/${segment}`
+    const isLastSegment = index === segments.length - 1
+
+    if (isLastSegment) {
+      // 最後のセグメントはページタイトルを使用
+      items.push({
+        '@type': 'ListItem',
+        'position': position++,
+        'name': pageTitle,
+        'item': `${SITE_URL}${currentPath}`
+      })
+    } else if (categoriesWithIndex[segment]) {
+      // インデックスがあるカテゴリのみパンくずに含める
+      items.push({
+        '@type': 'ListItem',
+        'position': position++,
+        'name': categoriesWithIndex[segment],
+        'item': `${SITE_URL}${currentPath}`
+      })
+    }
+    // インデックスがないカテゴリはスキップ
+  })
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': items
+  }
+}
+
+/**
+ * HowToスキーマを生成（導入ガイド用）
+ */
+function generateHowToSchema(): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    'name': 'マダミナリンクの導入方法',
+    'description': 'マダミナリンクをDiscordサーバーに導入し、使い始めるまでの手順を説明します。',
+    'totalTime': 'PT5M',
+    'step': [
+      {
+        '@type': 'HowToStep',
+        'position': 1,
+        'name': 'Botを招待',
+        'text': '招待リンクからマダミナリンクをサーバーに追加します。管理者権限の付与を推奨します。',
+        'url': `${SITE_URL}/guide/getting-started#botの招待`
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 2,
+        'name': 'ロールの並び替え',
+        'text': 'サーバー設定からマダミナリンクのロールを操作対象ロールより上位に配置します。',
+        'url': `${SITE_URL}/guide/getting-started#_1-ロールの並び替え`
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 3,
+        'name': '動作確認',
+        'text': '/pingコマンドを実行してBotが正しく動作しているか確認します。',
+        'url': `${SITE_URL}/guide/getting-started#_2-スラッシュコマンドの動作確認`
+      }
+    ]
+  }
+}
+
+/**
+ * TechArticleスキーマを生成
+ */
+function generateTechArticleSchema(
+  title: string,
+  description: string,
+  path: string,
+  dateModified?: string
+): object {
+  // OGP画像パスを生成
+  const imagePath = path ? `og/${path}.png` : 'og/index.png'
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    'headline': title,
+    'description': description,
+    'url': `${SITE_URL}/${path}`,
+    'image': `${SITE_URL}/${imagePath}`,
+    'inLanguage': 'ja-JP',
+    'author': {
+      '@type': 'Person',
+      'name': 'minarin0179',
+      'url': 'https://github.com/minarin0179'
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'マダミナリンク',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': `${SITE_URL}/images/common/icon.png`
+      }
+    },
+    ...(dateModified && { 'dateModified': dateModified })
+  }
+}
+
 export default defineConfig({
   // サイト基本設定
-  title: 'マダミナリンク',
+  title: 'マダミナリンク 公式ガイド',
   description: 'マーダーミステリー向けDiscord Bot ユーザーガイド',
   lang: 'ja-JP',
 
@@ -18,8 +206,11 @@ export default defineConfig({
     hostname: 'https://docs.madaminalink.com'
   },
 
-  // 未作成ページへのリンクを許可（コンテンツ移植時に順次作成）
-  ignoreDeadLinks: true,
+  // リンク切れチェック
+  ignoreDeadLinks: false,
+
+  // ビルドから除外するファイル（テンプレートファイルなど）
+  srcExclude: ['**/_template.md'],
 
   // ページごとのメタタグを動的に生成
   transformHead: ({ pageData, siteData }) => {
@@ -61,14 +252,39 @@ export default defineConfig({
     head.push(['meta', { name: 'twitter:image', content: ogImageUrl }])
     head.push(['meta', { name: 'twitter:image:alt', content: pageTitle }])
 
+    // 構造化データ: BreadcrumbList（動的生成）
+    const breadcrumbSchema = generateBreadcrumbSchema(path, pageData.title || path)
+    if (breadcrumbSchema) {
+      head.push(['script', { type: 'application/ld+json' }, JSON.stringify(breadcrumbSchema)])
+    }
+
+    // 構造化データ: HowTo（導入ガイドページのみ）
+    if (path === 'guide/getting-started') {
+      head.push(['script', { type: 'application/ld+json' }, JSON.stringify(generateHowToSchema())])
+    }
+
+    // 構造化データ: TechArticle（コマンドページとガイドページ）
+    if (path.startsWith('commands/') || path.startsWith('guide/')) {
+      const articleSchema = generateTechArticleSchema(
+        pageData.title || path,
+        pageDescription,
+        path,
+        pageData.lastUpdated ? new Date(pageData.lastUpdated).toISOString() : undefined
+      )
+      head.push(['script', { type: 'application/ld+json' }, JSON.stringify(articleSchema)])
+    }
+
     return head
   },
 
   // ヘッド設定
   head: [
-    // ファビコン
-    ['link', { rel: 'icon', type: 'image/png', href: '/images/common/icon.png' }],
-    ['link', { rel: 'apple-touch-icon', href: '/images/common/icon.png' }],
+    // ファビコン（複数サイズ対応）
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '48x48', href: '/favicon-48x48.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
 
     // SEO基本設定
     ['meta', { name: 'keywords', content: 'マダミナリンク,マーダーミステリー,Discord,Bot,GM,TRPG,シナリオ管理,ログ保存,チャンネル管理' }],
@@ -79,7 +295,7 @@ export default defineConfig({
     // Open Graph / Discord embed（og:title, og:description, og:imageはtransformHeadで動的生成）
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:locale', content: 'ja_JP' }],
-    ['meta', { property: 'og:site_name', content: 'マダミナリンク' }],
+    ['meta', { property: 'og:site_name', content: 'マダミナリンク 公式ガイド' }],
 
     // Twitter Card（twitter:card, twitter:title, twitter:description, twitter:imageはtransformHeadで動的生成）
     ['meta', { name: 'twitter:site', content: '@Madaminalink' }],
@@ -90,32 +306,16 @@ export default defineConfig({
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
     ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }],
 
-    // 構造化データ (JSON-LD)
-    ['script', { type: 'application/ld+json' }, JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'SoftwareApplication',
-      'name': 'マダミナリンク',
-      'applicationCategory': 'UtilityApplication',
-      'operatingSystem': 'Discord',
-      'description': 'マーダーミステリー向けDiscord Bot。GMの作業を効率化する多機能Bot。',
-      'url': 'https://docs.madaminalink.com',
-      'author': {
-        '@type': 'Person',
-        'name': 'minarin0179',
-        'url': 'https://github.com/minarin0179'
-      },
-      'offers': {
-        '@type': 'Offer',
-        'price': '0',
-        'priceCurrency': 'JPY'
-      }
-    })],
+    // 構造化データ (JSON-LD) - グローバル
+    ['script', { type: 'application/ld+json' }, JSON.stringify(webSiteSchema)],
+    ['script', { type: 'application/ld+json' }, JSON.stringify(organizationSchema)],
+    ['script', { type: 'application/ld+json' }, JSON.stringify(softwareAppSchema)],
   ],
 
   // テーマ設定
   themeConfig: {
     // サイトタイトルとロゴ
-    siteTitle: 'マダミナリンク',
+    siteTitle: 'マダミナリンク 公式ガイド',
     logo: '/images/common/icon.png',
 
     // ナビゲーション
@@ -213,8 +413,8 @@ export default defineConfig({
 
     // フッター
     footer: {
-      message: 'マダミナリンク - マーダーミステリー向けDiscord Bot | <a href="/legal/privacy-policy">プライバシーポリシー</a> | <a href="/legal/terms">利用規約</a>',
-      copyright: 'Copyright 2024 minarin0179'
+      message: 'マダミナリンク 公式ガイド - マーダーミステリー向けDiscord Bot | <a href="/legal/privacy-policy">プライバシーポリシー</a> | <a href="/legal/terms">利用規約</a>',
+      copyright: 'Copyright 2025 minarin0179'
     },
 
     // ローカル検索
