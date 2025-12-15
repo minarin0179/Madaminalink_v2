@@ -66,9 +66,12 @@ export default defineConfig({
 
   // ヘッド設定
   head: [
-    // ファビコン
-    ['link', { rel: 'icon', type: 'image/png', href: '/images/common/icon.png' }],
-    ['link', { rel: 'apple-touch-icon', href: '/images/common/icon.png' }],
+    // ファビコン（複数サイズ対応）
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '48x48', href: '/favicon-48x48.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
 
     // SEO基本設定
     ['meta', { name: 'keywords', content: 'マダミナリンク,マーダーミステリー,Discord,Bot,GM,TRPG,シナリオ管理,ログ保存,チャンネル管理' }],
