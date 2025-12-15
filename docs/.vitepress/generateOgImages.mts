@@ -91,14 +91,14 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
         position: 'relative',
       },
       children: [
-        // 右上: アイコンとサービス名
+        // 左上: アイコンとサービス名
         {
           type: 'div',
           props: {
             style: {
               position: 'absolute',
               top: '50px',
-              right: '60px',
+              left: '60px',
               display: 'flex',
               alignItems: 'center',
             },
@@ -107,8 +107,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'img',
                 props: {
                   src: iconBase64,
-                  width: 56,
-                  height: 56,
+                  width: 72,
+                  height: 72,
                   style: {
                     borderRadius: '50%',
                   },
@@ -118,8 +118,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'span',
                 props: {
                   style: {
-                    marginLeft: '16px',
-                    fontSize: '32px',
+                    marginLeft: '20px',
+                    fontSize: '40px',
                     fontWeight: 'bold',
                     color: '#cccccc',
                   },
@@ -136,10 +136,7 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
             style: {
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'center',
-              flex: 1,
-              marginTop: '60px',
-              marginBottom: '-40px',
+              paddingTop: '180px',
             },
             children: [
               // メインタイトル（大きく）
