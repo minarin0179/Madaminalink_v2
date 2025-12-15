@@ -18,7 +18,7 @@ const BACKGROUND_COLOR = '#1a1b26'
 
 // テキスト切り詰め設定
 const MAX_TITLE_LENGTH = 20
-const MAX_DESCRIPTION_LENGTH = 80
+const MAX_DESCRIPTION_LENGTH = 50
 
 interface PageInfo {
   title: string
@@ -43,7 +43,7 @@ function getPageInfo(filePath: string): PageInfo {
     frontmatter.title ||
     frontmatter.hero?.name ||
     relativePath.split('/').pop() ||
-    'マダミナリンク'
+    'マダミナリンク 公式ガイド'
 
   // 説明の取得（frontmatter優先）
   const description =
@@ -97,8 +97,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
           props: {
             style: {
               position: 'absolute',
-              top: '40px',
-              right: '50px',
+              top: '50px',
+              right: '60px',
               display: 'flex',
               alignItems: 'center',
             },
@@ -107,8 +107,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'img',
                 props: {
                   src: iconBase64,
-                  width: 40,
-                  height: 40,
+                  width: 56,
+                  height: 56,
                   style: {
                     borderRadius: '50%',
                   },
@@ -118,11 +118,12 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'span',
                 props: {
                   style: {
-                    marginLeft: '12px',
-                    fontSize: '24px',
-                    color: '#888888',
+                    marginLeft: '16px',
+                    fontSize: '32px',
+                    fontWeight: 'bold',
+                    color: '#cccccc',
                   },
-                  children: 'マダミナリンク',
+                  children: 'マダミナリンク 公式ガイド',
                 },
               },
             ],
@@ -137,7 +138,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
               flexDirection: 'column',
               justifyContent: 'center',
               flex: 1,
-              paddingTop: '40px',
+              marginTop: '60px',
+              marginBottom: '-40px',
             },
             children: [
               // メインタイトル（大きく）
@@ -150,6 +152,7 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                     color: '#ffffff',
                     lineHeight: 1.1,
                     marginBottom: '30px',
+                    whiteSpace: 'pre-wrap',
                   },
                   children: displayTitle,
                 },
@@ -160,8 +163,8 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 props: {
                   style: {
                     fontSize: '36px',
-                    color: '#aaaaaa',
-                    lineHeight: 1.4,
+                    color: '#cccccc',
+                    lineHeight: 1.5,
                     maxWidth: '1000px',
                   },
                   children: displayDescription,

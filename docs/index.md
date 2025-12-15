@@ -1,5 +1,5 @@
 ---
-title: マダミナリンク
+title: "マダミナリンク\n公式ガイド"
 description: GMの作業を効率化する多機能Bot
 layout: home
 

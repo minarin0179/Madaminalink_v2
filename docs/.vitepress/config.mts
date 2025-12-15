@@ -6,7 +6,7 @@ const SITE_URL = process.env.SITE_URL || 'https://docs.madaminalink.com'
 
 export default defineConfig({
   // サイト基本設定
-  title: 'マダミナリンク',
+  title: 'マダミナリンク 公式ガイド',
   description: 'マーダーミステリー向けDiscord Bot ユーザーガイド',
   lang: 'ja-JP',
 
@@ -82,7 +82,7 @@ export default defineConfig({
     // Open Graph / Discord embed（og:title, og:description, og:imageはtransformHeadで動的生成）
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:locale', content: 'ja_JP' }],
-    ['meta', { property: 'og:site_name', content: 'マダミナリンク' }],
+    ['meta', { property: 'og:site_name', content: 'マダミナリンク 公式ガイド' }],
 
     // Twitter Card（twitter:card, twitter:title, twitter:description, twitter:imageはtransformHeadで動的生成）
     ['meta', { name: 'twitter:site', content: '@Madaminalink' }],
@@ -118,7 +118,7 @@ export default defineConfig({
   // テーマ設定
   themeConfig: {
     // サイトタイトルとロゴ
-    siteTitle: 'マダミナリンク',
+    siteTitle: 'マダミナリンク 公式ガイド',
     logo: '/images/common/icon.png',
 
     // ナビゲーション
@@ -216,7 +216,7 @@ export default defineConfig({
 
     // フッター
     footer: {
-      message: 'マダミナリンク - マーダーミステリー向けDiscord Bot | <a href="/legal/privacy-policy">プライバシーポリシー</a> | <a href="/legal/terms">利用規約</a>',
+      message: 'マダミナリンク 公式ガイド - マーダーミステリー向けDiscord Bot | <a href="/legal/privacy-policy">プライバシーポリシー</a> | <a href="/legal/terms">利用規約</a>',
       copyright: 'Copyright 2024 minarin0179'
     },
 
