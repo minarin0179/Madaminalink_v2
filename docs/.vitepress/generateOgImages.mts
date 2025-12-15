@@ -18,7 +18,7 @@ const BACKGROUND_COLOR = '#1a1b26'
 
 // テキスト切り詰め設定
 const MAX_TITLE_LENGTH = 20
-const MAX_DESCRIPTION_LENGTH = 50
+const MAX_DESCRIPTION_LENGTH = 100
 
 interface PageInfo {
   title: string
@@ -162,10 +162,10 @@ async function generateOgImage(pageInfo: PageInfo, iconBase64: string): Promise<
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: '36px',
+                    fontSize: '32px',
                     color: '#cccccc',
                     lineHeight: 1.5,
-                    maxWidth: '1000px',
+                    maxWidth: '1050px',
                   },
                   children: displayDescription,
                 },
