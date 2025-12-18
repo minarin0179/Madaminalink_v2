@@ -283,6 +283,9 @@ export default defineConfig({
 
   // ヘッド設定
   head: [
+    // LCP画像のプリロード（パフォーマンス最適化）
+    ['link', { rel: 'preload', as: 'image', href: '/images/common/icon.webp', type: 'image/webp', fetchpriority: 'high' }],
+
     // ファビコン（複数サイズ対応）
     ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '48x48', href: '/favicon-48x48.png' }],

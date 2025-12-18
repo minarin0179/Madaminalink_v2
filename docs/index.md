@@ -8,7 +8,7 @@ hero:
   text: "マーダーミステリー向けDiscord Bot"
   tagline: GMの作業を効率化する多機能Bot
   image:
-    src: /images/common/icon.png
+    src: /images/common/icon.webp
     alt: マダミナリンク
   actions:
     - theme: brand
