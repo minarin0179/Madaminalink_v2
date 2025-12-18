@@ -1,0 +1,14 @@
+# 静的アセットの長期キャッシュ設定
+# ファイル名にハッシュが含まれるため immutable で安全にキャッシュ可能
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
