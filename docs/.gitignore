@@ -1,0 +1,4 @@
+# VitePress
+.vitepress/dist
+.vitepress/cache
+releases.md

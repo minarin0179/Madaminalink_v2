@@ -11,7 +11,7 @@ paths: docs/**/*
 - **プロジェクト名**: マダミナリンク (Madaminalink)
 - **種類**: マーダーミステリー向けDiscord Bot
 - **ドキュメントサイト**: `https://docs.madaminalink.com`
-- **フレームワーク**: VitePress
+- **フレームワーク**: VitePress v1.6.4
 - **言語**: 日本語
 
 ## ディレクトリ構成
@@ -19,50 +19,63 @@ paths: docs/**/*
 ```
 docs/
 ├── .vitepress/
-│   └── config.mts          # VitePress設定ファイル
+│   ├── config.mts              # VitePress設定（SEO、構造化データ含む）
+│   ├── commands.data.mts       # コマンドメタデータローダー
+│   ├── commandsSidebar.mts     # サイドバー設定
+│   ├── generateOgImages.mts    # OGP画像生成スクリプト
+│   └── theme/
+│       ├── index.ts            # カスタムテーマ設定
+│       └── components/
+│           ├── PageHeader.vue  # ページヘッダーコンポーネント
+│           └── CommandList.vue # コマンド一覧コンポーネント
 ├── public/
-│   └── CNAME               # カスタムドメイン設定
-├── images/                 # 画像ファイル管理
-│   ├── common/             # ロゴ、アイコンなど共通素材
-│   ├── guide/              # ガイドページ用画像
-│   │   └── getting-started/
-│   └── commands/           # コマンド説明用画像
-│       ├── setup/
-│       ├── remind/
-│       └── ...
+│   ├── CNAME                   # カスタムドメイン設定
+│   ├── favicon.ico             # ファビコン
+│   ├── favicon-*.png           # 各サイズのファビコン
+│   ├── apple-touch-icon.png    # Apple Touch Icon
+│   └── images/
+│       └── common/
+│           └── icon.png        # サイトアイコン（OGP、ロゴ用）
+├── images/                     # ページ固有の画像
+│   ├── guide/
+│   │   └── getting-started/    # 導入ガイド用画像
+│   └── commands/               # コマンド説明用画像（今後追加）
 ├── guide/
-│   └── getting-started.md  # 導入ガイド
+│   └── getting-started.md      # 導入ガイド
 ├── commands/
-│   ├── index.md            # コマンド一覧
-│   ├── _template.md        # コマンドページのテンプレート
-│   └── [コマンド名].md     # 各コマンドの詳細ページ（今後追加）
-├── index.md                # トップページ
-└── CLAUDE.md               # このファイル（ドキュメント作成ガイド）
+│   ├── index.md                # コマンド一覧（CommandListコンポーネント使用）
+│   ├── _template.md            # コマンドページのテンプレート
+│   └── [コマンド名].md         # 各コマンドの詳細ページ
+├── legal/
+│   ├── privacy-policy.md       # プライバシーポリシー
+│   └── terms.md                # 利用規約
+├── index.md                    # トップページ
+├── releases.md                 # リリースノート（自動生成）
+└── .gitignore                  # VitePress固有の除外設定
 ```
 
 ## 設計思想
 
 ### 1. ユーザー中心の構成
 
-ドキュメントは以下の3つのセクションに分かれています：
+ドキュメントは以下のセクションに分かれています：
 
 | セクション | 目的 | 対象ユーザー |
 |-----------|------|--------------|
 | **はじめに** (`/guide/`) | Botの導入方法、基本的な使い方 | 初めて使うユーザー |
 | **コマンド一覧** (`/commands/`) | 各コマンドの詳細な使い方 | 実際に使っているユーザー |
+| **リリースノート** (`/releases`) | 更新履歴 | すべてのユーザー |
+| **法的情報** (`/legal/`) | プライバシーポリシー、利用規約 | すべてのユーザー |
 | **トップページ** (`/`) | 全体像の把握、主要機能の紹介 | すべてのユーザー |
 
 ### 2. コマンドのカテゴリ分け
 
-コマンドは用途別に以下のカテゴリに分類されています：
+コマンドはゲーム進行フローに沿って以下のカテゴリに分類されています（`commandsSidebar.mts`で定義）：
 
-- **セットアップ系**: `/setup`, `/role`
-- **進行管理**: `/open`, `/gather`, `/dice`, `/poll`, `/remind`, `/order`
-- **ログ・アーカイブ**: `/archive`, `/transfer`, `/log`
-- **クリーンアップ**: `/cleanup`, `/delete`, `/rename`
-- **その他**: `/copy`, `/sync`, `/server`, `/profile`, `/ping`
-
-この分類は、マーダーミステリーのゲーム進行フローに沿った順序になっています。
+- **事前準備**: `/setup`, `/role`, `/copy`, `/transfer`, `/open`, `/remind`
+- **進行管理**: `/dice`, `/poll`, `/order`, `/gather`
+- **事後処理**: `/cleanup`, `/delete`, `/rename`, `/sync`, `/archive`, `/log`
+- **その他**: `/ping`, `/server`, `/profile`
 
 ### 3. テンプレートベースのコンテンツ作成
 
@@ -71,7 +84,11 @@ docs/
 テンプレートには以下のセクションが含まれています：
 
 ```markdown
-# /コマンド名
+---
+title: /コマンド名
+description: コマンドの説明
+---
+<PageHeader />
 
 ## 使用方法
 ## オプション
@@ -92,23 +109,80 @@ docs/
 - 前後のページリンク
 - 最終更新日表示
 
-### デッドリンク許可
+### リンク切れチェック
 
 ```typescript
-ignoreDeadLinks: true
+ignoreDeadLinks: false
 ```
 
-未作成のコマンドページへのリンクがあってもビルドエラーにならないよう設定しています。コンテンツを段階的に追加できます。
+リンク切れはビルドエラーになります。すべてのリンクが有効であることを確認してください。
+
+### ビルド除外
+
+```typescript
+srcExclude: ['**/_template.md']
+```
+
+テンプレートファイルはビルドから除外されます。
 
 ### サイドバー構成
 
-サイドバーはカテゴリごとに折りたたみ可能なグループとして構成されています。新しいページを追加する際は、適切なカテゴリの `items` 配列に追加してください。
+サイドバーは`commandsSidebar.mts`で一元管理されています。新しいコマンドページを追加する際は、このファイルの適切なカテゴリに追加してください。
+
+## カスタムコンポーネント
+
+### PageHeader
+
+ページのタイトルと説明を表示するコンポーネント。frontmatterの`title`と`description`を自動的に読み取ります。
+
+```markdown
+---
+title: /setup
+description: 新規プレイ用のカテゴリ、チャンネル、ロールを一括作成します。
+---
+<PageHeader />
+```
+
+### CommandList
+
+`/commands/index.md`で使用。サイドバー設定と各コマンドページのfrontmatterからコマンド一覧を自動生成します。
+
+```markdown
+<CommandList />
+```
+
+## SEO・OGP対応
+
+### 構造化データ（JSON-LD）
+
+`config.mts`で以下の構造化データを自動生成：
+
+- **WebSite**: サイト全体の情報
+- **Organization**: 組織情報
+- **SoftwareApplication**: Botアプリケーション情報
+- **BreadcrumbList**: パンくずリスト（ページごと動的生成）
+- **HowTo**: 導入ガイドページ用
+- **TechArticle**: コマンド・ガイドページ用
+
+### OGP画像自動生成
+
+ビルド時に`generateOgImages.mts`が各ページのOGP画像（1200x630px）を自動生成します。
+
+- 出力先: `.vitepress/dist/og/[path].png`
+- frontmatterの`title`と`description`を使用
+- Discord Blurpleカラー (#5865F2) のアクセント
+
+### 動的メタタグ
+
+`transformHead`フックで以下を動的生成：
+
+- canonical URL
+- Open Graph (og:title, og:description, og:image)
+- Twitter Card
 
 ## 自動更新システム
 
 ### GitHub Actions統合
-
-2つのワークフローが自動化されています：
 
 #### 1. ドキュメントデプロイ (`.github/workflows/docs.yml`)
 
@@ -120,15 +194,13 @@ ignoreDeadLinks: true
 - **トリガー**: `main`ブランチへの`src/**`の変更
 - **処理**: Claude Code Actionがソースコードを解析 → ドキュメントを更新 → ドラフトPR作成
 
-### Claude Code Actionの動作
+### リリースノート自動生成
 
-ソースコードが変更されると、Claudeが以下を実行します：
+`scripts/generate-releases.mjs`がGitHub Releasesから情報を取得し、`docs/releases.md`を自動生成します。
 
-1. 変更されたファイルを読んで機能変更を理解
-2. 対応するドキュメントファイルを確認
-3. 存在しない場合は新規作成、存在する場合は更新
-4. 新規ページ作成時はサイドバー設定も更新
-5. ドラフトPRを作成
+- ビルド時に自動実行（`docs:build`スクリプトに含まれる）
+- キャッシュ機能で不要なAPI呼び出しを削減
+- `.gitignore`で`releases.md`を除外（毎回生成）
 
 ## コンテンツ作成のガイドライン
 
@@ -178,71 +250,39 @@ VitePressの拡張Markdown記法を活用してください：
 
 コマンドの説明では、実際の使用例を豊富に含めてください：
 
-- ✅ 良い例: 具体的な値を使った実行例
-- ❌ 悪い例: プレースホルダーのみの抽象的な説明
+- 良い例: 具体的な値を使った実行例
+- 悪い例: プレースホルダーのみの抽象的な説明
 
-## デプロイフロー
+## 開発フロー
 
-### 開発時
+### npm scripts
 
 ```bash
-bun run docs:dev  # ローカルサーバー起動 (http://localhost:5173)
+bun run docs:dev      # 開発サーバー起動（--host付きで外部アクセス可能）
+bun run docs:build    # ビルド（リリースノート生成 + VitePressビルド + OGP画像生成）
+bun run docs:preview  # ビルド結果をプレビュー
+bun run docs:tunnel   # Cloudflare Quick TunnelでOGPプレビュー
 ```
 
-### ビルド確認
+### OGPプレビュー
+
+`docs:tunnel`コマンドでCloudflare Quick Tunnelを使用し、DiscordやTwitterでのOGP表示を実機確認できます。
 
 ```bash
-bun run docs:build   # ビルド実行
-bun run docs:preview # ビルド結果をプレビュー
+bun run docs:tunnel
+# ランダムなURL（*.trycloudflare.com）が生成される
 ```
 
 ### 本番デプロイ
 
 1. `docs/**` を編集
-2. `docs/add-content` ブランチにコミット・プッシュ
+2. ブランチにコミット・プッシュ
 3. PRを作成してレビュー
 4. `main`にマージ
 5. GitHub Actionsが自動ビルド・デプロイ
 6. `https://docs.madaminalink.com` に反映
 
-## コンテンツ移植作業
-
-### noteからの移植手順
-
-1. noteの既存記事を確認: https://note.com/minarin0179/m/me29daedb779d
-2. `docs/commands/_template.md` をコピーして新規ページ作成
-3. noteの内容をMarkdown形式に変換
-4. VitePressの拡張記法を活用して見やすく整形
-5. `docs/.vitepress/config.mts` のサイドバーに追加
-6. ローカルで確認（`bun run docs:dev`）
-7. コミット・プッシュ
-
-### 移植時の注意点
-
-- コマンドの動作が変更されている場合は最新の動作を反映
-- スクリーンショットは`docs/images/`配下の適切なディレクトリに配置
-- 内部リンクは相対パス（例: `[/setup](/commands/setup)`）を使用
-
 ## 画像ファイルの管理
-
-### ディレクトリ構成
-
-画像ファイルは用途に応じて配置場所を分けます：
-
-```
-docs/
-├── images/                      # ページ固有の画像
-│   ├── guide/                   # ガイドページ用の画像
-│   │   ├── getting-started/     # getting-started.md用
-│   │   └── ...                  # 他のガイドページ用（今後追加）
-│   └── commands/                # コマンド説明用の画像
-│       ├── setup/               # /setupコマンド用
-│       ├── remind/              # /remindコマンド用
-│       └── ...                  # 他のコマンド用
-└── public/
-    └── images/
-        └── common/              # 共通素材（例: icon.png）
-```
 
 ### 配置場所の使い分け
 
@@ -269,41 +309,9 @@ docs/
 
 絶対パス（ルートからのパス）で参照：
 
-```typescript
-// docs/.vitepress/config.mts
-head: [
-  // ファビコン
-  ['link', { rel: 'icon', href: '/images/common/icon.png' }],
-  // OG画像（Discord embedなど）
-  ['meta', { property: 'og:image', content: 'https://docs.madaminalink.com/images/common/icon.png' }],
-]
-```
-
 ```markdown
-# docs/index.md（ヒーロー画像）
----
-hero:
-  image:
-    src: /images/common/icon.png
-    alt: マダミナリンク
----
-```
-
-```markdown
-# Markdownページ内で共通素材を表示する場合
 ![マダミナリンクのアイコン](/images/common/icon.png)
 ```
-
-### 共通素材の管理
-
-ロゴ、アイコンなどの共通素材は**`docs/public/images/common/`に一元管理**します。
-
-この配置により以下が可能になります：
-- Markdownページからの参照（絶対パス `/images/common/...`）
-- VitePress設定（config.mts）からの参照
-- 外部サービス（Discord、Twitter）からの直接アクセス
-
-ファイルを重複させる必要がなく、管理がシンプルになります
 
 ### 画像ファイルの命名規則
 
@@ -316,19 +324,14 @@ hero:
 画像には必ず適切な代替テキスト（alt text）を設定してください：
 
 ```markdown
-# ❌ 悪い例
+# 悪い例
 ![alt text](../images/guide/getting-started/image.png)
 ![](../images/commands/setup/screenshot.png)
 
-# ✅ 良い例
+# 良い例
 ![マダミナリンクのプロフィール画面](../images/guide/getting-started/add-app-button.png)
 ![ロール設定の完了画面](../images/commands/setup/role-creation-complete.png)
 ```
-
-代替テキストは以下の目的で使用されます：
-- スクリーンリーダー利用者への情報提供
-- 画像が読み込めない場合の代替表示
-- SEO対策
 
 ### 画像記述方法の選択
 
@@ -342,23 +345,7 @@ hero:
 | 複数画像を横並び表示 | HTML | ユーザーが同時に比較でき、UI/UX向上 |
 | 画像サイズを調整したい | HTML | max-widthで柔軟に制御可能 |
 
-#### Markdown記法（基本）
-
-通常の画像表示にはMarkdown記法を使用します：
-
-```markdown
-![ロール設定画面](../images/guide/getting-started/role-order.png)
-![pingコマンドの実行結果](../images/guide/getting-started/ping-result.png)
-```
-
-**利点**：
-- シンプルで読みやすい
-- 保守性が高い
-- VitePressのデフォルトレスポンシブ対応が効く
-
 #### HTML記法（横並び表示）
-
-複数の画像を横に並べて表示する場合はHTML記法を使用します：
 
 ```html
 <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;">
@@ -367,31 +354,28 @@ hero:
 </div>
 ```
 
-**スタイル属性の説明**：
-- `display: flex`：横並びレイアウト
-- `gap: 1rem`：画像間の余白（16px相当）
-- `flex-wrap: wrap`：小画面では自動的に縦並びに（レスポンシブ対応）
-- `align-items: flex-start`：画像の高さが異なる場合に上揃え
-- `max-width: 45%`：画像を画面幅の45%に制限（2枚並べる場合）
-- `height: auto`：アスペクト比を維持
-
-**ユースケース**：
-- 操作の前後を比較する（例：設定前・設定後）
-- 連続した操作手順を見せる（例：プロフィール画面 → 招待画面）
-- 似た画面の違いを強調する
-
-#### 実装例の参照
-
-[getting-started.md](guide/getting-started.md) の15-18行目で、2枚の画像を横並び表示する実装例を確認できます。
-
 ### 画像の最適化
 
 - **ファイルサイズ**: 1枚あたり100KB以下が推奨（スクリーンショットの場合は200KB程度まで許容）
 - **フォーマット**: PNG（スクリーンショット）、WebP（写真・イラスト）
 - **解像度**: 画面幅1280px程度を基準に、必要以上に高解像度にしない
 
-
 ## 技術仕様
+
+### 依存関係
+
+ドキュメント関連の依存パッケージ（`package.json`より）：
+
+```json
+{
+  "devDependencies": {
+    "@vercel/og": "^0.8.5",      // OGP画像生成
+    "glob": "^13.0.0",           // ファイルパターンマッチング
+    "gray-matter": "^4.0.3",     // frontmatter解析
+    "vitepress": "^1.6.4"        // ドキュメントフレームワーク
+  }
+}
+```
 
 ### カスタムドメイン
 
@@ -399,17 +383,13 @@ hero:
 - DNS: Cloudflare管理
 - CNAME: `minarin0179.github.io`
 
-### VitePress バージョン
-
-- VitePress: `^1.6.4`
-- 設定ファイル: ESM形式 (`.mts`)
-
 ### Git管理
 
-`.gitignore` の設定により以下を除外：
+`docs/.gitignore` の設定により以下を除外：
 
-- `docs/.vitepress/dist` - ビルド出力
-- `docs/.vitepress/cache` - ビルドキャッシュ
+- `.vitepress/dist` - ビルド出力
+- `.vitepress/cache` - ビルドキャッシュ
+- `releases.md` - 自動生成ファイル
 
 ## 参考リンク
 

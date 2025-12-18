@@ -6,8 +6,5 @@ node_modules/*
 !.eslintrc.json
 /dist
 
-# VitePress
-docs/.vitepress/dist
-docs/.vitepress/cache
-docs/releases.md
+# scripts
 scripts/releases-cache.json
