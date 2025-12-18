@@ -202,6 +202,9 @@ export default defineConfig({
   // カスタムドメイン用（docs.madaminalink.com）
   base: '/',
 
+  // クリーンURL（.htmlなし）を使用
+  cleanUrls: true,
+
   // サイトマップ生成
   sitemap: {
     hostname: 'https://docs.madaminalink.com'
