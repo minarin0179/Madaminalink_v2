@@ -323,7 +323,7 @@ export default defineConfig({
   themeConfig: {
     // サイトタイトルとロゴ
     siteTitle: 'マダミナリンク 公式ガイド',
-    logo: '/images/common/icon.png',
+    logo: '/images/common/icon.webp',
 
     // ナビゲーション
     nav: [
