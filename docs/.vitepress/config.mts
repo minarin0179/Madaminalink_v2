@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import type { HeadConfig } from 'vitepress'
+import { commandsSidebar } from './commandsSidebar.mts'
 
 // 環境変数でサイトURLを切り替え可能（トンネルテスト用）
 const SITE_URL = process.env.SITE_URL || 'https://docs.madaminalink.com'
@@ -340,52 +341,7 @@ export default defineConfig({
           ]
         }
       ],
-      '/commands/': [
-        {
-          text: 'セットアップ系',
-          items: [
-            { text: '/setup - カテゴリ作成', link: '/commands/setup' },
-            { text: '/role - ロール管理', link: '/commands/role' }
-          ]
-        },
-        {
-          text: '進行管理',
-          items: [
-            { text: '/open - チャンネル公開', link: '/commands/open' },
-            { text: '/gather - VC移動', link: '/commands/gather' },
-            { text: '/dice - ダイスロール', link: '/commands/dice' },
-            { text: '/poll - 投票', link: '/commands/poll' },
-            { text: '/remind - リマインダー', link: '/commands/remind' },
-            { text: '/order - 順番決め', link: '/commands/order' }
-          ]
-        },
-        {
-          text: 'ログ・アーカイブ',
-          items: [
-            { text: '/archive - スレッド保存', link: '/commands/archive' },
-            { text: '/transfer - メッセージ転送', link: '/commands/transfer' },
-            { text: '/log - ログ化', link: '/commands/log' }
-          ]
-        },
-        {
-          text: 'クリーンアップ',
-          items: [
-            { text: '/cleanup - メッセージ削除', link: '/commands/cleanup' },
-            { text: '/delete - カテゴリ削除', link: '/commands/delete' },
-            { text: '/rename - ニックネーム変更', link: '/commands/rename' }
-          ]
-        },
-        {
-          text: 'その他',
-          items: [
-            { text: '/copy - チャンネル複製', link: '/commands/copy' },
-            { text: '/sync - 権限同期', link: '/commands/sync' },
-            { text: '/server - サーバー情報', link: '/commands/server' },
-            { text: '/profile - アイコン設定', link: '/commands/profile' },
-            { text: '/ping - 稼働確認', link: '/commands/ping' }
-          ]
-        }
-      ],
+      '/commands/': commandsSidebar,
       '/legal/': [
         {
           text: '法的情報',
