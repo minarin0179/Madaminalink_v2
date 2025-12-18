@@ -29,7 +29,7 @@ export default {
 
       commands[key] = {
         title: frontmatter.title || `/${commandName}`,
-        description: (frontmatter.description || '').replace(/。$/, '').replace(/します$/, '')
+        description: frontmatter.description || ''
       }
     }
 
