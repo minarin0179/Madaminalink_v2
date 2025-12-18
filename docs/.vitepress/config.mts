@@ -423,5 +423,12 @@ export default defineConfig({
   },
 
   // 最終更新日を有効化
-  lastUpdated: true
+  lastUpdated: true,
+
+  // トップページのtitleを空にしてサイトタイトルのみにする（重複防止）
+  transformPageData(pageData) {
+    if (pageData.relativePath === 'index.md') {
+      pageData.title = ''
+    }
+  }
 })
