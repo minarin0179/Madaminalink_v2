@@ -24,7 +24,8 @@ cleanup() {
 trap cleanup INT TERM EXIT
 
 echo "Starting Cloudflare Quick Tunnel..."
-cloudflared tunnel --url http://localhost:4173 2>&1 | tee "$TUNNEL_LOG" &
+# --protocol http2: WSL2/Codespace環境ではQUIC(UDP)がブロックされることがあるため、HTTP/2を使用
+cloudflared tunnel --url http://localhost:4173 --protocol http2 2>&1 | tee "$TUNNEL_LOG" &
 TUNNEL_PID=$!
 
 # トンネルURLが出力されるまで待機
