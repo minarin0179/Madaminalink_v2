@@ -3,7 +3,7 @@
     "dev": "bun src/bot.ts",
     "start": "bun src/index.ts",
     "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
-    "docs:dev": "vitepress dev docs",
+    "docs:dev": "vitepress dev docs --host",
     "docs:build": "bun scripts/generate-releases.mjs && vitepress build docs && bun docs/.vitepress/generateOgImages.mts",
     "docs:preview": "vitepress preview docs",
     "docs:tunnel": "bash scripts/docs-tunnel.sh",
