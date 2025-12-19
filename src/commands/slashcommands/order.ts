@@ -1,15 +1,8 @@
-import {
-    ChannelType,
-    EmbedBuilder,
-    GatewayRateLimitError,
-    InteractionContextType,
-    SlashCommandBuilder,
-    VoiceChannel,
-} from "discord.js";
+import { ChannelType, EmbedBuilder, InteractionContextType, SlashCommandBuilder, VoiceChannel } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 import { buttonToRow } from "../../utils/ButtonToRow";
-import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
+import { ensureMembers } from "../../utils/ensureMembers";
 import joinOrder from "../../components/buttons/joinOrder";
 import shuffleOrder from "../../components/buttons/shuffleOrder";
 
@@ -34,35 +27,22 @@ export default new SlashCommand({
         await interaction.deferReply({ ephemeral: false });
         const participants = args.getString("ユーザーまたはロール") || "";
 
-        const membersRegex = /<@!?(\d+)>/g;
-        const roleRegex = /<@&(\d+)>/g;
-
         const { guild } = interaction;
         if (!guild) return;
 
-        try {
-            await guild.members.fetch();
-        } catch (error) {
-            if (!(error instanceof GatewayRateLimitError)) {
-                throw error;
-            }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
-            return;
-        }
-
-        const memberIDs = Array.from(participants.matchAll(membersRegex), m => m[1]);
-        const members = new Set(memberIDs?.map(user_id => guild.members.cache.get(user_id)).filter(m => !!m) || []);
-
-        const roleIDs = Array.from(participants.matchAll(roleRegex), m => m[1]);
-        const roles = roleIDs?.map(role_id => guild.roles.cache.get(role_id)).filter(r => !!r) || [];
-        roles.map(role => {
-            role.members.map(m => {
-                members.add(m);
-            });
-        });
+        const allMembers = await ensureMembers(guild);
 
         const voiceChannel = args.getChannel("ボイスチャンネル") as VoiceChannel | null;
-        voiceChannel?.members.map(member => members.add(member));
+
+        const mentionedMembers = [...participants.matchAll(/<@!?(\d+)>/g)].flatMap(
+            ([, id]) => allMembers.get(id) ?? []
+        );
+        const roleMembers = [...participants.matchAll(/<@&(\d+)>/g)].flatMap(([, id]) => [
+            ...(guild.roles.cache.get(id)?.members.values() ?? []),
+        ]);
+        const vcMembers = [...(voiceChannel?.members.values() ?? [])];
+
+        const members = new Set([...mentionedMembers, ...roleMembers, ...vcMembers]);
 
         const description =
             Array.from(members)

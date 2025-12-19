@@ -43,10 +43,6 @@ export const client: ExtendedClient = new ExtendedClient({
             interval: 3600,
             filter: () => user => user.bot && user.id !== user.client.user.id,
         },
-        guildMembers: {
-            interval: 3600,
-            filter: () => member => member.user.bot && member.user.id !== member.client.user.id,
-        },
     },
 });
 

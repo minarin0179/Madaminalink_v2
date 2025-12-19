@@ -1,8 +1,8 @@
-import { GatewayRateLimitError, GuildMember, InteractionContextType, Role, SlashCommandBuilder } from "discord.js";
+import { GuildMember, InteractionContextType, Role, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
-import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import { reply } from "../../utils/Reply";
 import { MyConstants } from "../../constants/constants";
+import { ensureMembers } from "../../utils/ensureMembers";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -32,15 +32,9 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        try {
-            await interaction.guild?.members.fetch();
-        } catch (error) {
-            if (!(error instanceof GatewayRateLimitError)) {
-                throw error;
-            }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
-            return;
-        }
+        const { guild } = interaction;
+        if (!guild) return;
+        await ensureMembers(guild);
 
         const role = args.getRole("ロール", true) as Role;
         const prefix = args.getString("先頭につける文字");

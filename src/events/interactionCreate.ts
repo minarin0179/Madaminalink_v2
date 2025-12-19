@@ -3,9 +3,11 @@ import {
     CommandInteraction,
     EmbedBuilder,
     Events,
+    GatewayRateLimitError,
     MessageComponentInteraction,
     ModalSubmitInteraction,
 } from "discord.js";
+import { generateGatewayLimitMessage } from "../utils/generateGatewayLimitMessage";
 import { client } from "../bot";
 import { Event } from "../structures/Events";
 import { reply } from "../utils/Reply";
@@ -45,6 +47,10 @@ export default new Event(Events.InteractionCreate, async interaction => {
             await component.execute({ client, interaction, args });
         }
     } catch (error: any) {
+        if (error instanceof GatewayRateLimitError) {
+            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
+            return;
+        }
         // eslint-disable-next-line no-console
         await showError(interaction, error).catch(console.log);
     }
