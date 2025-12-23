@@ -1,10 +1,10 @@
 import { ChannelType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { SlashCommand } from "../../structures/SlashCommand";
-import { reply } from "../../utils/Reply";
 import { agenda } from "../../agenda";
-import { buttonToRow } from "../../utils/ButtonToRow";
-import deleteRemindButton from "../../components/buttons/deleteRemind";
 import { client } from "../../bot";
+import deleteRemindButton from "../../components/buttons/deleteRemind";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { buttonToRow } from "../../utils/ButtonToRow";
+import { reply } from "../../utils/Reply";
 
 const today = new Date();
 const month = today.getMonth() + 1;
@@ -23,7 +23,9 @@ export default new SlashCommand({
                 .addIntegerOption(option =>
                     option
                         .setName("月")
-                        .setDescription(`月を入力してください (今日の日付:${month}月${day}日)`)
+                        .setDescription(
+                            `月を入力してください (今日の日付:${month}月${day}日)`
+                        )
                         .setMinValue(1)
                         .setMaxValue(12)
                         .setRequired(true)
@@ -31,7 +33,9 @@ export default new SlashCommand({
                 .addIntegerOption(option =>
                     option
                         .setName("日")
-                        .setDescription(`日付を入力してください (今日の日付:${month}月${day}日)`)
+                        .setDescription(
+                            `日付を入力してください (今日の日付:${month}月${day}日)`
+                        )
                         .setMinValue(1)
                         .setMaxValue(31)
                         .setRequired(true)
@@ -53,7 +57,10 @@ export default new SlashCommand({
                         .setRequired(true)
                 )
                 .addStringOption(option =>
-                    option.setName("本文").setDescription("送信するメッセージを入力して下さい").setRequired(true)
+                    option
+                        .setName("本文")
+                        .setDescription("送信するメッセージを入力して下さい")
+                        .setRequired(true)
                 )
                 .addChannelOption(option =>
                     option
@@ -61,12 +68,17 @@ export default new SlashCommand({
                         .setDescription(
                             "送信先のチャンネルを選択してください(指定しなかった場合は入力したチャンネルに送信されます)"
                         )
-                        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+                        .addChannelTypes(
+                            ChannelType.GuildText,
+                            ChannelType.GuildAnnouncement
+                        )
                         .setRequired(false)
                 )
         )
         .addSubcommand(subcommand =>
-            subcommand.setName("list").setDescription("登録されているリマインダーを確認します")
+            subcommand
+                .setName("list")
+                .setDescription("登録されているリマインダーを確認します")
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
@@ -77,8 +89,11 @@ export default new SlashCommand({
             const hour = args.getInteger("時", true);
             const minute = args.getInteger("分", true);
             // eslint-disable-next-line no-irregular-whitespace
-            const content = args.getString("本文", true).replace(/ {2}|　{2}|\\n/g, "\n");
-            const destination = args.getChannel("送信先") ?? interaction.channel;
+            const content = args
+                .getString("本文", true)
+                .replace(/ {2}|　{2}|\\n/g, "\n");
+            const destination =
+                args.getChannel("送信先") ?? interaction.channel;
 
             const date = new Date(year, month - 1, day, hour, minute);
             const now = new Date();
@@ -86,7 +101,8 @@ export default new SlashCommand({
 
             lim.setMonth(lim.getMonth() + 3);
 
-            if (!destination) return reply(interaction, "送信先が見つかりませんでした");
+            if (!destination)
+                return reply(interaction, "送信先が見つかりませんでした");
 
             if (date.getTime() < now.getTime()) {
                 date.setFullYear(++year); //過去の日付だったら１年後
@@ -101,17 +117,32 @@ export default new SlashCommand({
             const channelId = destination.id;
             const authorId = interaction.user.id;
 
-            const job = await agenda.schedule(date, "send remind", { channelId, authorId, content });
+            const job = await agenda.schedule(date, "send remind", {
+                channelId,
+                authorId,
+                content,
+            });
 
             await reply(interaction, {
                 content: "リマインダーを設定しました",
                 embeds: [buildEmbed(content, date, channelId)],
-                components: buttonToRow(deleteRemindButton.build({ objectId: job.attrs._id?.toHexString() })),
+                components: buttonToRow(
+                    deleteRemindButton.build({
+                        objectId: job.attrs._id?.toHexString(),
+                    })
+                ),
             });
         } else if (args.getSubcommand() === "list") {
             await reply(interaction, "リマインダーの一覧を表示します");
-            const jobs = await agenda.jobs({ name: "send remind", "data.authorId": interaction.user.id });
-            if (jobs.length == 0) return reply(interaction, "登録されているリマインダーはありません");
+            const jobs = await agenda.jobs({
+                name: "send remind",
+                "data.authorId": interaction.user.id,
+            });
+            if (jobs.length == 0)
+                return reply(
+                    interaction,
+                    "登録されているリマインダーはありません"
+                );
 
             jobs.map(job => {
                 if (!job.attrs.data) return;
@@ -120,7 +151,11 @@ export default new SlashCommand({
 
                 return reply(interaction, {
                     embeds: [buildEmbed(content, date, channelId)],
-                    components: buttonToRow(deleteRemindButton.build({ objectId: job.attrs._id?.toHexString() })),
+                    components: buttonToRow(
+                        deleteRemindButton.build({
+                            objectId: job.attrs._id?.toHexString(),
+                        })
+                    ),
                 });
             });
         }

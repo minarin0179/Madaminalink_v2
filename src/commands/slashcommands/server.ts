@@ -1,7 +1,11 @@
-import { GatewayRateLimitError, InteractionContextType, SlashCommandBuilder } from "discord.js";
+import {
+    GatewayRateLimitError,
+    InteractionContextType,
+    SlashCommandBuilder,
+} from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
-import { reply } from "../../utils/Reply";
 import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
+import { reply } from "../../utils/Reply";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -28,7 +32,10 @@ export default new SlashCommand({
             if (!(error instanceof GatewayRateLimitError)) {
                 throw error;
             }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
+            await reply(
+                interaction,
+                generateGatewayLimitMessage(error.data.retry_after)
+            );
         }
     },
 });

@@ -6,7 +6,10 @@ import { reply } from "../../utils/Reply";
 export default new Button({
     customId: "deleteRemind",
     build: ({ objectId }: { objectId: ObjectId }) => [
-        new ButtonBuilder().setCustomId(`deleteRemind:${objectId}`).setLabel("削除").setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+            .setCustomId(`deleteRemind:${objectId}`)
+            .setLabel("削除")
+            .setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         const [objectId] = args;

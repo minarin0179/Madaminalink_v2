@@ -1,10 +1,16 @@
-import { ChannelType, GuildChannel, GuildChannelCloneOptions, MessageFlags, SlashCommandBuilder } from "discord.js";
+import {
+    ChannelType,
+    type GuildChannel,
+    type GuildChannelCloneOptions,
+    MessageFlags,
+    SlashCommandBuilder,
+} from "discord.js";
+import { MyConstants } from "../../constants/constants";
+import type { ChannelLink } from "../../structures/ChannelLink";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { isCategory } from "../../utils/isCategory";
 import { reply } from "../../utils/Reply";
 import { transferAllMessages } from "../../utils/transferMessage";
-import { ChannelLink } from "../../structures/ChannelLink";
-import { MyConstants } from "../../constants/constants";
 
 const OPTION_NAME_NEED_MESSAGE_COPY = "メッセージを複製しない";
 
@@ -18,21 +24,30 @@ export default new SlashCommand({
             option
                 .setName("対象")
                 .setDescription("コピーするチャンネル/カテゴリー")
-                .addChannelTypes(ChannelType.GuildCategory, ChannelType.GuildText)
+                .addChannelTypes(
+                    ChannelType.GuildCategory,
+                    ChannelType.GuildText
+                )
                 .setRequired(false)
         )
         .addStringOption(option =>
             option
                 .setName(OPTION_NAME_NEED_MESSAGE_COPY)
-                .setDescription("チャンネルは複製されますが、メッセージは複製されません")
+                .setDescription(
+                    "チャンネルは複製されますが、メッセージは複製されません"
+                )
                 .setRequired(false)
-                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+                .addChoices(
+                    { name: "はい", value: "true" },
+                    { name: "いいえ", value: "false" }
+                )
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
         const progressMessage = await reply(interaction, "処理を実行中です...");
 
-        const originalChannel = (args.getChannel("対象") ?? interaction.channel) as GuildChannel;
+        const originalChannel = (args.getChannel("対象") ??
+            interaction.channel) as GuildChannel;
 
         const channelLinks = await duplicateChannel(originalChannel);
 
@@ -50,7 +65,10 @@ export default new SlashCommand({
         if (progressMessage) {
             await progressMessage.delete();
         }
-        await reply(interaction, `「${originalChannel.name}」のコピーが完了しました`);
+        await reply(
+            interaction,
+            `「${originalChannel.name}」のコピーが完了しました`
+        );
     },
 });
 
@@ -65,13 +83,23 @@ const duplicateChannel = async (
 ): Promise<ChannelLink[]> => {
     if (isCategory(originalChannel)) {
         // originalChannel.guild.channels.cache.sizeだとスレッドチャンネル数も含まれる
-        if (originalChannel.children.cache.size + 1 + (await originalChannel.guild.channels.fetch()).size > 500) {
-            const error = new Error("Maximum number of guild channels reached (500)") as any;
+        if (
+            originalChannel.children.cache.size +
+                1 +
+                (await originalChannel.guild.channels.fetch()).size >
+            500
+        ) {
+            const error = new Error(
+                "Maximum number of guild channels reached (500)"
+            ) as any;
             error.code = 30013;
             throw error;
         }
 
-        const newCategoryname = `(copy) ${originalChannel.name}`.substring(0, MyConstants.maxChannelNameLength);
+        const newCategoryname = `(copy) ${originalChannel.name}`.substring(
+            0,
+            MyConstants.maxChannelNameLength
+        );
         const newCategory = await originalChannel.clone({
             name: newCategoryname,
             type: ChannelType.GuildCategory,
@@ -79,14 +107,21 @@ const duplicateChannel = async (
 
         const channelLinks = await Promise.all(
             originalChannel.children.cache.map(
-                async c => await duplicateChannel(c, { name: c.name, parent: newCategory })
+                async c =>
+                    await duplicateChannel(c, {
+                        name: c.name,
+                        parent: newCategory,
+                    })
             )
         );
 
         return channelLinks.flat();
     }
 
-    const newChannelName = `(copy) ${originalChannel.name}`.substring(0, MyConstants.maxChannelNameLength);
+    const newChannelName = `(copy) ${originalChannel.name}`.substring(
+        0,
+        MyConstants.maxChannelNameLength
+    );
     const newChannel = await originalChannel.clone({
         name: newChannelName,
         ...option,

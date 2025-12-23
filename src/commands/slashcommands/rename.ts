@@ -1,8 +1,14 @@
-import { GatewayRateLimitError, GuildMember, InteractionContextType, Role, SlashCommandBuilder } from "discord.js";
+import {
+    GatewayRateLimitError,
+    type GuildMember,
+    InteractionContextType,
+    type Role,
+    SlashCommandBuilder,
+} from "discord.js";
+import { MyConstants } from "../../constants/constants";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import { reply } from "../../utils/Reply";
-import { MyConstants } from "../../constants/constants";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -11,7 +17,10 @@ export default new SlashCommand({
         .setContexts(InteractionContextType.Guild)
         .setDefaultMemberPermissions(0)
         .addRoleOption(option =>
-            option.setName("ロール").setDescription("ニックネームをリセットするロール").setRequired(true)
+            option
+                .setName("ロール")
+                .setDescription("ニックネームをリセットするロール")
+                .setRequired(true)
         )
         .addStringOption(option =>
             option
@@ -26,7 +35,10 @@ export default new SlashCommand({
                 .setName("元の名前に戻す")
                 .setDescription("元のユーザー名にニックネームを戻しますか")
                 .setRequired(false)
-                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+                .addChoices(
+                    { name: "はい", value: "true" },
+                    { name: "いいえ", value: "false" }
+                )
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
@@ -38,7 +50,10 @@ export default new SlashCommand({
             if (!(error instanceof GatewayRateLimitError)) {
                 throw error;
             }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
+            await reply(
+                interaction,
+                generateGatewayLimitMessage(error.data.retry_after)
+            );
             return;
         }
 
@@ -49,13 +64,19 @@ export default new SlashCommand({
 
         await Promise.all(
             role.members.map(async member =>
-                (isReset ? member.setNickname(null) : rename(member, prefix)).catch(() => failed.push(`${member}`))
+                (isReset
+                    ? member.setNickname(null)
+                    : rename(member, prefix)
+                ).catch(() => failed.push(`${member}`))
             )
         );
         await reply(interaction, "ニックネームのリセットが完了しました");
 
         if (failed.length > 0) {
-            await reply(interaction, `ニックネームの変更に失敗したメンバー: ${failed.join(", ")}`);
+            await reply(
+                interaction,
+                `ニックネームの変更に失敗したメンバー: ${failed.join(", ")}`
+            );
         }
     },
 });
@@ -63,7 +84,10 @@ export default new SlashCommand({
 export const rename = async (member: GuildMember, prefix?: string | null) => {
     const nickname = member.nickname?.replace("＠", "@");
     //@より後ろの名前
-    const name = nickname?.substring(nickname.lastIndexOf("@") + 1) || member.user.globalName || member.user.username;
+    const name =
+        nickname?.substring(nickname.lastIndexOf("@") + 1) ||
+        member.user.globalName ||
+        member.user.username;
     let newName = !prefix ? name : `${prefix}@${name}`;
     if (newName.length > MyConstants.maxNicknameLength) {
         newName = newName.substring(0, MyConstants.maxNicknameLength - 1) + "…";

@@ -1,4 +1,4 @@
-import { Schema, model, connect } from "mongoose";
+import { connect, model, Schema } from "mongoose";
 
 export interface Choice {
     label: string;

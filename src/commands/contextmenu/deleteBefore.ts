@@ -1,8 +1,12 @@
-import { ApplicationCommandType, ContextMenuCommandBuilder, Snowflake } from "discord.js";
+import {
+    ApplicationCommandType,
+    ContextMenuCommandBuilder,
+    type Snowflake,
+} from "discord.js";
 import { ContextMenu } from "../../structures/ContextMenu";
-import { reply } from "../../utils/Reply";
 import { deleteMultiMessages } from "../../utils/DeleteMultiMessages";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
+import { reply } from "../../utils/Reply";
 
 export default new ContextMenu({
     danger: true,

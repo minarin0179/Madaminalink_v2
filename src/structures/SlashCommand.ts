@@ -1,6 +1,10 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, CommandInteractionOptionResolver } from "discord.js";
-import { ExtendedClient } from "./Client";
-import { Command, RunOptions } from "./Command";
+import type {
+    ChatInputCommandInteraction,
+    CommandInteractionOptionResolver,
+    SlashCommandBuilder,
+} from "discord.js";
+import type { ExtendedClient } from "./Client";
+import { Command, type RunOptions } from "./Command";
 
 interface SlashCommandRunOptions extends RunOptions {
     client: ExtendedClient;

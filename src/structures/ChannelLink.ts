@@ -1,4 +1,4 @@
-import { GuildChannel } from "discord.js";
+import type { GuildChannel } from "discord.js";
 
 export type ChannelLink = {
     before: GuildChannel;

@@ -1,11 +1,11 @@
 import {
     ChannelType,
-    GuildChannel,
-    GuildTextBasedChannel,
-    NewsChannel,
+    type GuildChannel,
+    type GuildTextBasedChannel,
+    type NewsChannel,
     SlashCommandBuilder,
-    TextChannel,
-    VoiceChannel,
+    type TextChannel,
+    type VoiceChannel,
 } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { deleteMultiMessages } from "../../utils/DeleteMultiMessages";
@@ -23,27 +23,41 @@ export default new SlashCommand({
         .addChannelOption(option =>
             option
                 .setName("対象")
-                .setDescription("指定しなかった場合はコマンドが送信されたチャンネル")
+                .setDescription(
+                    "指定しなかった場合はコマンドが送信されたチャンネル"
+                )
                 .setRequired(false)
-                .addChannelTypes(ChannelType.GuildText, ChannelType.GuildCategory)
+                .addChannelTypes(
+                    ChannelType.GuildText,
+                    ChannelType.GuildCategory
+                )
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        const targetChannel = (args.getChannel("対象") ?? interaction.channel) as GuildChannel;
+        const targetChannel = (args.getChannel("対象") ??
+            interaction.channel) as GuildChannel;
         if (!targetChannel) return;
 
         if (targetChannel.isTextBased()) {
             await deleteAllMessages(targetChannel);
         } else if (isCategory(targetChannel)) {
             const channels = targetChannel.children.cache.filter(
-                (channel): channel is NewsChannel | TextChannel | VoiceChannel => channel.isTextBased()
+                (
+                    channel
+                ): channel is NewsChannel | TextChannel | VoiceChannel =>
+                    channel.isTextBased()
             );
-            await Promise.all(channels.map(channel => deleteAllMessages(channel)));
+            await Promise.all(
+                channels.map(channel => deleteAllMessages(channel))
+            );
         }
 
-        await reply(interaction, `「${targetChannel.name}」内のメッセージを削除しました`);
+        await reply(
+            interaction,
+            `「${targetChannel.name}」内のメッセージを削除しました`
+        );
     },
 });
 

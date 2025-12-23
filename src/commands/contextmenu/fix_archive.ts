@@ -1,4 +1,9 @@
-import { ApplicationCommandType, ContextMenuCommandBuilder, Embed, EmbedBuilder } from "discord.js";
+import {
+    ApplicationCommandType,
+    ContextMenuCommandBuilder,
+    type Embed,
+    EmbedBuilder,
+} from "discord.js";
 import { ContextMenu } from "../../structures/ContextMenu";
 import { reply } from "../../utils/Reply";
 
@@ -17,9 +22,12 @@ export default new ContextMenu({
 
         const embed: EmbedBuilder = new EmbedBuilder(embed_old.toJSON());
 
-        if (!message.editable || !embed_old?.description) return reply(interaction, "このメッセージは編集できません");
+        if (!message.editable || !embed_old?.description)
+            return reply(interaction, "このメッセージは編集できません");
 
-        embed.setDescription(embed_old?.description.replace(/\[\\?\# /g, "[_#_ "));
+        embed.setDescription(
+            embed_old?.description.replace(/\[\\?# /g, "[_#_ ")
+        );
 
         message.edit({ embeds: [embed] });
 

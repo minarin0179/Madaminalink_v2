@@ -11,7 +11,12 @@ export default new SlashCommand({
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addIntegerOption(option =>
-            option.setName("ダイスの数").setDescription("ダイスの数").setRequired(true).setMinValue(1).setMaxValue(100)
+            option
+                .setName("ダイスの数")
+                .setDescription("ダイスの数")
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(100)
         )
         .addIntegerOption(option =>
             option

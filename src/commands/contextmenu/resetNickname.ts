@@ -1,4 +1,9 @@
-import { ApplicationCommandType, ContextMenuCommandBuilder, GuildMember, PermissionFlagsBits } from "discord.js";
+import {
+    ApplicationCommandType,
+    ContextMenuCommandBuilder,
+    type GuildMember,
+    PermissionFlagsBits,
+} from "discord.js";
 import { ContextMenu } from "../../structures/ContextMenu";
 import { reply } from "../../utils/Reply";
 
@@ -15,7 +20,16 @@ export default new ContextMenu({
 
         await member
             .setNickname(null)
-            .then(async () => await reply(interaction, "ニックネームをリセットしました"))
-            .catch(async () => await reply(interaction, "ニックネームを変更できませんでした"));
+            .then(
+                async () =>
+                    await reply(interaction, "ニックネームをリセットしました")
+            )
+            .catch(
+                async () =>
+                    await reply(
+                        interaction,
+                        "ニックネームを変更できませんでした"
+                    )
+            );
     },
 });

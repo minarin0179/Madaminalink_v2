@@ -1,7 +1,7 @@
 /* アクセシビリティ改善: ボタンのコントラスト比を向上 */
 :root {
-  /* ブランドボタンのテキストを白に変更（コントラスト比向上） */
-  --vp-button-brand-text: #ffffff;
-  --vp-button-brand-hover-text: #ffffff;
-  --vp-button-brand-active-text: #ffffff;
+    /* ブランドボタンのテキストを白に変更（コントラスト比向上） */
+    --vp-button-brand-text: #ffffff;
+    --vp-button-brand-hover-text: #ffffff;
+    --vp-button-brand-active-text: #ffffff;
 }

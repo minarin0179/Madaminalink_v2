@@ -1,18 +1,29 @@
-import { ButtonBuilder, ButtonStyle, Collection, Colors, EmbedBuilder, GuildMember, Role } from "discord.js";
+import {
+    ButtonBuilder,
+    ButtonStyle,
+    Collection,
+    Colors,
+    EmbedBuilder,
+    type GuildMember,
+    type Role,
+} from "discord.js";
+import { rename } from "../../commands/slashcommands/rename";
+import unehemeralButton from "../../components/buttons/unehemeral";
 import { Button } from "../../structures/Button";
 import { PollModel } from "../../structures/Poll";
-import { reply } from "../../utils/Reply";
-import unehemeralButton from "../../components/buttons/unehemeral";
-import revoteButton from "./revote";
 import { buttonToRow } from "../../utils/ButtonToRow";
-import { rename } from "../../commands/slashcommands/rename";
-import runoffVoteButton from "./runoffVote";
+import { reply } from "../../utils/Reply";
 import { splitMessage } from "../../utils/SplitMessage";
+import revoteButton from "./revote";
+import runoffVoteButton from "./runoffVote";
 
 export default new Button({
     customId: "agregatePoll",
     build: ({ pollId }: { pollId: string }) => [
-        new ButtonBuilder().setCustomId(`agregatePoll:${pollId}`).setLabel("集計").setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+            .setCustomId(`agregatePoll:${pollId}`)
+            .setLabel("集計")
+            .setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
@@ -21,7 +32,10 @@ export default new Button({
         if (!poll) return;
 
         if (interaction.user.id !== poll.ownerId) {
-            await reply(interaction, { content: "集計は投票を開始した人のみが行えます", ephemeral: true });
+            await reply(interaction, {
+                content: "集計は投票を開始した人のみが行えます",
+                ephemeral: true,
+            });
             return;
         }
 
@@ -64,22 +78,31 @@ export default new Button({
 
             await interaction.channel?.send({
                 embeds: splitMessage(descrption).map(text =>
-                    new EmbedBuilder().setDescription(text).setColor(warn ? Colors.Yellow : Colors.Green)
+                    new EmbedBuilder()
+                        .setDescription(text)
+                        .setColor(warn ? Colors.Yellow : Colors.Green)
                 ),
                 allowedMentions: { parse: [] },
-                components: warn ? buttonToRow(revoteButton.build({ pollId })) : [],
+                components: warn
+                    ? buttonToRow(revoteButton.build({ pollId }))
+                    : [],
             });
 
-            await reply(interaction, { content: "集計結果を表示しました", ephemeral: true });
+            await reply(interaction, {
+                content: "集計結果を表示しました",
+                ephemeral: true,
+            });
 
             for await (const [member, roleName] of renameMap.entries()) {
-                await rename(member, roleName).catch(() => { });
+                await rename(member, roleName).catch(() => {});
             }
 
             for await (const [member, role] of roleMap.entries()) {
                 try {
                     await member.roles.add(role);
-                    await reply(interaction, { content: `${member}に${role}を付与しました` });
+                    await reply(interaction, {
+                        content: `${member}に${role}を付与しました`,
+                    });
                 } catch (e) {
                     await reply(interaction, {
                         content: `${member}に${role}を付与できませんでした\nマダミナリンクより上位のロールは付与できません`,
@@ -102,17 +125,23 @@ export default new Button({
                     return `<@${userId}> → ${choice.label}`;
                 })
                 .join("\n");
-            const topVoteGetters = result.filter(voters => voters.length === result.first()?.length);
+            const topVoteGetters = result.filter(
+                voters => voters.length === result.first()?.length
+            );
 
             const descrption = `### 投票数\n${numOfVotes || "なし"}\n### 投票先\n${votings || "なし"}`;
             await reply(interaction, {
                 embeds: splitMessage(descrption).map(text =>
-                    new EmbedBuilder().setDescription(text).setColor(Colors.Blue)
+                    new EmbedBuilder()
+                        .setDescription(text)
+                        .setColor(Colors.Blue)
                 ),
                 allowedMentions: { parse: [] },
                 components: buttonToRow([
                     ...unehemeralButton.build(),
-                    ...(topVoteGetters.size >= 2 ? runoffVoteButton.build({ pollId }) : []),
+                    ...(topVoteGetters.size >= 2
+                        ? runoffVoteButton.build({ pollId })
+                        : []),
                 ]),
             });
         }

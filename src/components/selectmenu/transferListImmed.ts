@@ -1,4 +1,9 @@
-import { ActionRowBuilder, GuildChannel, Message, StringSelectMenuBuilder } from "discord.js";
+import {
+    ActionRowBuilder,
+    type GuildChannel,
+    type Message,
+    StringSelectMenuBuilder,
+} from "discord.js";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
 import { reply } from "../../utils/Reply";

@@ -1,16 +1,16 @@
 import {
+    type Attachment,
+    type Base64Resolvable,
+    DiscordAPIError,
+    FileUploadBuilder,
+    type GuildMemberEditMeOptions,
+    LabelBuilder,
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    FileUploadBuilder,
-    LabelBuilder,
-    Base64Resolvable,
-    GuildMemberEditMeOptions,
-    Attachment,
-    DiscordAPIError,
 } from "discord.js";
-import { Modal } from "../../structures/Modal";
 import { MyConstants } from "../../constants/constants";
+import { Modal } from "../../structures/Modal";
 
 interface ProfileModalBuildOptions {
     defaultName: string;
@@ -115,17 +115,27 @@ export default new Modal({
             await guild.members.editMe(updateData);
             await interaction.editReply("プロフィールを更新しました");
         } catch (error) {
-            let message = "プロフィールの更新中にエラーが発生しました。再度お試しください。";
+            let message =
+                "プロフィールの更新中にエラーが発生しました。再度お試しください。";
 
-            if (error instanceof DiscordAPIError && error.code === 50035 && "errors" in error.rawError) {
+            if (
+                error instanceof DiscordAPIError &&
+                error.code === 50035 &&
+                "errors" in error.rawError
+            ) {
                 const errors = error.rawError.errors;
 
                 if (hasErrorCode(errors, "avatar", "AVATAR_RATE_LIMIT")) {
-                    message = "アバターの変更が早すぎます。しばらく待ってから再度お試しください。";
-                } else if (hasErrorCode(errors, "banner", "BANNER_RATE_LIMIT")) {
-                    message = "バナーの変更が早すぎます。しばらく待ってから再度お試しください。";
+                    message =
+                        "アバターの変更が早すぎます。しばらく待ってから再度お試しください。";
+                } else if (
+                    hasErrorCode(errors, "banner", "BANNER_RATE_LIMIT")
+                ) {
+                    message =
+                        "バナーの変更が早すぎます。しばらく待ってから再度お試しください。";
                 } else {
-                    message = "プロフィールの更新に失敗しました。入力内容を確認してください。";
+                    message =
+                        "プロフィールの更新に失敗しました。入力内容を確認してください。";
                 }
             }
 
@@ -153,7 +163,6 @@ const urlToBase64 = async (url: string): Promise<Base64Resolvable> => {
     return base64Data;
 };
 
-
 // Discord APIエラーのフィールド構造を表す型
 interface DiscordErrorField {
     _errors?: Array<{ code: string; message: string }>;
@@ -161,7 +170,11 @@ interface DiscordErrorField {
 }
 
 // 特定のフィールドに特定のエラーコードが含まれているかチェック
-const hasErrorCode = (errors: unknown, field: string, code: string): boolean => {
+const hasErrorCode = (
+    errors: unknown,
+    field: string,
+    code: string
+): boolean => {
     if (typeof errors !== "object" || errors === null) return false;
     if (!(field in errors)) return false;
 

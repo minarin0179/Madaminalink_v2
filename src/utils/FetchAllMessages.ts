@@ -1,11 +1,19 @@
-import { Collection, Message, Snowflake, TextBasedChannel } from "discord.js";
+import {
+    Collection,
+    type Message,
+    type Snowflake,
+    type TextBasedChannel,
+} from "discord.js";
 
 type fetchOptions = {
     before?: Snowflake;
     after?: Snowflake;
 };
 
-export const fetchAllMessages = async (channel: TextBasedChannel, { before, after }: fetchOptions = {}) => {
+export const fetchAllMessages = async (
+    channel: TextBasedChannel,
+    { before, after }: fetchOptions = {}
+) => {
     const border = before ?? after ?? undefined;
     let messages: Collection<string, Message<boolean>> = new Collection(
         border ? [[border, await channel.messages.fetch(border)]] : undefined
@@ -14,7 +22,8 @@ export const fetchAllMessages = async (channel: TextBasedChannel, { before, afte
     while (true) {
         channel.messages.cache.clear();
         //afterが指定されている場合は、beforeが無視される
-        const fetched: Collection<string, Message> = await channel.messages.fetch({ limit: 100, before, after });
+        const fetched: Collection<string, Message> =
+            await channel.messages.fetch({ limit: 100, before, after });
         if (fetched.size == 0) break;
 
         if (after) {

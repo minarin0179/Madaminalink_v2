@@ -1,6 +1,6 @@
-import { ModalBuilder, ModalSubmitInteraction } from "discord.js";
-import { ExtendedClient } from "./Client";
-import { Component, ComponentType, RunOptions } from "./Component";
+import type { ModalBuilder, ModalSubmitInteraction } from "discord.js";
+import type { ExtendedClient } from "./Client";
+import { Component, type ComponentType, type RunOptions } from "./Component";
 
 type ModalBuildFunction = (options: any) => ModalBuilder;
 

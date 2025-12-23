@@ -1,7 +1,11 @@
-import { ActionRowBuilder, GuildTextBasedChannel, StringSelectMenuBuilder } from "discord.js";
+import {
+    ActionRowBuilder,
+    type GuildTextBasedChannel,
+    StringSelectMenuBuilder,
+} from "discord.js";
+import { sendTransferMessage } from "../../commands/slashcommands/transfer";
 import { SelectMenu } from "../../structures/SelectMenu";
 import { arraySplit } from "../../utils/ArraySplit";
-import { sendTransferMessage } from "../../commands/slashcommands/transfer";
 
 export default new SelectMenu({
     customId: "transferList",

@@ -1,6 +1,10 @@
-import { CommandInteractionOptionResolver, ContextMenuCommandInteraction, ContextMenuCommandBuilder } from "discord.js";
-import { ExtendedClient } from "./Client";
-import { Command, RunOptions } from "./Command";
+import type {
+    CommandInteractionOptionResolver,
+    ContextMenuCommandBuilder,
+    ContextMenuCommandInteraction,
+} from "discord.js";
+import type { ExtendedClient } from "./Client";
+import { Command, type RunOptions } from "./Command";
 
 interface ContextMenuRunOptions extends RunOptions {
     client: ExtendedClient;

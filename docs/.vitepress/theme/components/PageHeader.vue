@@ -13,8 +13,9 @@
   <PageHeader />
 -->
 <script setup>
-import { useData } from 'vitepress'
-const { frontmatter } = useData()
+import { useData } from "vitepress";
+
+const { frontmatter } = useData();
 </script>
 
 <template>

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useData } from 'vitepress'
-import { computed } from 'vue'
-import { data as commandsData } from '../../commands.data.mts'
+import { useData } from "vitepress";
+import { computed } from "vue";
+import { data as commandsData } from "../../commands.data.mts";
 
-const { theme } = useData()
+const { theme } = useData();
 
 // サイドバーからコマンドカテゴリを取得
 const categories = computed(() => {
-  const sidebar = theme.value.sidebar?.['/commands/']
-  if (!Array.isArray(sidebar)) return []
-  return sidebar
-})
+    const sidebar = theme.value.sidebar?.["/commands/"];
+    if (!Array.isArray(sidebar)) return [];
+    return sidebar;
+});
 </script>
 
 <template>

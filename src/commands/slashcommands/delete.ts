@@ -1,4 +1,4 @@
-import { ChannelType, SlashCommandBuilder, OverwriteType } from "discord.js";
+import { ChannelType, OverwriteType, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { reply } from "../../utils/Reply";
 
@@ -6,7 +6,9 @@ export default new SlashCommand({
     danger: true,
     data: new SlashCommandBuilder()
         .setName("delete")
-        .setDescription("カテゴリを削除します(カテゴリに含まれるチャンネルも削除されます)")
+        .setDescription(
+            "カテゴリを削除します(カテゴリに含まれるチャンネルも削除されます)"
+        )
         .setDMPermission(false)
         .setDefaultMemberPermissions(0)
         .addChannelOption(option =>
@@ -19,15 +21,23 @@ export default new SlashCommand({
         .addStringOption(option =>
             option
                 .setName("ロールの削除")
-                .setDescription("カテゴリーに付与されたロールを一緒に削除しますか？(デフォルトはいいえ)")
+                .setDescription(
+                    "カテゴリーに付与されたロールを一緒に削除しますか？(デフォルトはいいえ)"
+                )
                 .setRequired(false)
-                .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+                .addChoices(
+                    { name: "はい", value: "true" },
+                    { name: "いいえ", value: "false" }
+                )
         ) as SlashCommandBuilder,
 
     execute: async ({ interaction, args }) => {
         await interaction.deferReply({ ephemeral: true });
 
-        const category = args.getChannel<ChannelType.GuildCategory>("削除するカテゴリ", true);
+        const category = args.getChannel<ChannelType.GuildCategory>(
+            "削除するカテゴリ",
+            true
+        );
         const deleteRoleIds = new Set<string>();
         const children = category.children.cache;
 
@@ -43,9 +53,13 @@ export default new SlashCommand({
         if (args.getString("ロールの削除") == "true") {
             const everyone = interaction.guild?.roles.everyone.id;
             deleteRoleIds.delete(everyone!);
-            const roles = (await interaction.guild?.roles.fetch())?.filter(role => deleteRoleIds.has(role.id));
+            const roles = (await interaction.guild?.roles.fetch())?.filter(
+                role => deleteRoleIds.has(role.id)
+            );
             if (roles) {
-                const [deletable, undeletable] = roles.partition(role => role.editable);
+                const [deletable, undeletable] = roles.partition(
+                    role => role.editable
+                );
 
                 await Promise.all(deletable.map(async role => role.delete()));
                 if (undeletable.size > 0) {
@@ -59,6 +73,9 @@ export default new SlashCommand({
         }
 
         //コマンドを入力したチャンネルが削除されている場合がある
-        await reply(interaction, `「${category.name}」の削除が完了しました`).catch(() => { });
+        await reply(
+            interaction,
+            `「${category.name}」の削除が完了しました`
+        ).catch(() => {});
     },
 });

@@ -1,9 +1,9 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
-import { Button } from "../../structures/Button";
-import { LimitLength } from "../../utils/LimitLength";
-import { Choice, PollModel } from "../../structures/Poll";
-import { reply } from "../../utils/Reply";
 import { MyConstants } from "../../constants/constants";
+import { Button } from "../../structures/Button";
+import { type Choice, PollModel } from "../../structures/Poll";
+import { LimitLength } from "../../utils/LimitLength";
+import { reply } from "../../utils/Reply";
 
 export default new Button({
     customId: "poll",
@@ -25,12 +25,18 @@ export default new Button({
         const isVoted = poll.voters.has(interaction.user.id);
 
         if (!isVoted) {
-            if (poll.type === "char" && poll.voters.size >= MyConstants.maxCharVoters) {
+            if (
+                poll.type === "char" &&
+                poll.voters.size >= MyConstants.maxCharVoters
+            ) {
                 return reply(interaction, {
                     content: `投票へ参加できる人数が上限に達しています(キャラ選択に参加できるのは最大で${MyConstants.maxCharVoters}人です)`,
                     ephemeral: false,
                 });
-            } else if (poll.type === "vote" && poll.voters.size >= MyConstants.maxVoteVoters) {
+            } else if (
+                poll.type === "vote" &&
+                poll.voters.size >= MyConstants.maxVoteVoters
+            ) {
                 return reply(interaction, {
                     content: `投票へ参加できる人数が上限に達しています(犯人投票に参加できるのは最大で${MyConstants.maxVoteVoters}人です)`,
                     ephemeral: false,
@@ -41,8 +47,14 @@ export default new Button({
         poll.voters.set(interaction.user.id, choiceId);
 
         isVoted
-            ? await reply(interaction, `${poll.choices[choiceId].label}に変更しました`)
-            : await reply(interaction, `${poll.choices[choiceId].label}を選択しました`);
+            ? await reply(
+                  interaction,
+                  `${poll.choices[choiceId].label}に変更しました`
+              )
+            : await reply(
+                  interaction,
+                  `${poll.choices[choiceId].label}を選択しました`
+              );
 
         await poll.save();
     },

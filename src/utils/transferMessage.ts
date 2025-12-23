@@ -1,26 +1,26 @@
 import {
-    AnyThreadChannel,
-    Attachment,
+    type AnyThreadChannel,
+    type Attachment,
     AttachmentBuilder,
-    BitFieldResolvable,
-    GuildChannel,
-    GuildTextBasedChannel,
-    Message,
-    MessageCreateOptions,
-    MessageFlags,
-    MessageMentionOptions,
+    type BitFieldResolvable,
+    type GuildChannel,
+    type GuildTextBasedChannel,
+    type Message,
+    type MessageCreateOptions,
+    type MessageFlags,
+    type MessageMentionOptions,
     MessageType,
-    ThreadChannel,
+    type ThreadChannel,
 } from "discord.js";
-import { fetchAllMessages } from "./FetchAllMessages";
-import { splitMessage } from "./SplitMessage";
-import { openMessage } from "../commands/slashcommands/open";
 import { client } from "../bot";
-import { ChannelLink } from "../structures/ChannelLink";
+import { openMessage } from "../commands/slashcommands/open";
+import { createPollMessage } from "../commands/slashcommands/poll";
 import { buildTransferMessage } from "../commands/slashcommands/transfer";
 import { MyConstants } from "../constants/constants";
-import { createPollMessage } from "../commands/slashcommands/poll";
+import type { ChannelLink } from "../structures/ChannelLink";
 import { PollModel } from "../structures/Poll";
+import { fetchAllMessages } from "./FetchAllMessages";
+import { splitMessage } from "./SplitMessage";
 
 type transferOptions = {
     noReaction?: boolean;
@@ -58,13 +58,18 @@ export const transferMessage = async (
     const { attachments, components, embeds } = message;
 
     //巨大なファイルを除外
-    const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MyConstants.maxFileSize);
+    const [files, largeFiles] = attachments.partition(
+        (f: Attachment) => f.size <= MyConstants.maxFileSize
+    );
 
     let newMessageOptions = {
         content,
         files: await Promise.all(
             files.map(async (file: Attachment) => {
-                const filename = (await fetchDecodedFilename(file.url)) ?? file.name ?? "unknown";
+                const filename =
+                    (await fetchDecodedFilename(file.url)) ??
+                    file.name ??
+                    "unknown";
                 return new AttachmentBuilder(file.url).setName(filename);
             })
         ),
@@ -75,24 +80,35 @@ export const transferMessage = async (
     } as MessageCreateOptions;
 
     //transfer,open,pollのボタンを更新
-    const customId = components[0]?.components[0]?.customId ?? '';
+    const customId = components[0]?.components[0]?.customId ?? "";
 
     if (message.author.id !== client.user?.id) {
         newMessageOptions.components = []; //自分以外のメッセージはcomponentsを削除
     } else if (customId?.startsWith("transfer")) {
         const [, destinationId] = customId.split(/[;:,]/);
-        const destinationChannel = updates?.find(({ before }) => before.id == destinationId)?.after;
+        const destinationChannel = updates?.find(
+            ({ before }) => before.id == destinationId
+        )?.after;
 
         if (destinationChannel) {
-            newMessageOptions = { ...newMessageOptions, ...buildTransferMessage(destinationChannel) };
+            newMessageOptions = {
+                ...newMessageOptions,
+                ...buildTransferMessage(destinationChannel),
+            };
         }
     } else if (customId?.startsWith("open")) {
         const [, channelId, mentionableId] = customId.split(/[;:,]/);
-        const targetChannel = updates?.find(({ before }) => before.id == channelId)?.after;
+        const targetChannel = updates?.find(
+            ({ before }) => before.id == channelId
+        )?.after;
         const mentionable =
-            message.guild?.roles.cache.get(mentionableId) ?? message.guild?.members.cache.get(mentionableId);
+            message.guild?.roles.cache.get(mentionableId) ??
+            message.guild?.members.cache.get(mentionableId);
         if (targetChannel && mentionable) {
-            newMessageOptions = { ...newMessageOptions, ...openMessage(targetChannel, mentionable) };
+            newMessageOptions = {
+                ...newMessageOptions,
+                ...openMessage(targetChannel, mentionable),
+            };
         }
     } else if (customId?.startsWith("poll")) {
         const [, pollId, _] = customId.split(/[;:,]/);
@@ -113,7 +129,9 @@ export const transferMessage = async (
 
         if (!options?.noReaction) {
             await Promise.all(
-                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => { }))
+                [...message.reactions.cache.keys()].map(reaction =>
+                    newMessage.react(reaction).catch(() => {})
+                )
             );
         }
         const { thread } = message;
@@ -169,7 +187,9 @@ const fetchDecodedFilename = async (url: string) => {
             return null;
         }
 
-        const filenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)$/);
+        const filenameMatch = contentDisposition.match(
+            /filename\*=UTF-8''(.+)$/
+        );
         if (!filenameMatch) {
             return null;
         }

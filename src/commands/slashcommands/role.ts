@@ -1,14 +1,14 @@
-import { APIRole, Role, SlashCommandBuilder } from "discord.js";
-import { SlashCommand } from "../../structures/SlashCommand";
+import { type APIRole, type Role, SlashCommandBuilder } from "discord.js";
 import roleAddButton from "../../components/buttons/roleAdd";
-import roleRemoveButton from "../../components/buttons/roleRemove";
 import roleChangeButton from "../../components/buttons/roleChange";
 import roleGetButton from "../../components/buttons/roleGet";
 import roleReleaseButton from "../../components/buttons/roleRelease";
+import roleRemoveButton from "../../components/buttons/roleRemove";
 import roleList from "../../components/selectmenu/roleList";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { arraySplit } from "../../utils/ArraySplit";
 import { buttonToRow } from "../../utils/ButtonToRow";
 import { reply } from "../../utils/Reply";
-import { arraySplit } from "../../utils/ArraySplit";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -19,28 +19,44 @@ export default new SlashCommand({
         .addSubcommand(subcommand =>
             subcommand
                 .setName("add")
-                .setDescription("対象のロールを持つメンバーにロールを付与します")
+                .setDescription(
+                    "対象のロールを持つメンバーにロールを付与します"
+                )
                 .addRoleOption(option =>
-                    option.setName("対象").setDescription("ロールを付与する対象を選択してください").setRequired(true)
+                    option
+                        .setName("対象")
+                        .setDescription(
+                            "ロールを付与する対象を選択してください"
+                        )
+                        .setRequired(true)
                 )
                 .addRoleOption(option =>
                     option
                         .setName("付与するロール")
-                        .setDescription("ロールを付与する対象を選択してください")
+                        .setDescription(
+                            "ロールを付与する対象を選択してください"
+                        )
                         .setRequired(true)
                 )
                 .addStringOption(option =>
                     option
                         .setName("ボタンを他の人からも見えるようにする")
-                        .setDescription("ボタンが他の人からも見えるようになり、押せるようになります")
+                        .setDescription(
+                            "ボタンが他の人からも見えるようになり、押せるようになります"
+                        )
                         .setRequired(false)
-                        .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+                        .addChoices(
+                            { name: "はい", value: "true" },
+                            { name: "いいえ", value: "false" }
+                        )
                 )
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName("remove")
-                .setDescription("選択したロールをすべてのメンバーから解除します")
+                .setDescription(
+                    "選択したロールをすべてのメンバーから解除します"
+                )
                 .addRoleOption(option =>
                     option
                         .setName("解除するロール")
@@ -50,9 +66,14 @@ export default new SlashCommand({
                 .addStringOption(option =>
                     option
                         .setName("ボタンを他の人からも見えるようにする")
-                        .setDescription("ボタンが他の人からも見えるようになり、押せるようになります")
+                        .setDescription(
+                            "ボタンが他の人からも見えるようになり、押せるようになります"
+                        )
                         .setRequired(false)
-                        .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+                        .addChoices(
+                            { name: "はい", value: "true" },
+                            { name: "いいえ", value: "false" }
+                        )
                 )
         )
         .addSubcommand(subcommand =>
@@ -74,16 +95,25 @@ export default new SlashCommand({
                 .addStringOption(option =>
                     option
                         .setName("ボタンを他の人からも見えるようにする")
-                        .setDescription("ボタンが他の人からも見えるようになり、押せるようになります(非推奨)")
+                        .setDescription(
+                            "ボタンが他の人からも見えるようになり、押せるようになります(非推奨)"
+                        )
                         .setRequired(false)
-                        .addChoices({ name: "はい", value: "true" }, { name: "いいえ", value: "false" })
+                        .addChoices(
+                            { name: "はい", value: "true" },
+                            { name: "いいえ", value: "false" }
+                        )
                 )
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName("self")
                 .setDescription("ロールの取得や解除を行うボタンを作成します")
-                .addRoleOption(option => option.setName("付与するロール").setDescription("ロールを選択してください"))
+                .addRoleOption(option =>
+                    option
+                        .setName("付与するロール")
+                        .setDescription("ロールを選択してください")
+                )
         ) as SlashCommandBuilder,
     execute: async ({ interaction, args }) => {
         const subCommand = args.getSubcommand();
@@ -91,14 +121,19 @@ export default new SlashCommand({
         const target = args.getRole("対象");
         const roleAdd = args.getRole("付与するロール");
         const roleRemove = args.getRole("解除するロール");
-        const ephemeral = args.getString("ボタンを他の人からも見えるようにする") === "true" ? false : true;
+        const ephemeral =
+            args.getString("ボタンを他の人からも見えるようにする") === "true"
+                ? false
+                : true;
         const allowedMentions = { parse: [] };
 
         switch (subCommand) {
             case "add":
                 await reply(interaction, {
                     content: `${target}に${roleAdd}を付与します`,
-                    components: buttonToRow(roleAddButton.build({ target: target, role: roleAdd })),
+                    components: buttonToRow(
+                        roleAddButton.build({ target: target, role: roleAdd })
+                    ),
                     ephemeral,
                     allowedMentions,
                 });
@@ -106,16 +141,27 @@ export default new SlashCommand({
             case "remove":
                 await reply(interaction, {
                     content: `${roleRemove}をすべてのメンバーから解除します`,
-                    components: buttonToRow(roleRemoveButton.build({ role: roleRemove })),
+                    components: buttonToRow(
+                        roleRemoveButton.build({ role: roleRemove })
+                    ),
                     ephemeral,
                     allowedMentions,
                 });
                 break;
             case "change":
-                if (roleAdd == roleRemove) return reply(interaction, "変更前と変更後のロールが同じです");
+                if (roleAdd == roleRemove)
+                    return reply(
+                        interaction,
+                        "変更前と変更後のロールが同じです"
+                    );
                 await reply(interaction, {
                     content: `${roleRemove}を${roleAdd}に付け替えます`,
-                    components: buttonToRow(roleChangeButton.build({ before: roleRemove, after: roleAdd })),
+                    components: buttonToRow(
+                        roleChangeButton.build({
+                            before: roleRemove,
+                            after: roleAdd,
+                        })
+                    ),
                     ephemeral,
                     allowedMentions,
                 });
@@ -126,12 +172,24 @@ export default new SlashCommand({
                     const roles = (await roleManager?.fetch())?.filter(
                         role => !role.managed && role != roleManager?.everyone
                     );
-                    if (!roles || roles?.size == 0) return reply(interaction, "ロールが見つかりませんでした");
+                    if (!roles || roles?.size == 0)
+                        return reply(
+                            interaction,
+                            "ロールが見つかりませんでした"
+                        );
 
-                    roles.sort((roleA, roleB) => roleB.rawPosition - roleA.rawPosition);
-                    for await (const [index, rolesSplited] of arraySplit([...roles.values()], 125).entries()) {
+                    roles.sort(
+                        (roleA, roleB) => roleB.rawPosition - roleA.rawPosition
+                    );
+                    for await (const [index, rolesSplited] of arraySplit(
+                        [...roles.values()],
+                        125
+                    ).entries()) {
                         await reply(interaction, {
-                            components: roleList.build(rolesSplited, index * 5 + 1),
+                            components: roleList.build(
+                                rolesSplited,
+                                index * 5 + 1
+                            ),
                         });
                     }
                     break;
@@ -146,7 +204,10 @@ export default new SlashCommand({
 export const buildRoleRow = (role: Role | APIRole) => {
     return {
         content: `${role}`,
-        components: buttonToRow([...roleGetButton.build({ role }), ...roleReleaseButton.build({ role })]),
+        components: buttonToRow([
+            ...roleGetButton.build({ role }),
+            ...roleReleaseButton.build({ role }),
+        ]),
         allowedMentions: { parse: [] },
     };
 };

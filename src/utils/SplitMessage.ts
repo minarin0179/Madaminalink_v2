@@ -1,4 +1,7 @@
-export const splitMessage = (text: string, { maxLength = 2000, delimeter = "\n" } = {}): string[] => {
+export const splitMessage = (
+    text: string,
+    { maxLength = 2000, delimeter = "\n" } = {}
+): string[] => {
     if (text.length <= maxLength) return [text];
 
     const splitText = text

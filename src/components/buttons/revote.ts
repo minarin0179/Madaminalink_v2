@@ -1,13 +1,16 @@
 import { ButtonBuilder, ButtonStyle, Collection } from "discord.js";
+import { sendPoll } from "../../commands/slashcommands/poll";
 import { Button } from "../../structures/Button";
 import { PollModel } from "../../structures/Poll";
 import { reply } from "../../utils/Reply";
-import { sendPoll } from "../../commands/slashcommands/poll";
 
 export default new Button({
     customId: "revote",
     build: ({ pollId }: { pollId: string }) => [
-        new ButtonBuilder().setCustomId(`revote:${pollId}`).setLabel("再投票").setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+            .setCustomId(`revote:${pollId}`)
+            .setLabel("再投票")
+            .setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         const pollId = args[0];
@@ -15,7 +18,10 @@ export default new Button({
         if (!poll) return;
 
         if (interaction.user.id !== poll.ownerId) {
-            await reply(interaction, { content: "再投票は投票を開始した人のみが行えます", ephemeral: true });
+            await reply(interaction, {
+                content: "再投票は投票を開始した人のみが行えます",
+                ephemeral: true,
+            });
             return;
         }
 
@@ -27,7 +33,9 @@ export default new Button({
         });
 
         // 投票数がでない選択しのみを取り出す
-        const restChoices = poll.choices.filter((_, index: number) => result.get(index)?.length !== 1);
+        const restChoices = poll.choices.filter(
+            (_, index: number) => result.get(index)?.length !== 1
+        );
 
         const pollOptions = {
             type: poll.type,
@@ -38,6 +46,9 @@ export default new Button({
 
         await sendPoll(interaction, pollOptions);
 
-        await reply(interaction, { content: "再投票を開始しました", ephemeral: true });
+        await reply(interaction, {
+            content: "再投票を開始しました",
+            ephemeral: true,
+        });
     },
 });

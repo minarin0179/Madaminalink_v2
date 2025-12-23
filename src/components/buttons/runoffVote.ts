@@ -1,13 +1,16 @@
 import { ButtonBuilder, ButtonStyle, Collection } from "discord.js";
+import { sendPoll } from "../../commands/slashcommands/poll";
 import { Button } from "../../structures/Button";
 import { PollModel } from "../../structures/Poll";
 import { reply } from "../../utils/Reply";
-import { sendPoll } from "../../commands/slashcommands/poll";
 
 export default new Button({
     customId: "runoff",
     build: ({ pollId }: { pollId: string }) => [
-        new ButtonBuilder().setCustomId(`runoff:${pollId}`).setLabel("決選投票").setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+            .setCustomId(`runoff:${pollId}`)
+            .setLabel("決選投票")
+            .setStyle(ButtonStyle.Danger),
     ],
     execute: async ({ interaction, args }) => {
         const pollId = args[0];
@@ -21,8 +24,12 @@ export default new Button({
             result.get(choiceIndex)?.push(userId);
         });
 
-        const topVoteGetters = result.filter(voters => voters.length === result.first()?.length);
-        const restChoices = poll.choices.filter((_, index: number) => topVoteGetters.has(index));
+        const topVoteGetters = result.filter(
+            voters => voters.length === result.first()?.length
+        );
+        const restChoices = poll.choices.filter((_, index: number) =>
+            topVoteGetters.has(index)
+        );
 
         const pollOptions = {
             type: poll.type,
@@ -33,6 +40,9 @@ export default new Button({
 
         await sendPoll(interaction, pollOptions);
 
-        await reply(interaction, { content: "決戦投票を開始しました", ephemeral: true });
+        await reply(interaction, {
+            content: "決戦投票を開始しました",
+            ephemeral: true,
+        });
     },
 });

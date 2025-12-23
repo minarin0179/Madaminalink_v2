@@ -4,14 +4,14 @@ import {
     GatewayRateLimitError,
     InteractionContextType,
     SlashCommandBuilder,
-    VoiceChannel,
+    type VoiceChannel,
 } from "discord.js";
-import { SlashCommand } from "../../structures/SlashCommand";
-import { reply } from "../../utils/Reply";
-import { buttonToRow } from "../../utils/ButtonToRow";
-import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import joinOrder from "../../components/buttons/joinOrder";
 import shuffleOrder from "../../components/buttons/shuffleOrder";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { buttonToRow } from "../../utils/ButtonToRow";
+import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
+import { reply } from "../../utils/Reply";
 
 export const NO_USER_MESSAGE = "まだ参加者がいません";
 export default new SlashCommand({
@@ -21,12 +21,16 @@ export default new SlashCommand({
         .setContexts(InteractionContextType.Guild)
         .setDefaultMemberPermissions(0)
         .addStringOption(option =>
-            option.setName("ユーザーまたはロール").setDescription("ユーザー，ロールを並べ替えに追加できます")
+            option
+                .setName("ユーザーまたはロール")
+                .setDescription("ユーザー，ロールを並べ替えに追加できます")
         )
         .addChannelOption(option =>
             option
                 .setName("ボイスチャンネル")
-                .setDescription("ボイスチャンネルにいるメンバーを並べ替えに追加します")
+                .setDescription(
+                    "ボイスチャンネルにいるメンバーを並べ替えに追加します"
+                )
                 .setRequired(false)
                 .addChannelTypes(ChannelType.GuildVoice)
         ) as SlashCommandBuilder,
@@ -46,22 +50,37 @@ export default new SlashCommand({
             if (!(error instanceof GatewayRateLimitError)) {
                 throw error;
             }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
+            await reply(
+                interaction,
+                generateGatewayLimitMessage(error.data.retry_after)
+            );
             return;
         }
 
-        const memberIDs = Array.from(participants.matchAll(membersRegex), m => m[1]);
-        const members = new Set(memberIDs?.map(user_id => guild.members.cache.get(user_id)).filter(m => !!m) || []);
+        const memberIDs = Array.from(
+            participants.matchAll(membersRegex),
+            m => m[1]
+        );
+        const members = new Set(
+            memberIDs
+                ?.map(user_id => guild.members.cache.get(user_id))
+                .filter(m => !!m) || []
+        );
 
         const roleIDs = Array.from(participants.matchAll(roleRegex), m => m[1]);
-        const roles = roleIDs?.map(role_id => guild.roles.cache.get(role_id)).filter(r => !!r) || [];
+        const roles =
+            roleIDs
+                ?.map(role_id => guild.roles.cache.get(role_id))
+                .filter(r => !!r) || [];
         roles.map(role => {
             role.members.map(m => {
                 members.add(m);
             });
         });
 
-        const voiceChannel = args.getChannel("ボイスチャンネル") as VoiceChannel | null;
+        const voiceChannel = args.getChannel(
+            "ボイスチャンネル"
+        ) as VoiceChannel | null;
         voiceChannel?.members.map(member => members.add(member));
 
         const description =
@@ -69,11 +88,16 @@ export default new SlashCommand({
                 .map(m => `${m}`)
                 .join("\n") || NO_USER_MESSAGE;
 
-        const embed = new EmbedBuilder().setTitle("順番決め").setDescription(description);
+        const embed = new EmbedBuilder()
+            .setTitle("順番決め")
+            .setDescription(description);
 
         await reply(interaction, {
             embeds: [embed],
-            components: buttonToRow([...joinOrder.build(), ...shuffleOrder.build({ author: interaction.member })]),
+            components: buttonToRow([
+                ...joinOrder.build(),
+                ...shuffleOrder.build({ author: interaction.member }),
+            ]),
         });
     },
 });

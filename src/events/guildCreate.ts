@@ -1,10 +1,13 @@
 import { AuditLogEvent, Events } from "discord.js";
 import { Event } from "../structures/Events";
 
-export default new Event(Events.GuildCreate, async (guild) => {
+export default new Event(Events.GuildCreate, async guild => {
     try {
         const owner = await guild.fetchOwner();
-        const auditLogs = await guild.fetchAuditLogs({ type: AuditLogEvent.BotAdd, limit: 1 });
+        const auditLogs = await guild.fetchAuditLogs({
+            type: AuditLogEvent.BotAdd,
+            limit: 1,
+        });
         const botAddLog = auditLogs.entries.first();
         const inviter = botAddLog?.executor || null;
 

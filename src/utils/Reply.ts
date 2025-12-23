@@ -1,4 +1,4 @@
-import {
+import type {
     CommandInteraction,
     InteractionReplyOptions,
     InteractionResponse,
@@ -8,7 +8,10 @@ import {
 } from "discord.js";
 
 export async function reply(
-    interaction: CommandInteraction | MessageComponentInteraction | ModalSubmitInteraction,
+    interaction:
+        | CommandInteraction
+        | MessageComponentInteraction
+        | ModalSubmitInteraction,
     options: InteractionReplyOptions | string
 ): Promise<Message | InteractionResponse | undefined> {
     try {

@@ -1,6 +1,11 @@
-import { InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { SlashCommand } from "../../structures/SlashCommand";
+import {
+    InteractionContextType,
+    MessageFlags,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
+} from "discord.js";
 import profileModal from "../../components/modal/profileModal";
+import { SlashCommand } from "../../structures/SlashCommand";
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -47,7 +52,7 @@ export default new SlashCommand({
 
             await interaction.reply({
                 content: "プロフィールをすべてリセットしました",
-                flags: MessageFlags.Ephemeral
+                flags: MessageFlags.Ephemeral,
             });
         }
     },

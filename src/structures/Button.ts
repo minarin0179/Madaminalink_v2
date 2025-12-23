@@ -1,6 +1,6 @@
-import { ButtonBuilder, ButtonInteraction } from "discord.js";
-import { ExtendedClient } from "./Client";
-import { Component, ComponentType, RunOptions } from "./Component";
+import type { ButtonBuilder, ButtonInteraction } from "discord.js";
+import type { ExtendedClient } from "./Client";
+import { Component, type ComponentType, type RunOptions } from "./Component";
 
 type ButtonBuildFunction = (options?: any) => ButtonBuilder[];
 

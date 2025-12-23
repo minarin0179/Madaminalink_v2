@@ -2,7 +2,11 @@ import { GatewayIntentBits, Options } from "discord.js";
 import { ExtendedClient } from "./structures/Client";
 
 export const client: ExtendedClient = new ExtendedClient({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates],
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates,
+    ],
     rest: { timeout: 60000 },
     makeCache: Options.cacheWithLimits({
         ...Options.DefaultMakeCacheSettings,
@@ -45,7 +49,8 @@ export const client: ExtendedClient = new ExtendedClient({
         },
         guildMembers: {
             interval: 3600,
-            filter: () => member => member.user.bot && member.user.id !== member.client.user.id,
+            filter: () => member =>
+                member.user.bot && member.user.id !== member.client.user.id,
         },
     },
 });

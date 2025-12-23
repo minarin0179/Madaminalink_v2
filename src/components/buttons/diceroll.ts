@@ -4,12 +4,17 @@ import { Button } from "../../structures/Button";
 export default new Button({
     customId: "diceroll",
     build: ({ x, y }: { x: number; y: number }) => [
-        new ButtonBuilder().setCustomId(`diceroll:${x},${y}`).setLabel(`${x}d${y}`).setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setCustomId(`diceroll:${x},${y}`)
+            .setLabel(`${x}d${y}`)
+            .setStyle(ButtonStyle.Primary),
     ],
     execute: async ({ interaction, args }) => {
         const [x, y] = args.map(Number);
         await interaction.reply("ダイスロールを実行中...");
-        await interaction.channel?.send(`${interaction.member} 🎲 ${diceRole(x, y)}`);
+        await interaction.channel?.send(
+            `${interaction.member} 🎲 ${diceRole(x, y)}`
+        );
         await interaction.deleteReply();
     },
 });

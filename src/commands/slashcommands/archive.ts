@@ -3,23 +3,23 @@ import {
     ChannelType,
     Collection,
     discordSort,
-    Embed,
+    type Embed,
     EmbedBuilder,
     GuildEmoji,
-    GuildTextBasedChannel,
-    Message,
+    type GuildTextBasedChannel,
+    type Message,
     MessageFlags,
-    MessageReaction,
+    type MessageReaction,
     SlashCommandBuilder,
-    TextChannel,
+    type TextChannel,
 } from "discord.js";
-import { SlashCommand } from "../../structures/SlashCommand";
-import { fetchAllMessages } from "../../utils/FetchAllMessages";
-import { reply } from "../../utils/Reply";
-import { arraySplit } from "../../utils/ArraySplit";
-import { splitMessage } from "../../utils/SplitMessage";
-import { isEmptyText } from "../../utils/isEmptyMessage";
 import { MyConstants } from "../../constants/constants";
+import { SlashCommand } from "../../structures/SlashCommand";
+import { arraySplit } from "../../utils/ArraySplit";
+import { fetchAllMessages } from "../../utils/FetchAllMessages";
+import { isEmptyText } from "../../utils/isEmptyMessage";
+import { reply } from "../../utils/Reply";
+import { splitMessage } from "../../utils/SplitMessage";
 
 const MAX_DESCRIPTION_LENGTH = 2500;
 const MAX_EMBED_LENGTH = 3000;
@@ -33,7 +33,10 @@ export default new SlashCommand({
         .addChannelOption(option =>
             option
                 .setName("保存するカテゴリ")
-                .addChannelTypes(ChannelType.GuildText, ChannelType.GuildCategory)
+                .addChannelTypes(
+                    ChannelType.GuildText,
+                    ChannelType.GuildCategory
+                )
                 .setDescription("保存するカテゴリ")
                 .setRequired(true)
         )
@@ -48,10 +51,9 @@ export default new SlashCommand({
     execute: async ({ interaction, args }) => {
         const progressMessage = await reply(interaction, "処理を実行中です...");
 
-        const targetCategory = args.getChannel<ChannelType.GuildCategory | ChannelType.GuildText>(
-            "保存するカテゴリ",
-            true
-        );
+        const targetCategory = args.getChannel<
+            ChannelType.GuildCategory | ChannelType.GuildText
+        >("保存するカテゴリ", true);
 
         const logChannel =
             args.getChannel<ChannelType.GuildText>("保存先") ??
@@ -62,17 +64,28 @@ export default new SlashCommand({
             }));
 
         if (!logChannel) {
-            return reply(interaction, { content: "保存先のチャンネルが見つかりません", ephemeral: true });
+            return reply(interaction, {
+                content: "保存先のチャンネルが見つかりません",
+                ephemeral: true,
+            });
         }
 
         const children =
             targetCategory instanceof CategoryChannel
                 ? discordSort(
-                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
-                )
-                : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
+                      targetCategory.children.cache.filter(
+                          (ch): ch is TextChannel =>
+                              ch.type === ChannelType.GuildText
+                      )
+                  )
+                : new Collection<string, TextChannel>([
+                      [targetCategory.id, targetCategory],
+                  ]);
         if (children.size == 0) {
-            return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
+            return reply(interaction, {
+                content: "保存するチャンネルがありません",
+                ephemeral: true,
+            });
         }
 
         const descriptions = await Promise.all(
@@ -83,7 +96,9 @@ export default new SlashCommand({
 
                 const threads = await fetchAllThreads(child);
                 if (threads.size > 0) {
-                    const threadDescription = await Promise.all(threads.map(thread => RunArchive(thread, logChannel)));
+                    const threadDescription = await Promise.all(
+                        threads.map(thread => RunArchive(thread, logChannel))
+                    );
                     description += `\n${threadDescription.join("\n")}`;
                 }
                 return description;
@@ -113,7 +128,10 @@ export default new SlashCommand({
         if (progressMessage) {
             await progressMessage.delete();
         }
-        await reply(interaction, `「${targetCategory.name}」の保存が完了しました`);
+        await reply(
+            interaction,
+            `「${targetCategory.name}」の保存が完了しました`
+        );
     },
 });
 
@@ -123,11 +141,16 @@ interface ArchiveData {
     reactions: string;
 }
 
-const RunArchive = async (source: GuildTextBasedChannel, destination: TextChannel): Promise<string> => {
+const RunArchive = async (
+    source: GuildTextBasedChannel,
+    destination: TextChannel
+): Promise<string> => {
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
-    const destinationThread = await destination.threads.create({ name: source.name });
+    const destinationThread = await destination.threads.create({
+        name: source.name,
+    });
 
-    const archiveDatas = messages.map(messageToArchiveDatas).flat();
+    const archiveDatas = messages.flatMap(messageToArchiveDatas);
 
     let lastIndex = 0;
     let embedSize = 0;
@@ -177,10 +200,13 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
         embedSize = 0;
     }
 
-    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => {});
     await destinationThread.setArchived(true);
 
-    return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;
+    return (
+        (source.isThread() ? "┗" : "") +
+        `[_#_ ${destinationThread.name}](${destinationThread.url})`
+    );
 };
 
 const dateToTimestamp = (date: Date) => {
@@ -217,7 +243,10 @@ const fetchAllThreads = async (channel: TextChannel) => {
         fetchAll: true,
     });
 
-    const allThreads = activeThreads.threads.concat(archivedPublicThreads.threads, archivedPrivateThreads.threads);
+    const allThreads = activeThreads.threads.concat(
+        archivedPublicThreads.threads,
+        archivedPrivateThreads.threads
+    );
 
     return allThreads.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 };
@@ -241,34 +270,42 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
     }
 
     const description = `${message.content}\n${reactionText}`;
-    const authorName = message.member?.nickname || message.author.globalName || message.author.username;
+    const authorName =
+        message.member?.nickname ||
+        message.author.globalName ||
+        message.author.username;
     const splittedDescription = splitMessage(description, { maxLength: 3000 });
-    const datas: ArchiveData[] = splittedDescription.map((description, index) => {
-        const messageEmbed = new EmbedBuilder()
-            .setDescription(description)
-            .setColor(MyConstants.color.embed_background);
-        const data: ArchiveData = {
-            embed: messageEmbed,
-            files: [],
-            reactions: "",
-        };
+    const datas: ArchiveData[] = splittedDescription.map(
+        (description, index) => {
+            const messageEmbed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(MyConstants.color.embed_background);
+            const data: ArchiveData = {
+                embed: messageEmbed,
+                files: [],
+                reactions: "",
+            };
 
-        if (index == 0) {
-            messageEmbed.setAuthor({
-                name: authorName,
-                iconURL: message.author.avatarURL() ?? undefined,
-            });
+            if (index == 0) {
+                messageEmbed.setAuthor({
+                    name: authorName,
+                    iconURL: message.author.avatarURL() ?? undefined,
+                });
+            }
+            if (index == splittedDescription.length - 1) {
+                messageEmbed.setFooter({ text: timeStamp });
+                data.files =
+                    message.attachments
+                        .filter(
+                            attachment =>
+                                attachment.size <= MyConstants.maxFileSize
+                        )
+                        .map(attachment => attachment.url) || [];
+                data.reactions = reactionTextLater;
+            }
+            return data;
         }
-        if (index == splittedDescription.length - 1) {
-            messageEmbed.setFooter({ text: timeStamp });
-            data.files =
-                message.attachments
-                    .filter(attachment => attachment.size <= MyConstants.maxFileSize)
-                    .map(attachment => attachment.url) || [];
-            data.reactions = reactionTextLater;
-        }
-        return data;
-    });
+    );
     const result = [
         ...datas,
         ...message.embeds.map(embed => {
@@ -276,7 +313,10 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
             const newEmbed = new EmbedBuilder(embed);
             if (description) {
                 if (description?.length > MAX_DESCRIPTION_LENGTH) {
-                    newEmbed.setDescription(description.substring(0, MAX_DESCRIPTION_LENGTH - 1) + "…");
+                    newEmbed.setDescription(
+                        description.substring(0, MAX_DESCRIPTION_LENGTH - 1) +
+                            "…"
+                    );
                 } else {
                     newEmbed.setDescription(description);
                 }
