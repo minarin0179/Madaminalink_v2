@@ -34,16 +34,16 @@ const getLabel = (permission: Permission, isVoice: boolean) => {
   <table class="permission-table">
     <thead>
       <tr>
-        <th>チャンネル</th>
-        <th>GM</th>
-        <th>PL</th>
-        <th>個別PL</th>
-        <th>観戦</th>
+        <th></th>
+        <th scope="col">GM</th>
+        <th scope="col">PL</th>
+        <th scope="col">各PC</th>
+        <th scope="col">観戦</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="row in permissions" :key="row.channel">
-        <td>{{ row.channel }}</td>
+        <th scope="row">{{ row.channel }}</th>
         <td :class="row.gm">{{ getLabel(row.gm, row.isVoice ?? false) }}</td>
         <td :class="row.pl">{{ getLabel(row.pl, row.isVoice ?? false) }}</td>
         <td :class="row.individualPl">{{ getLabel(row.individualPl, row.isVoice ?? false) }}</td>
@@ -64,6 +64,10 @@ const getLabel = (permission: Permission, isVoice: boolean) => {
   border: 1px solid var(--vp-c-divider);
   padding: 0.5rem;
   text-align: center;
+}
+.permission-table td:first-child,
+.permission-table th:first-child {
+  text-align: left;
 }
 .permission-table th {
   background-color: var(--vp-c-bg-soft);

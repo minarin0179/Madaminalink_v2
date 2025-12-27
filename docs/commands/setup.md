@@ -7,14 +7,15 @@ description: 新規プレイ用のカテゴリ、チャンネル、ロールを�
 ## 使用方法
 
 ```
-/setup シナリオ名:テストシナリオ プレイヤー数:4 密談チャンネル数:1
+/setup シナリオ名:サンプルシナリオ プレイヤー数:4 密談チャンネル数:2
 ```
 
 実行すると、以下のようにチャンネルとロールが作成されます。
 
-<div style="display: flex; gap: 1rem;">
-  <img src="../images/commands/setup/channel-list.png" alt="/setupで作成されるチャンネル一覧" style="max-width: 50%;">
-  <img src="../images/commands/setup/role-list.png" alt="/setupで作成されるロール一覧" style="max-width: 50%;">
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;">
+  <img src="../images/commands/setup/channel-list.png" alt="/setupで作成されるチャンネル一覧" style="height: 400px; width: auto;">
+  <img src="../images/commands/setup/role-list.png" alt="/setupで作成されるロール一覧" style="height: 400px; width: auto;">
 </div>
 
 ## 作成されるもの
@@ -23,15 +24,15 @@ description: 新規プレイ用のカテゴリ、チャンネル、ロールを�
 
 シナリオ名のカテゴリ内に以下のチャンネルが作成されます。
 
-| 種別 | チャンネル名 | 説明 |
+| 種別 | チャンネル名 | 用途 |
 |------|-------------|------|
-| テキスト | 一般 | 参加者への連絡、雑談用など |
-| テキスト | 共通情報 | シナリオの概要やルール |
-| テキスト | pc1, pc2, ... | ハンドアウトの配布、壁打ち、GMへの質問 |
-| テキスト | 観戦 | 観戦者の壁打ち |
-| テキスト | 解説 | シナリオの解説用 |
-| ボイス | 全体会議 | 全体での会議用 |
-| ボイス | 密談場所1, 密談場所2, ... | 密談用VC |
+| テキスト | 一般 | 連絡・雑談 |
+| テキスト | 共通情報 | シナリオ概要・ルール |
+| テキスト | pc1, pc2, ... | 各プレイヤー専用 |
+| テキスト | 観戦 | 観戦者専用 |
+| テキスト | 解説 | シナリオ解説 |
+| ボイス | 全体会議 | 全体での議論 |
+| ボイス | 密談場所1, 密談場所2, ... | 少人数での密談 |
 
 ### ロール構成
 
@@ -55,8 +56,10 @@ description: 新規プレイ用のカテゴリ、チャンネル、ロールを�
   { channel: '観戦', gm: 'write', pl: 'none', individualPl: 'none', spectator: 'write' },
   { channel: '解説', gm: 'write', pl: 'none', individualPl: 'none', spectator: 'read' },
   { channel: '全体会議', gm: 'write', pl: 'write', individualPl: 'write', spectator: 'read', isVoice: true },
-  { channel: '密談場所1, 密談場所2, ...', gm: 'write', pl: 'write', individualPl: 'write', spectator: 'read', isVoice: true },
+  { channel: '密談場所, ...', gm: 'write', pl: 'write', individualPl: 'write', spectator: 'read', isVoice: true },
 ]" />
+
+※ pc1, pc2, ... は自分のチャンネルのみ読み書き可能。他のPCのチャンネルは見れません。
 
 ## オプション
 
