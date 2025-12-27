@@ -12,10 +12,15 @@ description: 新規プレイ用のカテゴリ、チャンネル、ロールを�
 
 実行すると、以下のようにチャンネルとロールが作成されます。
 
-
-<div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;">
-  <img src="../images/commands/setup/channel-list.png" alt="/setupで作成されるチャンネル一覧" style="height: 400px; width: auto;">
-  <img src="../images/commands/setup/role-list.png" alt="/setupで作成されるロール一覧" style="height: 400px; width: auto;">
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; justify-content: center;">
+  <figure style="margin: 0; display: inline-block;">
+    <img src="../images/commands/setup/channel-list.png" alt="/setupで作成されるチャンネル一覧" style="height: 400px; width: auto; display: block;">
+    <figcaption>作成されるチャンネル</figcaption>
+  </figure>
+  <figure style="margin: 0; display: inline-block;">
+    <img src="../images/commands/setup/role-list.png" alt="/setupで作成されるロール一覧" style="height: 400px; width: auto; display: block;">
+    <figcaption>作成されるロール</figcaption>
+  </figure>
 </div>
 
 ## 作成されるもの
@@ -60,6 +65,18 @@ description: 新規プレイ用のカテゴリ、チャンネル、ロールを�
 ]" />
 
 ※ pc1, pc2, ... は自分のチャンネルのみ読み書き可能。他のPCのチャンネルは見れません。
+
+### カテゴリ権限
+
+カテゴリ自体にも権限が設定されています。
+
+| ロール | 権限 |
+|--------|------|
+| GM | 読み書き可能 |
+| PL | 見れない |
+| 観戦 | 読むだけ |
+
+PLロールはカテゴリが見えませんが、個別チャンネルの権限で上書きされるため、一般チャンネルなど必要なチャンネルは見ることができます。
 
 ## オプション
 
@@ -123,6 +140,10 @@ PC1, PC2, ... の代わりに任意のキャラクター名でチャンネル・
 
 ::: warning サーバー全体のチャンネル上限
 サーバー全体のチャンネル数が500個を超える場合もエラーになります。
+:::
+
+::: tip プレイ後の権限整理
+カテゴリには「解説」チャンネルと同じ権限（GM: 読み書き、PL: 見れない、観戦: 読むだけ）が設定されています。プレイ終了後に [/sync](/commands/sync) を使うと、すべてのチャンネルがこの権限に統一され、GMと観戦だけがアクセスできる状態になります。
 :::
 
 ## 関連コマンド
