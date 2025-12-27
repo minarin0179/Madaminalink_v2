@@ -23,11 +23,11 @@ description: チャンネルやカテゴリを複製します。メッセージ�
 <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;">
   <figure style="flex: 1; min-width: 300px; max-width: 48%; margin: 0; text-align: center;">
     <img src="../images/commands/copy/channel-before-copy.png" alt="複製前のチャンネル内のメッセージ、画像、ファイル、ボタン、スレッドの表示" style="width: 100%; height: auto;">
-    <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: #666;">コピー前</figcaption>
+    <figcaption>コピー前</figcaption>
   </figure>
   <figure style="flex: 1; min-width: 300px; max-width: 48%; margin: 0; text-align: center;">
     <img src="../images/commands/copy/channel-after-copy.png" alt="複製後のチャンネルに同じメッセージ、画像、ファイル、ボタン、スレッドがコピーされている様子" style="width: 100%; height: auto;">
-    <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: #666;">コピー後</figcaption>
+    <figcaption>コピー後</figcaption>
   </figure>
 </div>
 
