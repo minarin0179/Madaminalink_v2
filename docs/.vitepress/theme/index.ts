@@ -6,6 +6,9 @@ import CommandList from './components/CommandList.vue'
 import PermissionTable from './components/PermissionTable.vue'
 import RelatedCommands from './components/RelatedCommands.vue'
 import './style.css'
+import mediumZoom from 'medium-zoom'
+import { onMounted, watch, nextTick } from 'vue'
+import { useRoute } from 'vitepress'
 
 export default {
     extends: DefaultTheme,
@@ -16,5 +19,18 @@ export default {
         app.component('CommandList', CommandList)
         app.component('PermissionTable', PermissionTable)
         app.component('RelatedCommands', RelatedCommands)
+    },
+    setup() {
+        const route = useRoute()
+        const initZoom = () => {
+            mediumZoom('.main img', { background: 'var(--vp-c-bg)' })
+        }
+        onMounted(() => {
+            initZoom()
+        })
+        watch(
+            () => route.path,
+            () => nextTick(() => initZoom())
+        )
     }
 } satisfies Theme
