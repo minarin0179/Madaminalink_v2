@@ -13,6 +13,7 @@ import {
     ThreadChannel,
 } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
+import { getFirstButtonCustomId } from "./getFirstButtonCustomId";
 import { splitMessage } from "./SplitMessage";
 import { openMessage } from "../commands/slashcommands/open";
 import { client } from "../bot";
@@ -75,7 +76,7 @@ export const transferMessage = async (
     } as MessageCreateOptions;
 
     //transfer,open,pollのボタンを更新
-    const customId = components[0]?.components[0]?.customId ?? '';
+    const customId = getFirstButtonCustomId(message) ?? "";
 
     if (message.author.id !== client.user?.id) {
         newMessageOptions.components = []; //自分以外のメッセージはcomponentsを削除
