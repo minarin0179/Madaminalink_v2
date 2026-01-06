@@ -2,7 +2,6 @@ import {
     AnyThreadChannel,
     Attachment,
     AttachmentBuilder,
-    BitFieldResolvable,
     GuildChannel,
     GuildTextBasedChannel,
     Message,
@@ -26,10 +25,7 @@ import { PollModel } from "../structures/Poll";
 type transferOptions = {
     noReaction?: boolean;
     allowedMentions?: MessageMentionOptions;
-    flags?: BitFieldResolvable<
-        "SuppressEmbeds" | "SuppressNotifications",
-        MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications
-    >;
+    flags?: MessageCreateOptions["flags"];
     updates?: ChannelLink[]; //チャンネルリンク差し替え用
 };
 
@@ -106,6 +102,15 @@ export const transferMessage = async (
             voters: new Map(),
         };
         newMessageOptions = await createPollMessage(options);
+    }
+
+    if (message.flags.has(MessageFlags.IsComponentsV2)) {
+        newMessageOptions = {
+            components: newMessageOptions.components,
+            flags: ((flags ?? 0) as number) | MessageFlags.IsComponentsV2,
+            allowedMentions,
+            files: newMessageOptions.files,
+        };
     }
     try {
         const newMessage = await destination.send(newMessageOptions);
