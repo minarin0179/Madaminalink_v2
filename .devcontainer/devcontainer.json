@@ -21,10 +21,15 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"dbaeumer.vscode-eslint"
+				"dbaeumer.vscode-eslint",
+				"Vue.volar"
 			],
 			"settings": {
-				"files.insertFinalNewline": true // ファイルの末尾を改行で終わらせる
+				"files.insertFinalNewline": true, // ファイルの末尾を改行で終わらせる
+				"vue.server.includeLanguages": [
+					"vue",
+					"markdown"
+				]
 			}
 		}
 	}

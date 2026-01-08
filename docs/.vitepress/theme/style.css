@@ -5,3 +5,20 @@
   --vp-button-brand-hover-text: #ffffff;
   --vp-button-brand-active-text: #ffffff;
 }
+
+/* medium-zoom のオーバーレイとズームした画像を最前面に表示 */
+.medium-zoom-overlay {
+  z-index: 9999 !important;
+}
+
+.medium-zoom-image--opened {
+  z-index: 10000 !important;
+}
+
+/* 画像キャプション用のスタイル */
+figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.9em;
+  color: #666;
+  text-align: center;
+}

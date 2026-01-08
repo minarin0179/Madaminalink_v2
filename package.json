@@ -30,6 +30,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "glob": "^13.0.0",
     "gray-matter": "^4.0.3",
+    "medium-zoom": "^1.1.0",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6",
     "vitepress": "^1.6.4"
