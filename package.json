@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "bun src/bot.ts",
     "start": "bun src/index.ts",
-    "demon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
+    "daemon": "bun pm2 --no-daemon start Madaminalink_pm2.config.js",
     "docs:dev": "vitepress dev docs --host",
     "docs:build": "bun scripts/generate-releases.mjs && vitepress build docs && bun docs/.vitepress/generateOgImages.mts",
     "docs:preview": "vitepress preview docs",
@@ -15,9 +15,11 @@
     "dotenv": "^16.0.2",
     "mongodb": "^4.10.0",
     "mongoose": "^8.4.4",
-    "pm2": "^5.2.2"
+    "pm2": "^6.0.14"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.11",
+    "@types/bun": "latest",
     "@types/mongoose": "^5.11.97",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@vercel/og": "^0.8.5",
@@ -32,8 +34,7 @@
     "gray-matter": "^4.0.3",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6",
-    "vitepress": "^1.6.4",
-    "@types/bun": "latest"
+    "vitepress": "^1.6.4"
   },
   "name": "madaminalink_v2",
   "module": "src/index.ts",

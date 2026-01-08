@@ -1,9 +1,8 @@
 module.exports = {
-    apps: [
-        {
-            name: "bot",
-            script: "src/index.ts",
-            interpreter: "/root/.bun/bin/bun",
-        },
-    ],
+    name: "bot",
+    script: "src/index.ts",
+    interpreter: "bun",
+    env: {
+        PATH: `${process.env.HOME}/.bun/bin:${process.env.PATH}`,
+    },
 };
