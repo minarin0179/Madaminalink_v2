@@ -16,7 +16,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"dbaeumer.vscode-eslint",
 				"oven.bun-vscode",
 				"Anthropic.claude-code",
 				"biomejs.biome"
