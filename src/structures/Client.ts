@@ -1,4 +1,4 @@
-import { ApplicationCommandDataResolvable, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
+import { ApplicationCommandDataResolvable, Client, ClientEvents, ClientOptions, Collection, Events } from "discord.js";
 import "dotenv/config";
 import * as path from "path";
 import * as fs from "fs";
@@ -46,7 +46,7 @@ export class ExtendedClient extends Client {
             });
         });
 
-        this.on("ready", () => {
+        this.on(Events.ClientReady, () => {
             this.application?.commands.set(commandDatas);
             if (process.env.DEV_SERVER_ID) {
                 this.application?.commands.set(commandDatasDev, process.env.DEV_SERVER_ID);
