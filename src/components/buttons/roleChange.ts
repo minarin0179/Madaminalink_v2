@@ -1,8 +1,8 @@
-import { ButtonBuilder, ButtonStyle, GatewayRateLimitError, Role } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Role } from "discord.js";
 import { Button } from "../../structures/Button";
-import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import { isEditable } from "../../utils/isEditable";
 import { reply } from "../../utils/Reply";
+import { ensureMembers } from "../../utils/ensureMembers";
 
 export default new Button({
     customId: "roleChange",
@@ -21,15 +21,9 @@ export default new Button({
         if (!isEditable(before) || !isEditable(after)) return reply(interaction, "マダミナリンクより上位のロールは編集できません");
         await interaction.deferReply({ ephemeral: true });
 
-        try {
-            await interaction.guild?.members.fetch();
-        } catch (error) {
-            if (!(error instanceof GatewayRateLimitError)) {
-                throw error;
-            }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
-            return;
-        }
+        const guild = interaction.guild;
+        if (!guild) return;
+        await ensureMembers(guild);
 
         const { members } = before;
         if (members.size === 0) return reply(interaction, `${before}を持つメンバーがいません`);

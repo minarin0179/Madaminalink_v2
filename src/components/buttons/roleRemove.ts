@@ -1,7 +1,7 @@
-import { ButtonBuilder, ButtonStyle, GatewayRateLimitError, Role } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Role } from "discord.js";
 import { Button } from "../../structures/Button";
-import { generateGatewayLimitMessage } from "../../utils/generateGatewayLimitMessage";
 import { reply } from "../../utils/Reply";
+import { ensureMembers } from "../../utils/ensureMembers";
 
 export default new Button({
     customId: "roleRemove",
@@ -15,15 +15,9 @@ export default new Button({
         if (!role) return reply(interaction, "ロールが見つかりません");
         await interaction.deferReply({ ephemeral: true });
 
-        try {
-            await interaction.guild?.members.fetch();
-        } catch (error) {
-            if (!(error instanceof GatewayRateLimitError)) {
-                throw error;
-            }
-            await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
-            return;
-        }
+        const guild = interaction.guild;
+        if (!guild) return;
+        await ensureMembers(guild);
 
         const { members } = role;
         if (members.size === 0) return reply(interaction, `${role}を持つメンバーがいません`);
