@@ -19,7 +19,8 @@ services:
     container_name: madaminalink
     restart: always
     env_file:
-      - .env
+      - path: ./.env
+        required: false
     environment:
       NODE_ENV: production
     depends_on:
