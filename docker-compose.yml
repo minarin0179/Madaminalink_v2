@@ -1,22 +1,30 @@
 services:
   mongo:
-    image: mongo
+    image: mongo:7
     container_name: mongodb
     restart: always
     expose:
       - "27017"
     volumes:
-      - ./.db:/data/db
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   bot:
     image: minarin0179/madaminalink:latest
     container_name: madaminalink
     restart: always
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
-      TOKEN: ${TOKEN}
-      DEV_SERVER_ID: ${DEV_SERVER_ID}
-      MONGODB: ${MONGODB}
-      TZ: ${TZ}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

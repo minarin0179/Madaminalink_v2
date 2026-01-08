@@ -1,8 +1,30 @@
-**/.*
-!**/.env
+# Git
+.git
+.gitignore
+
+# Docker
 **/docker-compose*
 **/compose*
 **/Dockerfile*
+
+# Dependencies
 **/node_modules
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.sample
+
+# Development
+.devcontainer
+.vscode
+*.log
+
+# Documentation
+docs
 LICENSE
 README.md
+*.md
+
+# Database
+.db
