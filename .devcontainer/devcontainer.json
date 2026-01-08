@@ -1,8 +1,8 @@
 {
 	"name": "Madaminalink Dev Container",
 	"dockerComposeFile": [
-		"../docker-compose.yml",
-		"docker-compose.dev.yml"
+		"../compose.yml",
+		"compose.dev.yml"
 	],
 	"service": "bot",
 	"workspaceFolder": "/app/${localWorkspaceFolderBasename}",
