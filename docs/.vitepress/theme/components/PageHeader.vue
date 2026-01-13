@@ -19,6 +19,13 @@ const { frontmatter } = useData()
 
 <template>
   <h1>{{ frontmatter.title }}</h1>
-  <p>{{ frontmatter.description }}</p>
+  <p class="page-description">{{ frontmatter.description }}</p>
 </template>
 
+<style scoped>
+.page-description {
+  color: var(--vp-c-text-2);
+  font-size: 1.1em;
+  margin-top: 0.5em;
+}
+</style>
