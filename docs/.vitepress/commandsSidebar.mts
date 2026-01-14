@@ -43,5 +43,15 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
       { text: '/server - サーバー情報', link: '/commands/server' },
       { text: '/profile - botプロフィール変更', link: '/commands/profile' }
     ]
+  },
+  {
+    text: 'コンテキストメニュー',
+    items: [
+      { text: 'これ以降を削除', link: '/commands/delete-after' },
+      { text: 'これ以前を削除', link: '/commands/delete-before' },
+      { text: 'メッセージを転送', link: '/commands/transfer-context' },
+      { text: 'メッセージを編集', link: '/commands/edit' },
+      { text: 'ニックネームをリセット', link: '/commands/reset-nickname' }
+    ]
   }
 ]
