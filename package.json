@@ -18,6 +18,7 @@
     "pm2": "^5.2.2"
   },
   "devDependencies": {
+    "@mdit-vue/shared": "^3.0.2",
     "@types/mongoose": "^5.11.97",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@vercel/og": "^0.8.5",
