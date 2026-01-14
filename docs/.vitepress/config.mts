@@ -383,6 +383,23 @@ export default defineConfig({
     search: {
       provider: 'local',
       options: {
+        // frontmatterのtitle/descriptionを検索インデックスに含める
+        _render(src, env, md) {
+          const html = md.render(src, env)
+          const { title, description } = env.frontmatter || {}
+          let prefix = ''
+          // 本文に # で始まる見出しがない場合のみtitleを追加（重複ID防止）
+          if (title && !/^# /m.test(src)) {
+            prefix += `# ${title}\n\n`
+          }
+          if (description) {
+            prefix += `${description}\n\n`
+          }
+          if (prefix) {
+            return md.render(prefix) + html
+          }
+          return html
+        },
         translations: {
           button: {
             buttonText: '検索',
