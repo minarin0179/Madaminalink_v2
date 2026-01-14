@@ -426,12 +426,6 @@ export default defineConfig({
       }
     },
 
-    // 編集リンク
-    editLink: {
-      pattern: 'https://github.com/minarin0179/Madaminalink_v2/edit/main/docs/:path',
-      text: 'このページを編集する'
-    },
-
     // 最終更新日表示
     lastUpdated: {
       text: '最終更新',
