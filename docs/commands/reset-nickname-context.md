@@ -1,6 +1,6 @@
 ---
 title: ニックネームをリセット
-description: ユーザーのニックネームを元に戻します。
+description: ユーザーのニックネームを削除し、Discordのユーザー名に戻します。
 ---
 <PageHeader />
 
@@ -11,7 +11,7 @@ description: ユーザーのニックネームを元に戻します。
    ![ユーザーのコンテキストメニューから「ニックネームをリセット」を選択](../images/commands/reset-nickname-context/user-context-menu.png)
 3. ニックネームがリセットされ、元のユーザー名が表示されます
 
-::: tip 権限について
+::: warning 権限について
 このコマンドを使用するには「ニックネームの変更」権限が必要です。
 :::
 

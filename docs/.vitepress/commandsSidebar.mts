@@ -41,7 +41,7 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '/ping - 稼働確認', link: '/commands/ping' },
       { text: '/server - サーバー情報', link: '/commands/server' },
-      { text: '/profile - botプロフィール変更', link: '/commands/profile' }
+      { text: '/profile - Botプロフィール変更', link: '/commands/profile' }
     ]
   },
   {
