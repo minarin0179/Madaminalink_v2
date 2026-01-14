@@ -9,9 +9,9 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
     text: '事前準備',
     items: [
       { text: '/setup - カテゴリ作成', link: '/commands/setup' },
-      { text: '/role - ロール管理', link: '/commands/role' },
+      { text: '/role - ロールボタン作成', link: '/commands/role' },
       { text: '/copy - チャンネル複製', link: '/commands/copy' },
-      { text: '/transfer - メッセージ転送', link: '/commands/transfer' },
+      { text: '/transfer - 転送ボタン作成', link: '/commands/transfer' },
       { text: '/open - チャンネル公開', link: '/commands/open' },
       { text: '/remind - リマインダー', link: '/commands/remind' }
     ]
@@ -19,8 +19,8 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
   {
     text: '進行管理',
     items: [
-      { text: '/dice - ダイスロール', link: '/commands/dice' },
-      { text: '/poll - 投票', link: '/commands/poll' },
+      { text: '/dice - ダイスボタン作成', link: '/commands/dice' },
+      { text: '/poll - キャラ選択/犯人投票', link: '/commands/poll' },
       { text: '/order - 順番決め', link: '/commands/order' },
       { text: '/gather - VC移動', link: '/commands/gather' }
     ]
@@ -30,10 +30,10 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '/cleanup - メッセージ削除', link: '/commands/cleanup' },
       { text: '/delete - カテゴリ削除', link: '/commands/delete' },
-      { text: '/rename - ニックネーム変更', link: '/commands/rename' },
+      { text: '/rename - ニックネーム一括変更', link: '/commands/rename' },
       { text: '/sync - 権限同期', link: '/commands/sync' },
       { text: '/archive - スレッド保存', link: '/commands/archive' },
-      { text: '/log - ログ化', link: '/commands/log' }
+      { text: '/log - チャンネル非表示', link: '/commands/log' }
     ]
   },
   {
@@ -41,7 +41,17 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '/ping - 稼働確認', link: '/commands/ping' },
       { text: '/server - サーバー情報', link: '/commands/server' },
-      { text: '/profile - アイコン設定', link: '/commands/profile' }
+      { text: '/profile - Botプロフィール変更', link: '/commands/profile' }
+    ]
+  },
+  {
+    text: 'コンテキストメニュー',
+    items: [
+      { text: 'これ以降を削除', link: '/commands/delete-after-context' },
+      { text: 'これ以前を削除', link: '/commands/delete-before-context' },
+      { text: 'メッセージを転送', link: '/commands/transfer-context' },
+      { text: 'メッセージを編集', link: '/commands/edit-context' },
+      { text: 'ニックネームをリセット', link: '/commands/reset-nickname-context' }
     ]
   }
 ]
