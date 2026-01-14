@@ -47,11 +47,11 @@ export const commandsSidebar: DefaultTheme.SidebarItem[] = [
   {
     text: 'コンテキストメニュー',
     items: [
-      { text: 'これ以降を削除', link: '/commands/delete-after' },
-      { text: 'これ以前を削除', link: '/commands/delete-before' },
+      { text: 'これ以降を削除', link: '/commands/delete-after-context' },
+      { text: 'これ以前を削除', link: '/commands/delete-before-context' },
       { text: 'メッセージを転送', link: '/commands/transfer-context' },
-      { text: 'メッセージを編集', link: '/commands/edit' },
-      { text: 'ニックネームをリセット', link: '/commands/reset-nickname' }
+      { text: 'メッセージを編集', link: '/commands/edit-context' },
+      { text: 'ニックネームをリセット', link: '/commands/reset-nickname-context' }
     ]
   }
 ]

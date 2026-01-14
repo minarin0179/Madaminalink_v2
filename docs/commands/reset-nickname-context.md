@@ -8,7 +8,7 @@ description: ユーザーのニックネームを元に戻します。
 
 1. ニックネームをリセットしたいユーザーを右クリック
 2. 「アプリ」→「ニックネームをリセット」を選択
-   ![ユーザーのコンテキストメニューから「ニックネームをリセット」を選択](../images/commands/reset-nickname/user-context-menu.png)
+   ![ユーザーのコンテキストメニューから「ニックネームをリセット」を選択](../images/commands/reset-nickname-context/user-context-menu.png)
 3. ニックネームがリセットされ、元のユーザー名が表示されます
 
 ::: tip 権限について
