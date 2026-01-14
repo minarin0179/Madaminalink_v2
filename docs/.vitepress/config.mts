@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import type { HeadConfig } from 'vitepress'
+import { slugify as defaultSlugify } from '@mdit-vue/shared'
 import { commandsSidebar } from './commandsSidebar.mts'
 
 // 環境変数でサイトURLを切り替え可能（トンネルテスト用）
@@ -194,6 +195,14 @@ function generateTechArticleSchema(
 }
 
 export default defineConfig({
+  // Markdown設定
+  markdown: {
+    anchor: {
+      // デフォルトのslugify（NFKD）後にNFKC正規化（日本語の濁点などを合成文字として保持）
+      slugify: (s) => defaultSlugify(s).normalize('NFKC')
+    }
+  },
+
   // サイト基本設定
   title: 'マダミナリンク 公式ガイド',
   description: 'マーダーミステリー向けDiscord Bot ユーザーガイド',
