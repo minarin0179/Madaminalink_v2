@@ -10,7 +10,7 @@ export default new Event(Events.GuildCreate, async (guild) => {
 
         const message =
             `この度は\`${guild}\`にマダミナリンクを導入頂きありがとうございます！\n` +
-            `使い方に関しては[こちら](https://note.com/minarin0179/n/n3f86accd8fea)をご覧ください.\n` +
+            `使い方に関しては[こちら](https://docs.madaminalink.com/)をご覧ください.\n` +
             `※もしBotの導入に心当たりがない場合は、速やかにサーバーからキックしてください.`;
 
         // Send DM to the server owner
