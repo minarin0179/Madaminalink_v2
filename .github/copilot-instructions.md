@@ -14,7 +14,7 @@
 
 ### ドキュメントの構造
 
-このリポジトリはマーダーミステリー向けDiscord Bot「マダミナリンク」のドキュメントにVitePressを使用しています。
+このリポジトリはマーダーミステリー向けDiscord Bot「マダミナリンク」のドキュメントでVitePressを使用しています。
 
 - **`docs/commands/`**: 各コマンドの詳細ページ
   - テンプレート: `docs/commands/_template.md` を参考にしてください
