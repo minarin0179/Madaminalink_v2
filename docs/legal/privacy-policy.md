@@ -86,7 +86,7 @@ outline: deep
 
 ## 6. Cookieおよびトラッキング技術
 
-当BotはDiscord上で動作するため、Web上のCookieやトラッキング技術は使用していません。ただし、当Botのドキュメントサイト（docs.madaminalink.com）を閲覧する際は、ホスティングサービス（GitHub Pages）のプライバシーポリシーが適用される場合があります。
+当BotはDiscord上で動作するため、Bot自体はWeb上のCookieやトラッキング技術を使用していません。ただし、当Botのドキュメントサイト（docs.madaminalink.com）では、アクセス状況の把握のためGoogle Analytics（GA4）を使用しています。詳細は[Googleのプライバシーポリシー](https://policies.google.com/privacy)をご確認ください。
 
 ## 7. 未成年者の利用
 
@@ -111,5 +111,5 @@ outline: deep
 
 ---
 
-**最終更新日**: 2024年12月11日
+**最終更新日**: 2026年2月17日
 **運営者**: minarin0179
