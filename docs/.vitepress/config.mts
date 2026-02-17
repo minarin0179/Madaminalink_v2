@@ -292,6 +292,10 @@ export default defineConfig({
 
   // ヘッド設定
   head: [
+    // Google Analytics (GA4)
+    ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-H8FV3EWZD4' }],
+    ['script', {}, `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-H8FV3EWZD4');`],
+
     // LCP画像のプリロード（パフォーマンス最適化）
     ['link', { rel: 'preload', as: 'image', href: '/images/common/icon.webp', type: 'image/webp', fetchpriority: 'high' }],
 
