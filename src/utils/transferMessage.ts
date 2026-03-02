@@ -2,7 +2,6 @@ import {
     AnyThreadChannel,
     Attachment,
     AttachmentBuilder,
-    BitFieldResolvable,
     GuildChannel,
     GuildTextBasedChannel,
     Message,
@@ -13,6 +12,7 @@ import {
     ThreadChannel,
 } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
+import { getFirstButtonCustomId } from "./getFirstButtonCustomId";
 import { splitMessage } from "./SplitMessage";
 import { openMessage } from "../commands/slashcommands/open";
 import { client } from "../bot";
@@ -25,10 +25,7 @@ import { PollModel } from "../structures/Poll";
 type transferOptions = {
     noReaction?: boolean;
     allowedMentions?: MessageMentionOptions;
-    flags?: BitFieldResolvable<
-        "SuppressEmbeds" | "SuppressNotifications",
-        MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications
-    >;
+    flags?: MessageCreateOptions["flags"];
     updates?: ChannelLink[]; //チャンネルリンク差し替え用
 };
 
@@ -75,7 +72,7 @@ export const transferMessage = async (
     } as MessageCreateOptions;
 
     //transfer,open,pollのボタンを更新
-    const customId = components[0]?.components[0]?.customId ?? '';
+    const customId = getFirstButtonCustomId(message) ?? "";
 
     if (message.author.id !== client.user?.id) {
         newMessageOptions.components = []; //自分以外のメッセージはcomponentsを削除
@@ -105,6 +102,15 @@ export const transferMessage = async (
             voters: new Map(),
         };
         newMessageOptions = await createPollMessage(options);
+    }
+
+    if (message.flags.has(MessageFlags.IsComponentsV2)) {
+        newMessageOptions = {
+            components: newMessageOptions.components,
+            flags: ((flags ?? 0) as number) | MessageFlags.IsComponentsV2,
+            allowedMentions,
+            files: newMessageOptions.files,
+        };
     }
     try {
         const newMessage = await destination.send(newMessageOptions);
