@@ -1,9 +1,9 @@
 import {
+    APIEmbedField,
     CategoryChannel,
     ChannelType,
     Collection,
     discordSort,
-    Embed,
     EmbedBuilder,
     GuildEmoji,
     GuildTextBasedChannel,
@@ -118,7 +118,7 @@ export default new SlashCommand({
 });
 
 interface ArchiveData {
-    embed: EmbedBuilder | Embed;
+    embed: EmbedBuilder;
     files: string[];
     reactions: string;
 }
@@ -127,7 +127,10 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
     const destinationThread = await destination.threads.create({ name: source.name });
 
-    const archiveDatas = messages.map(messageToArchiveDatas).flat();
+    const archiveDatas = messages
+        .map(messageToArchiveDatas)
+        .flat()
+        .filter(data => !isEmptyArchiveData(data));
 
     let lastIndex = 0;
     let embedSize = 0;
@@ -204,6 +207,27 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
             }
         })
         .join(" ");
+};
+
+const hasFieldContent = (fields: APIEmbedField[] | undefined) => {
+    return fields?.some(field => !isEmptyText(field.name) || !isEmptyText(field.value)) ?? false;
+};
+
+const isEmptyEmbed = (embed: EmbedBuilder) => {
+    const { title, description, fields, footer, author, image, thumbnail, video, url, timestamp } = embed.data;
+    const hasText =
+        !isEmptyText(title ?? "") ||
+        !isEmptyText(description ?? "") ||
+        !isEmptyText(footer?.text ?? "") ||
+        !isEmptyText(author?.name ?? "") ||
+        hasFieldContent(fields);
+    const hasMedia = Boolean(image?.url || thumbnail?.url || video?.url);
+    const hasOther = Boolean(url || timestamp);
+    return !(hasText || hasMedia || hasOther);
+};
+
+const isEmptyArchiveData = (data: ArchiveData) => {
+    return isEmptyEmbed(data.embed) && data.files.length === 0 && isEmptyText(data.reactions);
 };
 
 const fetchAllThreads = async (channel: TextChannel) => {
