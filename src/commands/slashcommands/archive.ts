@@ -209,7 +209,7 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
         .join(" ");
 };
 
-const hasFieldContent = (fields: APIEmbedField[] | undefined) => {
+const hasNonEmptyField = (fields: APIEmbedField[] | undefined) => {
     return fields?.some(field => !isEmptyText(field.name) || !isEmptyText(field.value)) ?? false;
 };
 
@@ -220,7 +220,7 @@ const isEmptyEmbed = (embed: EmbedBuilder) => {
         !isEmptyText(description ?? "") ||
         !isEmptyText(footer?.text ?? "") ||
         !isEmptyText(author?.name ?? "") ||
-        hasFieldContent(fields);
+        hasNonEmptyField(fields);
     const hasMedia = Boolean(image?.url || thumbnail?.url || video?.url);
     const hasOther = Boolean(url || timestamp);
     return !(hasText || hasMedia || hasOther);
