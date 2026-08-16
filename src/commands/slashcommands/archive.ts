@@ -211,10 +211,14 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
 
 const pollToEmbed = (poll: Poll, meta?: { authorName: string; iconURL?: string; timeStamp: string }): EmbedBuilder => {
     const totalVotes = poll.answers.reduce((sum, answer) => sum + answer.voteCount, 0);
+    const maxVotes = Math.max(0, ...poll.answers.map(answer => answer.voteCount));
     const answerLines = poll.answers.map(answer => {
-        const emoji = answer.emoji ? `${answer.emoji} ` : "";
+        // カスタム絵文字はサーバーの絵文字キャッシュに無いとdiscord.jsが不完全なEmoji情報を作ってしまいプレビューできないため、GuildEmojiとして解決できた場合のみ表示する(Unicode絵文字はidを持たずこの問題が無いためそのまま表示)
+        const emoji =
+            answer.emoji && (!answer.emoji.id || answer.emoji instanceof GuildEmoji) ? `${answer.emoji} ` : "";
         const percentage = totalVotes > 0 ? Math.round((answer.voteCount / totalVotes) * 100) : 0;
-        return `${emoji}${answer.text ?? ""} — ${answer.voteCount}票 (${percentage}%)`;
+        const winnerMark = poll.resultsFinalized && maxVotes > 0 && answer.voteCount === maxVotes ? " ✅" : "";
+        return `${emoji}${answer.text ?? ""} — ${answer.voteCount}票 (${percentage}%)${winnerMark}`;
     });
     const voteSummary = `合計${totalVotes}票${poll.allowMultiselect ? " ・複数選択可" : ""}${poll.resultsFinalized ? " ・終了済み" : " ・受付中"}`;
 
