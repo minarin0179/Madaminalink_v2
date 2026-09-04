@@ -12,6 +12,7 @@ import {
     MessageReaction,
     SlashCommandBuilder,
     TextChannel,
+    ThreadChannel,
 } from "discord.js";
 import { SlashCommand } from "../../structures/SlashCommand";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
@@ -23,6 +24,23 @@ import { MyConstants } from "../../constants/constants";
 
 const MAX_DESCRIPTION_LENGTH = 2500;
 const MAX_EMBED_LENGTH = 3000;
+const MAX_FILE_SEND_RETRIES = 3;
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// 添付ファイルのダウンロード時に発生する一時的なソケットエラー(discord.js内部でCDNから再取得する際に発生)をリトライで吸収する
+const sendFileWithRetry = async (thread: ThreadChannel, file: string) => {
+    for (let attempt = 1; attempt <= MAX_FILE_SEND_RETRIES; attempt++) {
+        try {
+            await thread.send({ files: [file], flags: MessageFlags.SuppressNotifications });
+            return;
+        } catch (e: any) {
+            if (e.code == 40005) return; // Request entity too large は無視
+            if (attempt == MAX_FILE_SEND_RETRIES) throw e;
+            await sleep(1000 * attempt);
+        }
+    }
+};
 
 export default new SlashCommand({
     data: new SlashCommandBuilder()
@@ -152,17 +170,19 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
             flags: MessageFlags.SuppressNotifications,
         });
 
-        try {
-            for await (const file of data.files) {
-                await destinationThread.send({
-                    files: [file],
-                    flags: MessageFlags.SuppressNotifications,
-                });
-            }
-        } catch (e: any) {
-            // Request entity too large は無視
-            if (e.code != 40005) {
-                throw e;
+        for await (const file of data.files) {
+            try {
+                await sendFileWithRetry(destinationThread, file);
+            } catch (e: any) {
+                // 添付ファイルの再アップロードに失敗しても保存処理全体は継続する(通信エラー等でも他のメッセージへ影響させない)
+                // eslint-disable-next-line no-console
+                console.error(`添付ファイルの保存に失敗しました: ${file}`, e);
+                await destinationThread
+                    .send({
+                        content: "⚠️ 添付ファイルの保存に失敗しました",
+                        flags: MessageFlags.SuppressNotifications,
+                    })
+                    .catch(() => {});
             }
         }
 
