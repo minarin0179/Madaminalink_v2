@@ -3,13 +3,17 @@ import {
     Attachment,
     AttachmentBuilder,
     BitFieldResolvable,
+    EmbedType,
     GuildChannel,
+    GuildEmoji,
     GuildTextBasedChannel,
     Message,
     MessageCreateOptions,
     MessageFlags,
     MessageMentionOptions,
     MessageType,
+    Poll,
+    PollData,
     ThreadChannel,
 } from "discord.js";
 import { fetchAllMessages } from "./FetchAllMessages";
@@ -37,6 +41,8 @@ export const transferMessage = async (
     destination: GuildTextBasedChannel,
     options?: transferOptions
 ) => {
+    if (message.type === MessageType.PollResult) return; //投票終了時にDiscordが自動生成するお知らせメッセージは複製しない
+
     await destination.sendTyping();
 
     let contentAll = message.content;
@@ -55,7 +61,9 @@ export const transferMessage = async (
         await destination.send({ content: msg, allowedMentions, flags });
     }
 
-    const { attachments, components, embeds } = message;
+    const { attachments, components } = message;
+    //投票終了時にDiscordが自動生成するpoll_result embedは複製先で正しく表示できないため除外
+    const embeds = message.embeds.filter(embed => embed.data.type !== EmbedType.PollResult);
 
     //巨大なファイルを除外
     const [files, largeFiles] = attachments.partition((f: Attachment) => f.size <= MyConstants.maxFileSize);
@@ -75,7 +83,7 @@ export const transferMessage = async (
     } as MessageCreateOptions;
 
     //transfer,open,pollのボタンを更新
-    const customId = components[0]?.components[0]?.customId ?? '';
+    const customId = components[0]?.components[0]?.customId ?? "";
 
     if (message.author.id !== client.user?.id) {
         newMessageOptions.components = []; //自分以外のメッセージはcomponentsを削除
@@ -106,6 +114,11 @@ export const transferMessage = async (
         };
         newMessageOptions = await createPollMessage(options);
     }
+
+    if (message.poll) {
+        newMessageOptions = { ...newMessageOptions, poll: pollToPollData(message.poll, message) };
+    }
+
     try {
         const newMessage = await destination.send(newMessageOptions);
 
@@ -113,7 +126,7 @@ export const transferMessage = async (
 
         if (!options?.noReaction) {
             await Promise.all(
-                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => { }))
+                [...message.reactions.cache.keys()].map(reaction => newMessage.react(reaction).catch(() => {}))
             );
         }
         const { thread } = message;
@@ -150,6 +163,23 @@ export const transferAllMessages = async (
     for await (const message of messages.values()) {
         await transferMessage(message, to, options);
     }
+};
+
+const pollToPollData = (poll: Poll, message: Message): PollData => {
+    const durationHours = poll.expiresTimestamp
+        ? Math.round((poll.expiresTimestamp - message.createdTimestamp) / (60 * 60 * 1000))
+        : 24;
+
+    return {
+        question: { text: poll.question.text ?? "" },
+        answers: [...poll.answers.values()].map(answer => ({
+            text: answer.text ?? "",
+            emoji: answer.emoji instanceof GuildEmoji ? answer.emoji : (answer.emoji?.name ?? undefined),
+        })),
+        duration: Math.min(Math.max(durationHours, 1), 24 * 32),
+        allowMultiselect: poll.allowMultiselect,
+        layoutType: poll.layoutType,
+    };
 };
 
 const replaceChannelLinks = (content: string, updates: ChannelLink[]) => {
