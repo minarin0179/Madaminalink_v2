@@ -51,7 +51,4 @@ jobs:
           echo "DEV_SERVER_ID=${{ secrets.DEV_SERVER_ID }}" >> .env
           echo "MONGODB=${{ secrets.MONGODB }}" >> .env
           echo "TZ=${{ secrets.TZ }}" >> .env
-
-      - name: Deploy
-        run: |
-          echo "cd $(pwd) && docker compose up -d " | at 04:00
+          # 新しいイメージは毎日4:00(JST)のRestartで反映される
