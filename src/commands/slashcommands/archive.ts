@@ -5,11 +5,14 @@ import {
     discordSort,
     Embed,
     EmbedBuilder,
+    EmbedType,
     GuildEmoji,
     GuildTextBasedChannel,
     Message,
     MessageFlags,
     MessageReaction,
+    MessageType,
+    Poll,
     SlashCommandBuilder,
     TextChannel,
     ThreadChannel,
@@ -20,9 +23,11 @@ import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
 import { splitMessage } from "../../utils/SplitMessage";
 import { isEmptyText } from "../../utils/isEmptyMessage";
+import { LimitLength } from "../../utils/LimitLength";
 import { MyConstants } from "../../constants/constants";
 
 const MAX_DESCRIPTION_LENGTH = 2500;
+const MAX_TITLE_LENGTH = 256;
 const MAX_EMBED_LENGTH = 3000;
 const MAX_FILE_SEND_RETRIES = 3;
 
@@ -86,8 +91,8 @@ export default new SlashCommand({
         const children =
             targetCategory instanceof CategoryChannel
                 ? discordSort(
-                    targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
-                )
+                      targetCategory.children.cache.filter((ch): ch is TextChannel => ch.type === ChannelType.GuildText)
+                  )
                 : new Collection<string, TextChannel>([[targetCategory.id, targetCategory]]);
         if (children.size == 0) {
             return reply(interaction, { content: "保存するチャンネルがありません", ephemeral: true });
@@ -145,7 +150,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
     const messages = [...(await fetchAllMessages(source)).reverse().values()];
     const destinationThread = await destination.threads.create({ name: source.name });
 
-    const archiveDatas = messages.map(messageToArchiveDatas).flat();
+    const archiveDatas = (await Promise.all(messages.map(messageToArchiveDatas))).flat();
 
     let lastIndex = 0;
     let embedSize = 0;
@@ -197,7 +202,7 @@ const RunArchive = async (source: GuildTextBasedChannel, destination: TextChanne
         embedSize = 0;
     }
 
-    (await destinationThread.fetchStarterMessage())?.delete().catch(() => { });
+    (await destinationThread.fetchStarterMessage())?.delete().catch(() => {});
     await destinationThread.setArchived(true);
 
     return (source.isThread() ? "┗" : "") + `[_#_ ${destinationThread.name}](${destinationThread.url})`;
@@ -226,6 +231,34 @@ const reactionsToString = (reactions: Collection<string, MessageReaction>) => {
         .join(" ");
 };
 
+const pollToEmbed = (poll: Poll, meta?: { authorName: string; iconURL?: string; timeStamp: string }): EmbedBuilder => {
+    const totalVotes = poll.answers.reduce((sum, answer) => sum + answer.voteCount, 0);
+    const maxVotes = Math.max(0, ...poll.answers.map(answer => answer.voteCount));
+    const answerLines = poll.answers.map(answer => {
+        // カスタム絵文字はサーバーの絵文字キャッシュに無いとdiscord.jsが不完全なEmoji情報を作ってしまいプレビューできないため、GuildEmojiとして解決できた場合のみ表示する(Unicode絵文字はidを持たずこの問題が無いためそのまま表示)
+        const emoji =
+            answer.emoji && (!answer.emoji.id || answer.emoji instanceof GuildEmoji) ? `${answer.emoji} ` : "";
+        const percentage = totalVotes > 0 ? Math.round((answer.voteCount / totalVotes) * 100) : 0;
+        const winnerMark = poll.resultsFinalized && maxVotes > 0 && answer.voteCount === maxVotes ? " ✅" : "";
+        return `${emoji}${answer.text ?? ""} — ${answer.voteCount}票 (${percentage}%)${winnerMark}`;
+    });
+    const voteSummary = `合計${totalVotes}票${poll.allowMultiselect ? " ・複数選択可" : ""}${poll.resultsFinalized ? " ・終了済み" : " ・受付中"}`;
+
+    const embed = new EmbedBuilder()
+        .setColor(MyConstants.color.embed_background)
+        // 投票の質問文は最大300文字で、Embedタイトルの上限(256文字)を超えうる
+        .setTitle(LimitLength(`📊 ${poll.question.text ?? ""}`, MAX_TITLE_LENGTH))
+        .setDescription(`${answerLines.join("\n") || "(選択肢なし)"}\n\n${voteSummary}`);
+
+    if (meta) {
+        // 投票本体にテキスト本文が無い場合、投稿者情報をこのEmbedにまとめる(空の本文Embedと分離させない)
+        embed.setAuthor({ name: meta.authorName, iconURL: meta.iconURL });
+        embed.setFooter({ text: meta.timeStamp });
+    }
+
+    return embed;
+};
+
 const fetchAllThreads = async (channel: TextChannel) => {
     const activeThreads = await channel.threads.fetchActive();
     const archivedPublicThreads = await channel.threads.fetchArchived({
@@ -242,7 +275,18 @@ const fetchAllThreads = async (channel: TextChannel) => {
     return allThreads.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 };
 
-const messageToArchiveDatas = (message: Message): ArchiveData[] => {
+const messageToArchiveDatas = async (message: Message): Promise<ArchiveData[]> => {
+    if (message.type === MessageType.PollResult) return []; //投票終了時にDiscordが自動生成するお知らせメッセージは保存しない(投票結果は投票本体のメッセージ側で保存される)
+
+    let poll = message.poll;
+    if (poll && !poll.resultsFinalized) {
+        // Poll#fetch()はキャッシュ済みメッセージがあるとAPIを叩かず何もしないため、force:trueで明示的に再取得する
+        const freshMessage = await message.channel.messages
+            .fetch({ message: message.id, force: true })
+            .catch(() => null);
+        poll = freshMessage?.poll ?? poll;
+    }
+
     const date = new Date(message.createdAt);
     const timeStamp = dateToTimestamp(date);
 
@@ -252,7 +296,7 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
     let reactionTextLater = "";
     let reactionTextEmbed = "";
 
-    if (message.embeds.length > 0) {
+    if (message.embeds.length > 0 || poll) {
         reactionTextEmbed = reactionsToString(reactions);
     } else if (message.attachments.size > 0) {
         reactionTextLater = reactionsToString(reactions);
@@ -262,7 +306,11 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
 
     const description = `${message.content}\n${reactionText}`;
     const authorName = message.member?.nickname || message.author.globalName || message.author.username;
-    const splittedDescription = splitMessage(description, { maxLength: 3000 });
+    const iconURL = message.author.avatarURL() ?? undefined;
+    // 投票のみでテキスト本文が無いメッセージは、本文用の空Embedを作らずPoll側のEmbedに投稿者情報をまとめる
+    // 投票以外のメッセージ(Embedのみ・スタンプのみ等)は従来どおり本文Embedを作り、投稿者情報と日時を残す
+    const mergeAuthorIntoPoll = !!poll && isEmptyText(message.content) && message.attachments.size === 0;
+    const splittedDescription = mergeAuthorIntoPoll ? [] : splitMessage(description, { maxLength: 3000 });
     const datas: ArchiveData[] = splittedDescription.map((description, index) => {
         const messageEmbed = new EmbedBuilder()
             .setDescription(description)
@@ -276,7 +324,7 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
         if (index == 0) {
             messageEmbed.setAuthor({
                 name: authorName,
-                iconURL: message.author.avatarURL() ?? undefined,
+                iconURL,
             });
         }
         if (index == splittedDescription.length - 1) {
@@ -291,23 +339,34 @@ const messageToArchiveDatas = (message: Message): ArchiveData[] => {
     });
     const result = [
         ...datas,
-        ...message.embeds.map(embed => {
-            const { description } = embed;
-            const newEmbed = new EmbedBuilder(embed);
-            if (description) {
-                if (description?.length > MAX_DESCRIPTION_LENGTH) {
-                    newEmbed.setDescription(description.substring(0, MAX_DESCRIPTION_LENGTH - 1) + "…");
-                } else {
-                    newEmbed.setDescription(description);
+        ...message.embeds
+            .filter(embed => embed.data.type !== EmbedType.PollResult) // 投票終了時にDiscordが自動生成するEmbedは生フィールドしか持たないため除外
+            .map(embed => {
+                const { description } = embed;
+                const newEmbed = new EmbedBuilder(embed);
+                if (description) {
+                    if (description?.length > MAX_DESCRIPTION_LENGTH) {
+                        newEmbed.setDescription(description.substring(0, MAX_DESCRIPTION_LENGTH - 1) + "…");
+                    } else {
+                        newEmbed.setDescription(description);
+                    }
                 }
-            }
 
-            return {
-                embed: newEmbed,
-                files: [],
-                reactions: "",
-            };
-        }),
+                return {
+                    embed: newEmbed,
+                    files: [],
+                    reactions: "",
+                };
+            }),
+        ...(poll
+            ? [
+                  {
+                      embed: pollToEmbed(poll, mergeAuthorIntoPoll ? { authorName, iconURL, timeStamp } : undefined),
+                      files: [],
+                      reactions: "",
+                  },
+              ]
+            : []),
     ];
 
     if (!isEmptyText(reactionTextEmbed)) {
