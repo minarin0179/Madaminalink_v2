@@ -51,8 +51,14 @@ export default new Event(Events.InteractionCreate, async interaction => {
             await reply(interaction, generateGatewayLimitMessage(error.data.retry_after));
             return;
         }
+        // ログからどのコマンドで失敗したか特定できるようにする
+        const label = interaction.isCommand()
+            ? `command=${interaction.commandName}`
+            : `customId=${interaction.customId}`;
         // eslint-disable-next-line no-console
-        await showError(interaction, error).catch(console.log);
+        console.log(`[interactionCreate] ${label}`, error);
+        // eslint-disable-next-line no-console
+        await showError(interaction, error).catch(e => console.log(`[interactionCreate] showError failed ${label}`, e));
     }
 });
 

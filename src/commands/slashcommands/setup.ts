@@ -54,13 +54,17 @@ export default new SlashCommand({
             return reply(interaction, "カテゴリーに入り切りません\nチャンネル数を減らしてください");
         if (characters.length !== playerCount) return reply(interaction, "プレイヤー数とキャラクター数が一致しません");
 
+        // 3秒以内に応答しないとインタラクションが失効するため、API呼び出しより先に保留する
+        await interaction.deferReply({ ephemeral: true });
+
         // カテゴリ, 一般, 共通情報, 観戦, 解説, 全体会議, 個別チャンネル(playerCount), 密談場所(privateCount))
-        if (6 + playerCount + privateCount + (await guild.channels.fetch()).size > 500) {
+        // スレッドはチャンネル数の上限に含まれないため除外する
+        const channelCount = guild.channels.cache.filter(channel => !channel.isThread()).size;
+        if (6 + playerCount + privateCount + channelCount > 500) {
             const error = new Error("Maximum number of guild channels reached (500)") as any;
             error.code = 30013;
             throw error;
         }
-        await interaction.deferReply({ ephemeral: true });
 
         const GM = await guild.roles.create({ name: `${title} GM`, position });
         const PL = await guild.roles.create({ name: `${title} PL`, position });
