@@ -20,7 +20,7 @@ interface ProfileModalBuildOptions {
 export default new Modal({
     customId: "profile",
     build: ({ defaultName, currentNickname }: ProfileModalBuildOptions) => {
-        const avatarUpload = new FileUploadBuilder()
+        const avatarUpload = new FileUploadBuilder({ file_types: ["image"] })
             .setCustomId("avatar")
             .setRequired(false);
 
@@ -29,7 +29,7 @@ export default new Modal({
             .setDescription("アバター画像をアップロードしてください")
             .setFileUploadComponent(avatarUpload);
 
-        const bannerUpload = new FileUploadBuilder()
+        const bannerUpload = new FileUploadBuilder({ file_types: ["image"] })
             .setCustomId("banner")
             .setRequired(false);
 
