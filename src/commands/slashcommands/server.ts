@@ -13,15 +13,22 @@ export default new SlashCommand({
         const guild = interaction.guild;
         if (!guild) return;
 
+        // 3秒以内に応答しないとインタラクションが失効するため、メンバー取得より先に保留する
+        await interaction.deferReply({ ephemeral: true });
+
         const members = await ensureMembers(guild);
         const [bot, user] = members.partition(member => member.user.bot);
+        // ロール・チャンネルはGuilds intentでキャッシュ済みのためAPIを呼ばない
+        // スレッドはチャンネル数の上限に含まれないため除外する
+        const roleCount = guild.roles.cache.size;
+        const channelCount = guild.channels.cache.filter(channel => !channel.isThread()).size;
 
         await reply(
             interaction,
             `
     メンバー数 : ${user.size}人 (+ Bot${bot.size}台)
-    ロール数 : ${(await guild.roles.fetch()).size}個 (上限250個)
-    チャンネル数 : ${(await guild.channels.fetch()).size}個 (上限500個)`
+    ロール数 : ${roleCount}個 (上限250個)
+    チャンネル数 : ${channelCount}個 (上限500個)`
         );
     },
 });
