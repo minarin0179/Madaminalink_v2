@@ -180,7 +180,13 @@ const pollToPollData = (poll: Poll, message: Message): PollData => {
         question: { text: poll.question.text ?? "" },
         answers: [...poll.answers.values()].map(answer => ({
             text: answer.text ?? "",
-            emoji: answer.emoji instanceof GuildEmoji ? answer.emoji : (answer.emoji?.name ?? undefined),
+            // 解決できないカスタム絵文字を名前だけで渡すとAPIエラー(50035)で転送全体が失敗するため、その場合は絵文字を付けない
+            emoji:
+                answer.emoji instanceof GuildEmoji
+                    ? answer.emoji
+                    : answer.emoji && !answer.emoji.id
+                      ? (answer.emoji.name ?? undefined)
+                      : undefined,
         })),
         duration: Math.min(Math.max(durationHours, 1), 24 * 32),
         allowMultiselect: poll.allowMultiselect,

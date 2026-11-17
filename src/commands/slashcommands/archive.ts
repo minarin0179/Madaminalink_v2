@@ -23,9 +23,11 @@ import { reply } from "../../utils/Reply";
 import { arraySplit } from "../../utils/ArraySplit";
 import { splitMessage } from "../../utils/SplitMessage";
 import { isEmptyText } from "../../utils/isEmptyMessage";
+import { LimitLength } from "../../utils/LimitLength";
 import { MyConstants } from "../../constants/constants";
 
 const MAX_DESCRIPTION_LENGTH = 2500;
+const MAX_TITLE_LENGTH = 256;
 const MAX_EMBED_LENGTH = 3000;
 const MAX_FILE_SEND_RETRIES = 3;
 
@@ -244,7 +246,8 @@ const pollToEmbed = (poll: Poll, meta?: { authorName: string; iconURL?: string; 
 
     const embed = new EmbedBuilder()
         .setColor(MyConstants.color.embed_background)
-        .setTitle(`📊 ${poll.question.text ?? ""}`)
+        // 投票の質問文は最大300文字で、Embedタイトルの上限(256文字)を超えうる
+        .setTitle(LimitLength(`📊 ${poll.question.text ?? ""}`, MAX_TITLE_LENGTH))
         .setDescription(`${answerLines.join("\n") || "(選択肢なし)"}\n\n${voteSummary}`);
 
     if (meta) {
@@ -305,8 +308,9 @@ const messageToArchiveDatas = async (message: Message): Promise<ArchiveData[]> =
     const authorName = message.member?.nickname || message.author.globalName || message.author.username;
     const iconURL = message.author.avatarURL() ?? undefined;
     // 投票のみでテキスト本文が無いメッセージは、本文用の空Embedを作らずPoll側のEmbedに投稿者情報をまとめる
-    const hasVisibleContent = !isEmptyText(message.content) || message.attachments.size > 0;
-    const splittedDescription = hasVisibleContent ? splitMessage(description, { maxLength: 3000 }) : [];
+    // 投票以外のメッセージ(Embedのみ・スタンプのみ等)は従来どおり本文Embedを作り、投稿者情報と日時を残す
+    const mergeAuthorIntoPoll = !!poll && isEmptyText(message.content) && message.attachments.size === 0;
+    const splittedDescription = mergeAuthorIntoPoll ? [] : splitMessage(description, { maxLength: 3000 });
     const datas: ArchiveData[] = splittedDescription.map((description, index) => {
         const messageEmbed = new EmbedBuilder()
             .setDescription(description)
@@ -357,7 +361,7 @@ const messageToArchiveDatas = async (message: Message): Promise<ArchiveData[]> =
         ...(poll
             ? [
                   {
-                      embed: pollToEmbed(poll, hasVisibleContent ? undefined : { authorName, iconURL, timeStamp }),
+                      embed: pollToEmbed(poll, mergeAuthorIntoPoll ? { authorName, iconURL, timeStamp } : undefined),
                       files: [],
                       reactions: "",
                   },
