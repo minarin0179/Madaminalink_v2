@@ -9,9 +9,10 @@ import {
 } from "discord.js";
 import { Button } from "../../structures/Button";
 import { fetchAllMessages } from "../../utils/FetchAllMessages";
+import { getFirstButtonCustomId } from "../../utils/getFirstButtonCustomId";
+import { LimitLength } from "../../utils/LimitLength";
 import { reply } from "../../utils/Reply";
 import { transferMessage } from "../../utils/transferMessage";
-import { LimitLength } from "../../utils/LimitLength";
 
 export default new Button({
     customId: "transfer",
@@ -34,10 +35,9 @@ export default new Button({
         interaction.channel?.messages.cache.clear();
         const reactions = (await interaction.message.fetch()).reactions.cache;
 
-        const messages = (await fetchAllMessages(interaction.channel as TextBasedChannel)).reverse().filter(message => {
-            const customId = message.components[0]?.components[0]?.customId;
-            return !customId?.startsWith("transfer"); //転送用のボタンが付いたメッセージは無視
-        });
+        const messages = (await fetchAllMessages(interaction.channel as TextBasedChannel))
+            .reverse()
+            .filter(message => !getFirstButtonCustomId(message)?.startsWith("transfer"));
 
         if (!messages) return;
 
